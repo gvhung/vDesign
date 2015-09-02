@@ -1,0 +1,113 @@
+﻿@using Framework.Maybe
+@model IList<Base.UI.Service.IconsSet>
+
+@{
+    var acc = "_acc" + Guid.NewGuid().ToString("N");
+
+    var first = true;
+}
+
+<div class="bs-glyphicons border-boxed">
+    <div class="color-swatches">
+        <div class="color-swatch" style="background-color: #333;"></div>
+        <div class="color-swatch" style="background-color: #428bca;"></div>
+        <div class="color-swatch" style="background-color: #5cb85c;"></div>
+        <div class="color-swatch" style="background-color: #5bc0de;"></div>
+        <div class="color-swatch" style="background-color: #f0ad4e;"></div>
+        <div class="color-swatch" style="background-color: #d9534f;"></div>
+    </div>
+    
+
+    <div class="panel-group" id="@acc">
+        @foreach (var iconSet in Model)
+        {
+            var set = "_set" + Guid.NewGuid().ToString("N");
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a class="collapse-toggle" data-toggle="collapse" data-parent="#@acc" href="#@set">
+                            @iconSet.Title
+                        </a>
+                    </h4>
+                </div>
+                <div id="@set" class="panel-collapse collapse @(first ? "in".IfNotNull(x => { first = false; }) : "")">
+                    <div class="panel-body">
+                        <ul class="bs-glyphicons-list">
+                            @foreach (var icon in iconSet.Icons)
+                            {
+                                <li>
+                                    <span class="@icon"></span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    $('.color-swatches .color-swatch').click(function () {
+        $(this).closest('.bs-glyphicons').css('color', $(this).css('background-color'));
+    })
+</script>
+
+<style>
+    .border-boxed * {
+        -webkit-box-sizing: border-box !important;
+        -moz-box-sizing: border-box !important;
+        box-sizing: border-box !important;
+    }
+
+
+    .bs-glyphicons-list {
+        padding-left: 0;
+        list-style: none;
+    }
+
+    .bs-glyphicons {
+        margin: 0 0 20px;
+        overflow: hidden;
+
+        color: #428bca;
+    }
+
+        .bs-glyphicons li {
+            float: left;
+            width: 50px;
+            height: 50px;
+            padding: 10px;
+            font-size: 25px;
+            line-height: 1.4;
+            text-align: center;
+            background-color: #f9f9f9;
+            border: 1px solid #fff;
+            cursor: pointer;
+        }
+
+            .bs-glyphicons li:hover {
+                /*color: #fff;*/
+                background-color: #ddd;
+            }
+
+            .bs-glyphicons li span {
+                color: inherit;
+            }
+
+    .color-swatches {
+        margin: 0 -5px 10px;
+        overflow: hidden;
+    }
+
+    .color-swatch {
+        float: left;
+        width: 30px;
+        height: 30px;
+        margin: 0 5px;
+        border-radius: 3px;
+
+        cursor: pointer;
+    }
+</style>

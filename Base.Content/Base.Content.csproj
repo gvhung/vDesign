@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8D53BBE9-4883-4FFD-81D9-9DAFE86EAB5E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Base.Content</RootNamespace>
+    <AssemblyName>Base.Content</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Import|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Import\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Linq.Translations, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Linq.Translations.1.0.1\lib\net40\Microsoft.Linq.Translations.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Content.cs" />
+    <Compile Include="Entities\Basic content\ContentItem.cs" />
+    <Compile Include="Entities\Basic content\ContentCategory.cs" />
+    <Compile Include="Entities\ContentTypes.cs" />
+    <Compile Include="Entities\FAQ content\Answer.cs" />
+    <Compile Include="Entities\FAQ content\Question.cs" />
+    <Compile Include="Entities\Learning content\Course.cs" />
+    <Compile Include="Entities\Learning content\CourseCategory.cs" />
+    <Compile Include="Entities\Learning content\Exercise.cs" />
+    <Compile Include="Entities\Learning content\ExerciseCheckInput.cs" />
+    <Compile Include="Entities\Learning content\ExerciseResult.cs" />
+    <Compile Include="Entities\Learning content\ExerciseUI.cs" />
+    <Compile Include="Entities\Learning content\JournalEntry.cs" />
+    <Compile Include="Entities\Basic content\Tag.cs" />
+    <Compile Include="Entities\Basic content\TagCategory.cs" />
+    <Compile Include="Entities\Learning content\Lesson.cs" />
+    <Compile Include="Entities\Subscriber content\ContentSubscriber.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\Abstract\IAnswerService.cs" />
+    <Compile Include="Service\Abstract\IContentSubscriberService.cs" />
+    <Compile Include="Service\Abstract\IQuestionContentCategoryService.cs" />
+    <Compile Include="Service\Concrete\ContentSubscriberService.cs" />
+    <Compile Include="Service\Concrete\EducationService.cs" />
+    <Compile Include="Service\Abstract\IContentCategoryService.cs" />
+    <Compile Include="Service\Abstract\IContentItemService.cs" />
+    <Compile Include="Service\Abstract\ICourseCategoryService.cs" />
+    <Compile Include="Service\Abstract\IExerciseResultService.cs" />
+    <Compile Include="Service\Abstract\IExerciseService.cs" />
+    <Compile Include="Service\Abstract\IJournalEntryService.cs" />
+    <Compile Include="Service\Abstract\IQuestionService.cs" />
+    <Compile Include="Service\Abstract\ITagCategoryService.cs" />
+    <Compile Include="Service\Abstract\ITagService.cs" />
+    <Compile Include="Service\Concrete\AnswerService.cs" />
+    <Compile Include="Service\Concrete\ContentCategoryService.cs" />
+    <Compile Include="Service\Concrete\CourseCategoryService.cs" />
+    <Compile Include="Service\Concrete\ExerciseResultService.cs" />
+    <Compile Include="Service\Concrete\ExerciseService.cs" />
+    <Compile Include="Service\Abstract\IEducationService.cs" />
+    <Compile Include="Service\Concrete\JournalEntryService.cs" />
+    <Compile Include="Service\Concrete\QuestionContentCategoryService.cs" />
+    <Compile Include="Service\Concrete\QuestionService.cs" />
+    <Compile Include="Service\Concrete\TagCategoryService.cs" />
+    <Compile Include="Service\Concrete\TagService.cs" />
+    <Compile Include="Service\Concrete\ContentItemService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Base.BusinessProcesses\Base.BusinessProcesses.csproj">
+      <Project>{c4d72d04-2b9f-4b99-a01f-ff260c27b0bf}</Project>
+      <Name>Base.BusinessProcesses</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base\Base.csproj">
+      <Project>{b78a3750-fa57-41f2-927a-dfb795552548}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{65fb57bb-b251-4542-a08e-d56b701571d4}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

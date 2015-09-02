@@ -1,0 +1,100 @@
+﻿@model BaseViewModel
+
+@{
+    string toolbarid = "w_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    window["@toolbarid"] = {
+        addLinkedDocument: function () {
+            pbaAPI.openModalDialog("DocumentTemplate",
+                    function (res) {
+                        if (res) {
+                            var template = res[0];
+
+                            window["@toolbarid"].fillTemplate(template.Value, function (tempVal) {
+                                if (tempVal) {
+
+                                    var doc = {
+                                        Type: template.Type,
+                                        Title: template.Title,
+                                        Value: tempVal
+                                    };
+
+                                    var vmID = $('#@toolbarid').closest(".dialog-vm").attr("id");
+                                    var wm = window[vmID];
+                                    var model = wm.getCurrentModel();
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "@Url.Action("CreateLinkedObject", "LinkedObjects")",
+                                        data: JSON.stringify({ linkMnemonic: model.Obj.Mnemonic, linkID: model.Obj.ID, mnemonic: "LinkedDocument", obj: doc }),
+                                        contentType: "application/json; charset=utf-8",
+                                        success: function (res) {
+                                            if (res.error) {
+                                                pbaAPI.errorMsg(res.error);
+                                            } else {
+                                                $('#@toolbarid').closest('[data-role=toolbar]').trigger('onActionInvoke', {
+                                                    loadingAndRefresh: function () {
+                                                        pbaAPI.infoUploadSuccess("Документ успешно создан");
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    },
+                {
+                    title: "ВЫБОР - Шаблона"
+                });
+        },
+        fillTemplate: function (value, callback) {
+            var vmID = $('#@toolbarid').closest(".dialog-vm").attr("id");
+            var wm = window[vmID];
+
+            var model = wm.getCurrentModel();
+
+            $.get("@Url.Action("Get", "Standart")", { mnemonic: model.Obj.Mnemonic, id: model.Obj.ID }, function (res) {
+                if (!res.error) {
+
+                    var regex = /\[Model\..[^\[]*\]/gi;
+                    var match = value.match(regex);
+                    
+                    if (match != null) {
+                        for (var i = 0; i < match.length || 0; i++) {
+                            var pr = match[i].replace("[Model.", "").replace("]", "");
+
+                            var prval;
+
+                            try {
+                                prval = eval("res.model." + pr);
+                            } catch (e) { }
+
+                            switch ($.type(prval)) {
+                                case "string":
+                                    prval = prval.replace(/"/g, "'");
+                                    prval = prval.replace(/\n/g, "");
+
+                                    break;
+                            }
+                            value = value.replace(match[i], prval);
+                        }
+                    }
+                    
+                    value = value.replace(/\[CurrentUser\]/g, "@Model.SecurityUser.UserName");
+
+                    callback(value);
+                } else {
+                    pbaAPI.msgError("Ошибка чтения шаблона документа");
+                    callback(null);
+                }
+            });
+        }
+    };
+</script>
+
+<div id="@toolbarid" class="btn-group">
+    <button type="button" class="btn btn-default" onclick="@(toolbarid).addLinkedDocument();">Создать документ</button>
+</div>

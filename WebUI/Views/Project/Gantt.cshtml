@@ -1,0 +1,296 @@
+﻿@model StandartGantt
+
+@{
+    int projectID = (int)Model.ParentID;
+}
+
+@(Html.Kendo().Gantt<GanttTaskViewModel, GanttDependencyViewModel>()
+    .Name(Model.WidgetID)
+    //.Height(700)
+    .ShowWorkHours(false)
+    .ShowWorkDays(false)
+    .Snap(true)
+    .Columns(columns =>
+    {
+        columns.Bound("title").Title("Наименование").Editable(true).Sortable(true);
+        columns.Bound("start").Title("Начало").Format("{0:dd.MM.yyyy}").Width(100).Editable(true).Sortable(true);
+        columns.Bound("end").Title("Конец").Format("{0:dd.MM.yyyy}").Width(100).Editable(true).Sortable(true);
+    })
+    .Views(views =>
+    {
+        views.DayView();
+        views.WeekView(weekView => weekView.Selected(true));
+        views.MonthView();
+        views.YearView();
+    })
+    .Events(e =>
+    {
+        e.DataBound(Model.WidgetID + ".onDataBound")
+            .Remove(Model.WidgetID + ".onRemove")
+            .Resize(Model.WidgetID + ".onResize")
+            .ResizeEnd(Model.WidgetID + ".onResizeEnd")
+            .Move(Model.WidgetID + ".onMove")
+            .MoveStart(Model.WidgetID + ".onMoveStart")
+            .MoveEnd(Model.WidgetID + ".onMoveEnd")
+            .Change(Model.WidgetID + ".onChange")
+            .Add(Model.WidgetID + ".onAdd")
+            .DataBinding(Model.WidgetID + ".onDataBinding")
+            .Save(Model.WidgetID + ".onSave")
+            .Edit(Model.WidgetID + ".onEdit");
+        
+    })
+    .DataSource(d => d
+        .Batch(true)
+        .Model(m =>
+        {
+            m.Id(f => f.ID);
+            m.ParentId(f => f.ParentID);
+            m.OrderId(f => f.OrderId);
+            m.Field(f => f.AllParents);
+            m.Field(f => f.Expanded).DefaultValue(true);
+            m.Field(f => f.RowVersion);
+            m.Field(f => f.Priority);
+            m.Field(f => f.Highlight);
+        })
+        .Read("Gantt_ReadTasks", "Project", new { projectID = projectID })
+        .Create("Gantt_SaveTask", "Project", new { projectID = projectID })
+        .Update("Gantt_SaveTask", "Project", new { projectID = projectID })
+        .Destroy("Gantt_DestroyTask", "Project", new { projectID = projectID })
+    )
+    .DependenciesDataSource(d => d
+        .Model(m =>
+        {
+            m.Id(f => f.ID);
+            m.Field(f => f.ProjectID);
+            m.PredecessorId(f => f.PredecessorID);
+            m.SuccessorId(f => f.SuccessorID);
+            m.Type(f => f.Type);
+        })
+        .Read("Gantt_ReadDependencies", "Project", new { projectID = projectID })
+        .Create("Gantt_SaveDependency", "Project", new { projectID = projectID })
+        .Update("Gantt_SaveDependency", "Project", new { projectID = projectID })
+        .Destroy("Gantt_DestroyDependency", "Project")
+    )
+    .Messages(m =>
+    {
+        m.Views(v => v.Day("День").Week("Неделя").Month("Месяц").Year("Год")).Actions(a => a.AddChild("Дочернюю").Append("Добавить напоминание").InsertBefore("Перед").InsertAfter("После"));
+    })
+)
+
+@*<div id="@Model.WidgetID"></div>
+
+<script>
+    var taskDataSource = new kendo.data.GanttDataSource({
+        transport: {
+            //type: (function () {
+            //    if (kendo.data.transports['aspnetmvc-ajax']) {
+            //        return 'aspnetmvc-ajax';
+            //    } else {
+            //        throw new Error('The kendo.aspnetmvc.min.js script is not included.');
+            //    }
+            //})(),
+            prefix: "",
+            read: {
+                url: "@Url.Action("Gantt_ReadTasks", "Project", new { projectID = projectID }).ToString()",
+                dataType: "json"
+            },
+            update: {
+                url: "@Url.Action("Gantt_SaveTask", "Project", new { projectID = projectID }).ToString()",
+                dataType: "json",
+                //contentType: "application/json",
+                type: "POST"
+            },
+            create: {
+                url: "@Url.Action("Gantt_SaveTask", "Project", new { projectID = projectID }).ToString()",
+                dataType: "json",
+                //contentType: "application/json",
+                type: "POST"
+            },
+            destroy: {
+                url: "@Url.Action("Gantt_DestroyTask", "Project", new { projectID = projectID }).ToString()",
+                dataType: "json"
+            },
+            parameterMap: function (data, operation) {
+                switch (operation) {
+                    case "create":
+                    case "update":
+                    case "destroy":
+                        data.Start = kendo.toString(data.Start, "@Framework.JsonNetResult.DATE_TIME_FORMATE");
+                        data.End = kendo.toString(data.End, "@Framework.JsonNetResult.DATE_TIME_FORMATE");
+                        break;
+                    default:
+                }
+                //console.log(data, operation);
+                return data;
+            }
+        },
+
+        schema: {
+            data: "Data",
+            total: "Total",
+            errors: "Errors",
+            model: {
+                "id": "ID",
+                "fields": {
+                    "ID": {
+                        "type": "number"
+                    },
+                    "parentId": {
+                        "from": "ParentID",
+                        "type": "number",
+                        "defaultValue": null
+                    },
+                    "AllParents": {
+                        "type": "string"
+                    },
+                    "end": {
+                        "from": "End",
+                        "type": "date",
+                        //parse: function (e) { return kendo.toString(e, "@JsonNetResult.DATE_TIME_FORMATE") }
+                    },
+                    "expanded": {
+                        "from": "Expanded",
+                        "type": "boolean",
+                        "defaultValue": true
+                    },
+                    "orderId": {
+                        "from": "OrderId",
+                        "type": "number"
+                    },
+                    "percentComplete": {
+                        "from": "PercentComplete",
+                        "type": "number"
+                    },
+                    "start": {
+                        "from": "Start",
+                        "type": "date",
+                        //parse: function (e) { return kendo.toString(e, "@JsonNetResult.DATE_TIME_FORMATE") }
+                    },
+                    "summary": {
+                        "from": "Summary",
+                        "type": "boolean"
+                    },
+                    "title": {
+                        "from": "Title",
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    });
+
+    var dependenciesDataSource = new kendo.data.GanttDependencyDataSource({
+            transport: {
+                read: {
+                    url: "@Url.Action("Gantt_ReadDependencies", "Project", new { projectID = projectID }).ToString()",
+                    dataType: "json"
+                },
+                prefix: "",
+                update: {
+                    url: "@Url.Action("Gantt_SaveDependency", "Project", new { projectID = projectID }).ToString()",
+                    dataType: "json"
+                },
+                create: {
+                    url: "@Url.Action("Gantt_SaveDependency", "Project", new { projectID = projectID }).ToString()",
+                    dataType: "json"
+                },
+                destroy: {
+                    url: "@Url.Action("Gantt_DestroyDependency", "Project", new { projectID = projectID }).ToString()",
+                    dataType: "json"
+                }
+            },
+
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors",
+                model: {
+                    "id": "ID",
+                    "fields": {
+                        "ProjectID": {
+                            "type": "number"
+                        },
+                        "predecessorId": {
+                            "from": "PredecessorID",
+                            "type": "number"
+                        },
+                        "successorId": {
+                            "from": "SuccessorID",
+                            "type": "number"
+                        },
+                        "type": {
+                            "from": "Type",
+                            "type": "number"
+                        },
+                        "ID": {
+                            "type": "number"
+                        },
+                        "Hidden": {
+                            "type": "boolean"
+                        },
+                        "SortOrder": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+
+        });
+
+    (function () {
+        var gantt = window["@Model.WidgetID"];
+
+        $("#@(Model.WidgetID)").kendoGantt({
+            dataSource: taskDataSource,
+            dependencies: dependenciesDataSource,
+            columns: [{
+                "title": "Наименование",
+                "editable": false,
+                "sortable": true,
+                "field": "title"
+            }, {
+                "title": "Начало",
+                "format": "{0:MM/dd/yyyy}",
+                "width": 100,
+                "editable": false,
+                "sortable": true,
+                "field": "start"
+            }, {
+                "title": "Конец",
+                "format": "{0:MM/dd/yyyy}",
+                "width": 100,
+                "editable": false,
+                "sortable": true,
+                "field": "end"
+            }],
+            snap: true,
+            showWorkDays: false,
+            showWorkHours: false,
+            messages: {
+                views: {
+                    "day": "День",
+                    "week": "Неделя",
+                    "month": "Месяц"
+                },
+                actions: {
+                    "append": "Добавить задачу",
+                    "addChild": "Дочернюю",
+                    "insertBefore": "Перед",
+                    "insertAfter": "После"
+                }
+            },
+            views: [{
+                "type": "day"
+            }, {
+                "selected": true,
+                "type": "week"
+            }, {
+                "type": "month"
+            }],
+            autoBind: true
+        });
+
+        
+    })();
+
+</script>*@

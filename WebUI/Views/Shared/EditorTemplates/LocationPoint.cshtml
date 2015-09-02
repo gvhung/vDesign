@@ -1,0 +1,7 @@
+﻿@model EditorViewModel
+
+@{
+    ViewData.Add(new KeyValuePair<string, object>("LayerType", Base.EntityFrameworkTypes.Complex.LayerType.Point));
+}
+
+@Html.Partial("~/Views/Shared/EditorTemplates/Location.cshtml", Model, ViewData)

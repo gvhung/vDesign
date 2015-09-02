@@ -1,0 +1,7 @@
+@model EditorViewModel
+
+@{
+    string name = "n_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html.Kendo().DateTimePicker().Name(name).Format(JsonNetResult.DATE_TIME_FORMATE).HtmlAttributes(Html.CreateHtmlAttributes(Model)))

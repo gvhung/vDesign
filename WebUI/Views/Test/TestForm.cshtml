@@ -1,0 +1,23 @@
+﻿@model StandartFormModel
+
+@{
+    Layout = "~/Views/Shared/_FormLayout.cshtml";
+
+    string editorName = "~/Views/Shared/EditorTemplates/Common/Editor.cshtml";
+
+    var editors = Model.Tabs.SelectMany(x => x.Editors);
+}
+
+<form>
+    @{
+        var editor = editors.First(x => x.PropertyName == "Title");
+    }
+
+    <div class="col-md-3 e-label">
+        @Html.Label(editor.Title) @if (editor.IsRequired)
+        { <span style="color: red;">*</span> }
+    </div>
+    <div class="col-md-9 e-editor">
+        @{ Html.RenderPartial(editorName, editor); }
+    </div>
+</form>

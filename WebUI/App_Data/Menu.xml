@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<menu>
+  <!--<item mnemonic="Product" />
+  <item mnemonic="WorkGroup" />
+  <item mnemonic="Expert" />-->
+  <item mnemonic="ContentItem" title="Управление контентом" />
+  
+  <!--<item title="Контент менеджмент" icon="glyphicon glyphicon-edit">
+    <item mnemonic="ContentItem" title="Управление контентом" />
+    <item mnemonic="Subscribe" title="Управление подписками" />
+  </item>-->
+  
+  <item title="Связь" icon="glyphicon glyphicon-headset" url="/Conference/Index"/>
+
+  <item title="Задачи" icon="halfling halfling-tasks">
+    <item mnemonic="OutTask" title="Исходящие" />
+    <item mnemonic="InTask" title="Входящие" />
+    <item mnemonic="TaskReport" />
+    <item title="Завершенные" icon="halfling halfling-folder-close">
+      <item mnemonic="OutArchiveTask" title="Исходящие" />
+      <item mnemonic="InArchiveTask" title="Входящие" />
+    </item>
+  </item>
+
+  <!--<item title="Справочники" icon="halfling halfling-book">
+    <item mnemonic="Organization" />
+  </item>-->
+
+  <item mnemonic="FileStorageItem" />
+
+  <item mnemonic="HelpItem" />
+  
+  <item title="Безопасность" icon="glyphicon glyphicon-lock">
+    <item mnemonic="AccessUser" />
+    <item mnemonic="Role" />
+    <item mnemonic="UserPromotion" />
+  </item>
+
+  <item title="Сервис" icon="halfling halfling-cog">
+    <item mnemonic="BPWorkflow" />
+    <item mnemonic="SettingItem" />
+    <item mnemonic="Audit" />
+  </item>
+</menu>

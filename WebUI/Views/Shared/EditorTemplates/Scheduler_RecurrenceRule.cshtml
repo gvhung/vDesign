@@ -1,0 +1,14 @@
+﻿@model EditorViewModel
+
+@(Html.Kendo().RecurrenceEditorFor(model => model).Name(Model.UID).HtmlAttributes(Html.CreateHtmlAttributes(Model))
+    .Messages(msg =>
+    {
+        msg.Frequencies(f => f.Never("Не повторять").Daily("Каждый день").Weekly("Каждую неделю").Monthly("Каждый месяц").Yearly("Каждый год"));
+        msg.Daily(x => x.RepeatEvery("Повторять с интервалом:").Interval("  дн."));
+        msg.Weekly(x => x.RepeatEvery("Повторять с интервалом:").Interval("  нед.").RepeatOn("Дни повторения:"));
+        msg.Monthly(x => x.RepeatEvery("Повторять с интервалом:").Interval("  мес.").RepeatOn("День повторения:").Day("День"));
+        msg.Yearly(x => x.RepeatEvery("Повторять с интервалом:").Interval("  год").RepeatOn("День повторения:").Of(""));
+        msg.End(x => x.Label("Окончание:").Never("Никогда").After("После").On("До").Occurrence("  повторений"));
+        msg.OffsetPositions(x => x.First("первый").Second("второй").Third("третий").Fourth("четвертый").Last("последний"));
+        msg.Weekdays(x => x.Day("день").Weekday("будний день").Weekend("выходной"));
+    }))

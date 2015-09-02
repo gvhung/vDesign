@@ -1,0 +1,7 @@
+﻿@model EditorViewModel
+
+@{
+    string htmlFieldName = Model.PropertyName;
+}
+
+@Html.Span(Model, new { data_bind = "text:" + htmlFieldName + ".Lang.ru" })

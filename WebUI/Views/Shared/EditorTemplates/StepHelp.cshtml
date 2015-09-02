@@ -1,0 +1,25 @@
+﻿@{
+    string wrapID = Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID"></div>
+
+<script>
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            $.get("@Url.Action("GetHelp", "BusinessProcess")", { objectType: form.getPr("ObjectType") }, function (data) {
+                var $wrap = $("#@wrapID");
+                var html = '';
+                if (data.length) {
+                    html += "<div class='list-group'>";
+                    $.each(data, function(i, elem) {
+                        html += '<div class="list-group-item"><h4 class="list-group-item-heading text-primary">' + elem.Title + '</h4><p class="list-group-item-text text-muted">' + elem.Text + '</p></div>';
+                    });
+                    html += '</div>';
+                }
+
+                $wrap.html(html);
+            });
+        });
+    });
+</script>

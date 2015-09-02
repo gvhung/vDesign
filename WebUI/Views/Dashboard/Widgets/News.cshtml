@@ -1,0 +1,128 @@
+﻿@model DashboardWidget
+
+@{
+    string wrapID = "news_" + Guid.NewGuid().ToString("N");
+    string templateID = "tmpl_" + Guid.NewGuid().ToString("N");
+}
+
+<style>
+    #dashboard-widget-news {
+        padding: 0 22px;
+    }
+
+        #dashboard-widget-news .tile {
+            height: 130px;
+            border-top: 5px solid #5bc0de !important;
+        }
+        
+        /*#dashboard-widget-news .title {
+            color: #2CC185;
+            text-decoration: none;
+            outline: none;
+        }*/
+
+            /*#dashboard-widget-news .title:hover,
+            #dashboard-widget-news .title:focus {
+                color: #74777b;
+            }*/
+
+        /*#dashboard-widget-news .npa-info {
+            overflow: hidden;
+            height: 120px;
+        }*/
+
+        /*#dashboard-widget-news img {
+            float: left;
+            max-height: 60px;
+            margin-right: 10px;
+        }
+
+        #dashboard-widget-news .desc {
+            height: 70px;
+            overflow: hidden;
+        }*/
+</style>
+
+@Html.DashboardWidget().Content(
+    @<text>
+        <div id="dashboard-widget-news" class="container-fluid dynamic-tile">
+            <div id="@wrapID" class="row"></div>
+        </div>
+    </text>
+        ).HtmlAttrs(new { style = "background: rgba(255,255,255,0.4);" })
+
+<script id="@templateID" type="text/x-kendo-template">
+    <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 tile-wrap">
+        <div class="tile">
+            <div class="npa-info">
+                <div class="npa-rate pull-left">
+                    <i class="halfling halfling-glyph-calendar" style="color:\#428bca;"></i>
+                    <span>#= date #</span>
+                </div>
+                <p class="text-wrap">
+                    <a class="title" href="\#" data-mnemonic="DashboardNews" data-id="#= id #">#= title #</a>
+                </p>
+                <div class="desc">
+                    @*<img class="img-responsive" src="#= src #" alt="#= title # (изображение)" />*@
+                    <p>#= desc #</p>
+                    
+                </div>
+            </div>
+            @*<div class="npa-stats clearfix">
+                <div class="npa-rate pull-left">
+                    <i class="halfling halfling-glyph-calendar" style="color:\#428bca;"></i>
+                    <span>#= date #</span>
+                </div>
+                <div class="npa-rate pull-right">
+                    <a href="\#" data-mnemonic="DashboardNews" data-id="#= id #">просмотр</a>
+                </div>
+            </div>*@
+        </div>
+    </div>
+
+</script>
+
+<script>
+    $(function () {
+        var $wrap = $('#@wrapID');
+
+        // middlewares
+        var transformContentItem = function (raw) {
+            return {
+                id: raw.ID,
+                title: raw.Title,
+                desc: raw.Description,
+                date: raw.Date.replace(/(\d{2}\.\d{2}\.\d{4}).+/, "$1"),
+                //src: pbaAPI.imageHelpers.getImageSrc(raw.ImagePreview)
+            };
+        };
+
+        var renderContentItem = kendo.template($('#@templateID').html());
+
+        var insertContentItem = function (item) {
+            $wrap.append(item);
+        };
+
+        // load/parse/paste
+        $.get("/Dashboard/GetNews", function (res) {
+            if (res.Errors) {
+                return pbaAPI.errorMsg(res.Errors);
+            }
+
+            res.Data
+                .map(transformContentItem)
+                .map(renderContentItem)
+                .forEach(insertContentItem);
+        });
+
+        // detail view show
+        $("#@wrapID").on('click', '[data-mnemonic][data-id]', function (e) {
+            e.preventDefault();
+
+            var mnemonic = this.getAttribute("data-mnemonic");
+            var id = this.getAttribute("data-id");
+
+            pbaAPI.openViewModelEx(mnemonic, { id: id });
+        });
+    });
+</script>

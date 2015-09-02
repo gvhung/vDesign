@@ -1,0 +1,23 @@
+﻿@model EditorViewModel
+
+@{  
+    string fieldID = "f_" + Guid.NewGuid().ToString("N");
+}
+
+
+<span id="@fieldID" class='k-icon'></span>
+
+
+<script>
+    $(function () {
+        var $f = $("#@fieldID");
+
+        $f.closest("form").on("onAfterBind", function(e, form) {
+            if (form.getPr("@Model.PropertyName")) {
+                $f.attr("class", "k-icon icon-yes");
+            } else {
+                $f.attr("class", "k-icon icon-no");
+            }
+        });
+    });
+</script>

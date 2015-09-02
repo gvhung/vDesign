@@ -1,0 +1,383 @@
+﻿@model CustomDialogView
+
+@{
+    var wrapID = Model.WidgetID;
+}
+
+<div id="@wrapID" custom-dialog="@Model.Mnemonic" style="padding: 10px; height: 100%; overflow-y: scroll;">
+    <div class="input-group">
+        <input type="text" class="form-control" placeholder="Поиск...">
+        <span class="input-group-btn">
+            <button id="add-notexist" class="btn btn-default" type="button">
+                <i class="halfling halfling-plus"></i>
+            </button>
+        </span>
+    </div>
+    <div class="selected-items clearfix">
+        @*Выберите пользователей*@
+    </div>
+    <div class="results list-group">
+    </div>
+    <img class="user-spinner animated" src="/Content/loaders/oval.svg" />
+
+    <div style="margin-bottom: 25px;">
+        <a href="#" style="width: 100%; display: none; box-sizing: border-box; -webkit-box-sizing: border-box; -moz-box-sizing: border-box;" class="btn btn-success get-more">Еще</a>
+    </div>
+    <script type="text/x-kendo-tmpl" id="item-template">
+        <div data-id="#: item.ID #" class="list-group-item user-item #: getActiveClass(item) #" style="-webkit-animation-delay: #: delay #ms; animation-delay: #: delay #ms;">
+            <div class="media">
+                <div class="media-left">
+                    <img data-user-image="#: item.ID #" class="media-object img-circle" style="width: 64px; height: 64px;" src="#= pbaAPI.imageHelpers.getImageSrc(item.Image, 64, 64, 'NoPhoto') #">
+                </div>
+                <div class="media-body user-info">
+                    <h4 class="media-heading">#= pbaAPI.htmlEncode(item.FullName) #</h4>
+                    @*<p class="list-group-item-text"><span class="text-muted">Внутренний телфон: </span> #= item.InternalPhone ? item.InternalPhone : "нет" #</p>*@
+                    <p class="list-group-item-text text-muted">#= item.Email ? pbaAPI.htmlEncode(item.Email) : "нет" #</p>
+                </div>
+                <div class="media-right" style="vertical-align: middle;">
+                    # if (item.IsFriend) { #
+                    <a href="\\#" class="btn pull-right friend-btn remove">Убрать из контактов</a>
+                    # } else { #
+                    <a href="\\#" class="btn pull-right friend-btn add">Добавить в контакты</a>
+                    # } #
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/x-kendo-tmpl" id="selected-template">
+        <div class="selected-item pull-left alert alert-success" data-id="#: item.ID #">
+            <i class="remove-selected halfling halfling-remove"></i>
+            <img class="img-circle" data-user-image="#: item.ID #" style="width: 24px; height: 24px;" src="#= pbaAPI.imageHelpers.getImageSrc(item.Image, 24, 24, 'NoPhoto') #">
+            <span>#: item.FullName #</span>
+        </div>
+    </script>
+    <script>
+        (function () {
+            var $dialog = $('#@wrapID');
+
+            var dialog = {
+                getSelected: function () { },
+                init: function (selectable) {
+                    var timeoutID;
+                    var block = 0;
+
+                    if (selectable) {
+                        selectable.selected = {};
+
+                        dialog.getSelected = function () {
+                            return $.map(selectable.selected, function (item) {
+                                return item;
+                            });
+                        }
+                    }
+
+
+                    var $results = $('#@wrapID .results');
+                    var template = kendo.template($('#@wrapID #item-template').html());
+                    var $selected = $('#@wrapID .selected-items');
+                    var selectedTemplate = kendo.template($('#@wrapID #selected-template').html());
+                    var q = null;
+
+                    var request = null;
+
+                    function getActiveClass(item) {
+
+                        if (selectable) {
+                            if (selectable.selected[item.ID]) {
+                                return 'active';
+                            };
+                        }
+
+                        return '';
+                    }
+
+                    function renderItems(items) {
+                        var elements = [];
+
+                        if (items && items.length) {
+                            for (var i = 0; i < items.length; i++) {
+
+                                var html = template({
+                                    i: i,
+                                    delay: i * 50,
+                                    item: items[i],
+                                    getActiveClass: getActiveClass
+                                });
+
+                                var elem = $('<div />').append(html).children();
+
+                                elements.push(elem.data('item', items[i]));
+                            }
+                        }
+
+                        return elements;
+                    }
+
+                    function highlightSearch(word, $elem) {
+                        var rgxp = new RegExp(word, 'gi');
+                        var repl = '<span class="highlight">' + word + '</span>';
+                        $elem.html($elem.html().replace(rgxp, repl));
+                    }
+
+                    function getData() {
+                        $dialog.addClass('loading');
+
+                        request && request.abort();
+                        $results.html('');
+
+                        request = $.get('/users/search', {
+                            q: q,
+                            block: block
+                        }, function (data) {
+                            $dialog.removeClass('loading');
+
+                            if (data) {
+                                if (data.friends) {
+                                    $results.append(renderItems(data.friends));
+                                }
+
+                                if (data.users.length && data.friends.length) {
+                                    $results.append('<hr />');
+                                }
+
+                                if (data.users) {
+                                    $results.append(renderItems(data.users));
+                                }
+
+                                //$results.find('.user-info').each(function() {
+                                //    highlightSearch(q, $(this));
+                                //});
+
+                                if (data.more) {
+                                    $('#@wrapID .get-more').show();
+                                } else {
+                                    $('#@wrapID .get-more').hide();
+                                }
+                            }
+                        });
+                    }
+
+                    getData();
+
+                    $('#@wrapID input').on('input propertychange change', function (e) {
+                        clearTimeout(timeoutID);
+                        timeoutID = setTimeout(function () {
+                            q = $(e.target).val();
+                            block = 0;
+                            getData();
+                        }, 200);
+                    });
+
+                    $('#@wrapID #add-notexist').on('click', function (e) {
+                        pbaAPI.openViewModelEx('UnregisteredUser', {
+                            wid: "@wrapID",
+                            title: "Новый контакт",
+                            isMaximaze: false,
+                            toSave: true,
+                            callback: function (ev) {
+                                if (ev.type === "save") {
+                                    $.get('/users/add', {
+                                        id: ev.model.ID
+                                    }, function () {
+                                        getData();
+                                    });
+                                }
+                            }
+                        });
+                    });
+
+                    $('#@wrapID .get-more').on('click', function () {
+                        block++;
+                        getData();
+                    });
+
+                    $selected.on('click', '.remove-selected', function () {
+                        var $elem = $(this).closest('[data-id]');
+                        var id = $elem.attr('data-id');
+                        delete selectable.selected[id];
+
+                        $results.find('[data-id=' + id + ']').removeClass('active');
+                        $elem.remove();
+                        //if (!$selected.children().length) {
+                        //    $selected.html('Выберите пользователя');
+                        //}
+                    });
+
+                    if (selectable) {
+                        $results.on('click', '.user-item', function () {
+                            var $item = $(this);
+                            var item = $item.data('item');
+
+                            if (!selectable.multiselect && !$item.hasClass('active')) {
+                                $(this).siblings().removeClass('active');
+                                $selected.html('');
+                                selectable.selected = {};
+                            }
+
+
+                            if (selectable.selected[item.ID]) {
+                                delete selectable.selected[item.ID];
+                                $item.removeClass('active');
+                                $selected.find('[data-id=' + item.ID + ']').remove();
+                            } else {
+                                $item.addClass('active');
+                                selectable.selected[item.ID] = item;
+                                var newSelected = selectedTemplate({
+                                    item: item
+                                });
+
+                                $selected.append(newSelected);
+                            }
+                        });
+                    }
+
+                    $results.on('click', '.friend-btn', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        var $elem = $(this);
+                        if ($elem.hasClass('loading')) {
+                            return;
+                        }
+
+                        var action = $elem.hasClass('add') ? 'add' : 'remove';
+
+                        $.get('/users/' + action, {
+                            id: $elem.closest('.user-item').data('item').ID
+                        }, function () {
+                            getData();
+                        });
+
+                        $elem.addClass('loading');
+                    });
+                }
+            }
+
+            $dialog.data('dialog', dialog);
+        })();
+    </script>
+</div>
+<script src="~/Scripts/layout.js"></script>
+<style>
+    .highlight {
+        background-color: yellow;
+    }
+
+    .list-group-item:hover .friend-btn {
+        visibility: visible;
+    }
+
+    .friend-btn {
+        visibility: hidden;
+    }
+
+        .friend-btn.add {
+            color: #fff;
+            background-color: #5cb85c;
+            border-color: #5cb85c;
+        }
+
+        .friend-btn.remove {
+            color: #fff;
+            background-color: #d9534f;
+            border-color: #d9534f;
+        }
+
+    .loading .user-spinner {
+        display: block;
+    }
+
+    .user-spinner {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 80px;
+        margin-left: -40px;
+    }
+
+    .user-item {
+        cursor: pointer;
+    }
+
+        .user-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-item.active {
+            background: #428bca;
+            color: #fff;
+        }
+
+    .selected-items {
+        margin: 10px 0;
+        /*height: 64px;*/
+    }
+
+    .selected-item {
+        position: relative;
+        margin: 0 5px;
+    }
+
+        .selected-item .remove-selected {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            cursor: pointer;
+            display: none;
+            color: #d9534f;
+        }
+
+
+
+        .selected-item:hover .remove-selected {
+            display: block;
+        }
+
+    .media {
+        margin-top: 15px;
+    }
+
+        .media:first-child {
+            margin-top: 0;
+        }
+
+        .media-right,
+        .media > .pull-right {
+            padding-left: 10px;
+        }
+
+        .media-left,
+        .media > .pull-left {
+            padding-right: 10px;
+        }
+
+    .media-left,
+    .media-right,
+    .media-body {
+        display: table-cell;
+        vertical-align: top;
+    }
+
+    .media-body {
+        width: 1000000px;
+    }
+
+    .media-middle {
+        vertical-align: middle;
+    }
+
+    .media-bottom {
+        vertical-align: bottom;
+    }
+
+    .media-heading {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+
+    .media-list {
+        padding-left: 0;
+        list-style: none;
+    }
+</style>

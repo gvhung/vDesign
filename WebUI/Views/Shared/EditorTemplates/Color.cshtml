@@ -1,0 +1,50 @@
+﻿@model EditorViewModel
+
+@{
+    var propertyName = Model.PropertyName;
+
+    if (Model.PropertyType == typeof(Base.Entities.Complex.Color))
+    {
+        propertyName += ".Value";
+    }
+}
+
+
+@(Html.Kendo().ColorPalette()
+                .Name(Model.UID)
+                .Columns(5)
+                .TileSize(s => s.Width(34).Height(19))
+                .Palette(new string[] {
+                    //"#f0d0c9", "#e2a293", "#d4735e", "#65281a",
+                    //"#eddfda", "#dcc0b6", "#cba092", "#7b4b3a",
+                    //"#fcecd5", "#f9d9ab", "#f6c781", "#c87d0e",
+                    //"#e1dca5", "#d0c974", "#a29a36", "#514d1b",
+                    //"#c6d9f0", "#8db3e2", "#548dd4", "#17365d"
+
+                    "#6f5499", "#5cb85c", "#5bc0de", "#f0ad4e", "#d9534f"
+                })
+)
+
+<script>
+    $(function () {
+        var $colorPalette = $("#@Model.UID");
+        var $form = $colorPalette.closest("form");
+        var colorPalette = $colorPalette.data("kendoColorPalette");
+        var propertyName = "@propertyName";
+
+        $form.on("onAfterBind", function (e, form) {
+            var color = form.getPr(propertyName);
+
+            if (color) {
+                colorPalette.value(color);
+            } else {
+                colorPalette.value(null);
+            }
+
+        });
+
+        $form.on("onSave", function (e, form) {
+            form.setPr(propertyName, colorPalette.value());
+        });
+    });
+</script>

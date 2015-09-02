@@ -1,0 +1,83 @@
+﻿@model StandartFormModel
+
+@{
+    Layout = "../../_FormLayout.cshtml";
+
+    string editorName = "~/Views/Shared/EditorTemplates/Common/Editor.cshtml";
+}
+
+<div class="tab-content common-tab">
+    @for (int i = 0; i < Model.TabsCount; i++)
+    {
+        var tab = Model.Tabs[i];
+
+        bool isSingleEditor = tab.Editors.Count() == 1;
+
+        <div class="tab-pane container @(i == 0 ? "active" : "")" id="@tab.TabID" style="height:100%">
+            @foreach (var editor in tab.Editors.Where(x => x.Visible))
+            {
+                editor.UID = "e_" + Guid.NewGuid().ToString("N");
+
+                <div class="row e-row @(isSingleEditor ? "single-editor" : "")">
+                    @if (editor.IsLabelVisible)
+                    {
+                        if (editor.EditorTemplate == "Boolean")
+                        {
+                            <div class="col-md-3 e-label">
+                            </div>
+                            <div class="col-md-9 e-editor">
+                                @{ Html.RenderPartial(editorName, editor); } @RenderLabel(editor)
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-3 d-label">
+                                @RenderLabel(editor)
+                            </div>
+                            <div class="col-md-9 d-editor">
+                                @{ Html.RenderPartial(editorName, editor); }
+                            </div>
+
+                        }
+                    }
+                    else
+                    {
+                        Html.RenderPartial(editorName, editor);
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+
+@helper RenderLabel(EditorViewModel editor)
+{
+    if (editor.EditorTemplate == "Boolean")
+    {
+        <label class="k-checkbox-label" for="@editor.UID">@editor.Title</label>
+    
+        @RenderHelp(editor)
+    }
+    else
+    {
+        <label for="@editor.UID">@editor.Title</label>
+    
+        if (editor.IsRequired && !editor.IsReadOnly)
+        {
+            <span style="color: red;">*</span>
+        }
+        
+        @RenderHelp(editor)
+    }
+}
+
+@helper RenderHelp(EditorViewModel editor)
+{
+    if (String.IsNullOrEmpty(editor.Description))
+    {
+        return;
+    }
+    
+    <span title="@editor.Description" class="edt-label halfling halfling-question-sign"></span>
+}

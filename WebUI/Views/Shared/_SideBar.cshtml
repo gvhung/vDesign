@@ -1,0 +1,183 @@
+﻿@using Framework.EnumerableExtesions
+@using MenuItem = Base.UI.MenuItem
+@model BaseViewModel
+
+@{
+    var menu = Html.GetMenu();
+
+    const string root = "menu-root";
+}
+
+
+<ul id="@root" class="sidebar-nav">
+    <li class="sidebar-brand">
+        <a href="/" title="Домой" data-original-title="Домой">&nbsp;</a>
+    </li>
+    @RenderMenuItem(menu.Items, root)
+</ul>
+
+@helper RenderMenuItem(IEnumerable<MenuItem> items, string parentID = null)
+{
+    if (items != null)
+    {
+        foreach (var item in items)
+        {
+            if (item.Items != null && item.Items.Any())
+            {
+                @RenderNested(item, parentID)
+            }
+            else
+            {
+                @RenderRegular(item)
+            }
+        }
+    }
+}
+
+@helper RenderRegular(MenuItem item)
+{
+    if (item.Title == "-")
+    {
+        <hr/>
+    }
+    else
+    {
+        if (String.IsNullOrEmpty(item.URL) && !String.IsNullOrEmpty(item.Mnemonic))
+        {
+            item.URL = Url.Action("Index", "Standart", new { mnemonic = item.Mnemonic });
+        }
+
+        if (!String.IsNullOrEmpty(item.URL))
+        {
+            <li>
+                <a href="@item.URL" title="@item.Title">
+                    <span class="@item.Icon"></span>@item.Title
+                </a>
+            </li>
+        }
+    }
+}
+
+
+
+@helper RenderNested(MenuItem item, string parentID)
+{
+    string id = "c_" + Guid.NewGuid().ToString("N");
+
+    <li class="panel">
+        <a class="collapsed" data-toggle="collapse" data-parent="#@parentID" href="#@id" title="@item.Title">
+            <span class="@item.Icon"></span>@item.Title<b class="caret"></b>
+        </a>
+        <ul class="collapse" id="@id">
+            @RenderMenuItem(item.Items, id)
+        </ul>
+    </li>
+}
+
+<script>
+    (function () {
+
+        $("#wrapper").on('transitionend', '#sidebar-wrapper', function () {
+            $(window).resize();
+        });
+
+        var currents;
+
+        $("#sidebar-wrapper a[data-toggle=collapse]").click(function () {
+            if ($("#wrapper").hasClass('toggled')) {
+                $("#wrapper").removeClass('toggled');
+            }
+        });
+
+        $("#menu-toggle").click(function () {
+
+            var $wrapper = $("#wrapper");
+            var toogled = $wrapper.hasClass('toggled');
+
+            if (!toogled) {
+                currents = $('#sidebar-wrapper').find('ul.in').collapse('hide');
+                $wrapper.addClass('toggled');
+            } else {
+                if (currents) {
+                    currents.collapse('show');
+                }
+
+                $wrapper.removeClass('toggled');
+            }
+        });
+
+        $(".sidebar-nav a").tooltip({
+            placement: 'right',
+            container: 'body'
+        });
+
+        $('#sidebar-wrapper').find('a[href="' + window.location.pathname + '"]').each(function () {
+            var $current = $(this);
+
+            $current.closest('li').addClass('current');
+            currents = $current.parents('#@root ul');
+
+            $current.parents('#@root li').addClass('parent-of-current');
+        });
+    })();
+</script>
+
+@helper RenderBreadcrumbs(Base.UI.Menu menu)
+{
+    <li class="active">
+        <span class="halfling halfling-home"></span>
+        Рабочий стол
+    </li>
+
+    var currentMenuItem = menu.Items.SelectRecursive(x => x.Items).FirstOrDefault(x => x.Item.URL == Request.RawUrl);
+
+    if (currentMenuItem != null && currentMenuItem.Item != null)
+    {
+        foreach (var menuItem in this.GetMenuItems(currentMenuItem.Item))
+        {
+            @RenderBredcrumbItem(menuItem)
+        }
+    }
+}
+
+@functions
+{
+    IEnumerable<MenuItem> GetMenuItems(MenuItem menuItem)
+    {
+        if (menuItem.Parent != null)
+            foreach (var item in GetMenuItems(menuItem.Parent))
+                yield return item;
+
+        yield return menuItem;
+    }
+}
+
+@helper RenderBredcrumbItem(MenuItem item)
+{
+    if (item.URL != null)
+    {
+        if (item.URL == Request.RawUrl)
+        {
+            <li class="active current-loc">
+                <span class="@item.Icon"></span>
+                @item.Title
+            </li>
+        }
+        else
+        {
+            <li>
+                <a href="@item.URL">
+                    <span class="@item.Icon"></span>
+                    @item.Title
+                </a>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="active">
+            <span class="@item.Icon"></span>
+            @item.Title
+        </li>
+    }
+}

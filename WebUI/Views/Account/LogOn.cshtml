@@ -1,0 +1,83 @@
+﻿@model LogOnModel
+@{
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+    ViewBag.Title = "Авторизация";
+    string returnUrl = ViewBag.ReturnUrl;
+    string antiCache = Guid.NewGuid().ToString();
+}
+@using (Html.BeginForm(new { returnUrl = returnUrl }))
+{
+    @Html.AntiForgeryToken();
+
+                            if (Convert.ToInt32(Session["LogOnAttempt"]) <= ViewBag.LOG_ON_ATTEMPT_LOCK)
+                            {
+                                <div class="header text-center">
+                                    <img src="~/Content/images/minpromtorg_logo_big.png" />
+                                </div>
+
+                                <div class="main">
+                                    @Html.ValidationSummary(true)
+                                    @Html.TextBoxFor(model => model.Login, new { @class = "form-control", placeholder = "Email", autofocus = "" })
+                                    @Html.PasswordFor(model => model.Password, new { @class = "form-control", placeholder = "Пароль" })
+                                    @if (Convert.ToInt32(Session["LogOnAttempt"]) >= ViewBag.LOG_ON_ATTEMPT_CAPTCHA)
+                                    {
+                                        <div class="panel panel-warning captcha-area">
+                                            <div class="panel-heading">
+                                                <div class="panel-title captcha-title">Количество попыток исчерпано, введите результат вычисления</div>
+                                            </div>
+                                            <div class="panel-body">
+                                                <label class="control-label captcha-img"><img src="@Url.Action("CaptchaImage", "Captcha", new {rnd = antiCache})" /></label>
+                                                <div class="controls captcha-val">
+                                                    @Html.TextBoxFor(x => x.Captcha, new { @class = "form-control", @autocomplete = "off" })
+                                                </div>
+                                                <div class="clear"></div>
+                                                @Html.ValidationMessageFor(x => x.Captcha, null, new { @class = "label label-danger val-meassage" })
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="checkbox">
+                                        <label>
+                                            @Html.CheckBoxFor(m => m.RememberMe) Оставаться в системе
+                                        </label>
+                                    </div>
+                                    <span class="clearfix"></span>
+                                </div>
+                                <div class="main-footer">
+                                    <div class="row">
+                                        <div class="col-xs-6 col-md-6">
+                                            <div class="left-section">
+                                                <div class="left-section-content">
+                                                    <a href="@Url.Action("PasswordRecovery", new { returnUrl = Request.RawUrl })">Забыли пароль?</a>
+                                                    <a href="@Url.Action("Register")">Регистрация</a>
+                                                    @if (String.IsNullOrEmpty(returnUrl))
+                                                    {
+                                                        <a href="/" style="margin-top: 6px">На главную</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="@returnUrl" style="margin-top: 6px">Вернуться</a>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-6 col-md-6" style="margin-top: 12px;">
+                                            <button type="submit" class="btn btn-lg btn-primary btn-block">Вход</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="social-box text-center">
+                                    <h4>Войти через</h4>
+                                    @Html.Action("OpenIdMenu", "OpenID", new { mode = Base.OpenID.Entities.OpenIdAuthMode.LogOn, isVertical = true })
+                                </div>
+                            }
+}
+<script>
+    $(function () {
+        $(".checkbox-inline").on("click", function (e) {
+            if ($(e.target).not(":checkbox")) {
+                $(e.target).find(":checkbox").each(function () { this.checked = !this.checked; });
+            }
+            $(e.target).find(".icheckbox").toggleClass("checked");
+        });
+    });
+</script>

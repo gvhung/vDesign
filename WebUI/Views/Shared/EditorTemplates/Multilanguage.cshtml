@@ -1,0 +1,274 @@
+﻿@model EditorViewModel
+
+@{
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string fieldID = "f_" + Guid.NewGuid().ToString("N");
+    string wndID = "wnd_" + Guid.NewGuid().ToString("N");
+
+    Dictionary<string, object> attributes = ViewData["attributes"] as Dictionary<string, object> ?? new Dictionary<string, object>();
+
+    var controller = this.ViewContext.Controller as WebUI.Controllers.IBaseController;
+
+    string[] language = controller.SettingService.GetValue(Data.Consts.Settings.LANGUAGE, "en").ToString().Split(';').Where(x => x != "").ToArray();
+}
+
+<script>
+    window["@wrapID"] = {
+        edit: function () {
+            var wnd = $("#@wndID").data("kendoWindow");
+
+            wnd.setOptions({
+                width: $("#@wrapID").find("#@fieldID").width() + 100
+            });
+
+            wnd.center();
+            wnd.open();
+        },
+        translate: function (lang, id) {
+            var text = $("#@wrapID").find("#@fieldID").val();
+
+            var $el = $("#" + id);
+
+            $el.val("");
+
+            pbaAPI.translate(text, "ru", lang, function (res) {
+                window["@wndID"].form.setPr("Lang." + lang, res);
+                $el.val(res);
+            });
+        }
+    };
+
+    window["@wndID"] = {
+        form: null,
+        onOpen: function (e) {
+            var form = $("#@wrapID").closest("form").data("pbaForm");
+
+            var wnd = e.sender;
+
+            var lang = $.extend({}, form.getPr("@htmlFieldName"));
+
+            var viewModel = kendo.observable({
+                model: lang,
+                save: function () {
+                    var wndForm = wnd.element.find("form").data("pbaForm");
+
+                    form.setPr("@htmlFieldName", wndForm.getModel())
+
+                    wnd.close();
+                },
+                close: function () {
+                    wnd.close();
+                }
+            });
+
+            if (!wnd["_init__"]) {
+                wnd.element.find(".form").wrap("<form>");
+
+                var $wndForm = wnd.element.find("form");
+
+                $wndForm.addClass("common-form");
+
+                var buttons = [];
+
+                buttons.push({
+                    title: "ОК",
+                    "click": "save",
+                    icon: "k-update",
+                    cssClass: "btn-primary"
+                });
+
+                buttons.push({
+                    title: "Отмена",
+                    "click": "close",
+                    icon: "k-cancel",
+                    cssClass: "btn-default"
+                });
+
+                $wndForm.pbaForm({
+                    model: viewModel,
+                    wrap: "k-edit-form-container",
+                    buttons: buttons,
+                    nameModel: "model",
+                    attrBind: true
+                });
+
+                $wndForm.data("pbaForm").bind();
+
+                wnd["_init__"] = true;
+            } else {
+                var $wndForm = wnd.element.find("form");
+
+                $wndForm.data("pbaForm").unbind();
+                $wndForm.data("pbaForm").bind(viewModel);
+            }
+
+            window["@wndID"].form = $wndForm.data("pbaForm");
+        }
+    };
+</script>
+
+@if (Model.EditorType == typeof(Base.Entities.Complex.MultilanguageText))
+{
+    attributes.Add("id", fieldID);
+    attributes.Add("class", "k-textbox");
+    attributes.Add("style", "width: 100%; padding-left: 25px; padding-right: 45px;");
+
+    <div id="@wrapID">
+
+        @Html.TextBox(Model, attributes)
+
+        <span class="k-icon icon-flag-ru" style="position: absolute; left: 25px; top: 10px;"></span>
+
+        <a class="editorOneBtn" onclick="window['@wrapID'].edit(); return false; "><span class=" halfling halfling-globe" role="button"></span></a>
+
+        @(Html.Kendo().Window()
+              .Name(wndID)
+              .Title("Локализация - " + Model.Title)
+              .Visible(false)
+              .Modal(true)
+              .Width(400)
+              .Height(300)
+              .Events(e => e.Open(wndID + ".onOpen"))
+              .Content(@<text>
+                <div class="form">
+                    <div class="tab-content common-tab" style="top: 10px;">
+                        <div class="tab-pane container active">
+                            @foreach (string lang in language.Where(l => l.Trim() != ""))
+                            {
+                                var id = "l_" + Guid.NewGuid().ToString("N");
+
+                                <div class="row e-row">
+                                    <div class="col-md-12 e-editor">
+                                        @Html.TextBox(Model, new { @class = "k-textbox", id = id, style = "width: 100%; padding-left: 25px; padding-right: 45px;", data_bind = "value: Lang." + lang })
+
+                                        <span class="k-icon icon-flag-@lang" style="position: absolute; left: 20px; top: 10px;"></span>
+
+                                        <a class="editorOneBtn" onclick="window['@wrapID'].translate('@lang', '@id' ); return false; "><span class=" halfling halfling-transfer" role="button"></span></a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </text>)
+        )
+    </div>
+}
+else if (Model.EditorType == typeof(Base.Entities.Complex.MultilanguageTextArea))
+{
+    attributes.Add("id", fieldID);
+    attributes.Add("class", "k-textbox");
+    attributes.Add("style", "width: 100%; padding-left: 25px; padding-right: 45px;");
+    attributes.Add("rows", 5);
+
+    <div id="@wrapID">
+
+        @Html.TextArea(Model, attributes)
+
+        <span class="k-icon icon-flag-ru" style="position: absolute; left: 20px; top: 10px;"></span>
+
+        <a style="position: absolute; left: 20px; top: 28px; cursor: pointer;" onclick="window['@wrapID'].edit(); return false;"><span class="halfling halfling-globe" role="button"></span></a>
+
+        @(Html.Kendo().Window()
+                .Name(wndID)
+                .Title("Локализация - " + Model.Title)
+                .Visible(false)
+                .Modal(true)
+                .Width(400)
+                .Height(500)
+                .Events(e => e.Open(wndID + ".onOpen"))
+                .Content(@<text>
+                    <div class="form">
+                        <div class="tab-content common-tab" style="top: 10px;">
+                            <div class="tab-pane container active">
+                                @foreach (string lang in language)
+                                {
+                                    var id = "l_" + Guid.NewGuid().ToString("N");
+
+                                    <div class="row e-row">
+                                        <div class="col-md-12 e-editor">
+                                            @Html.TextArea(Model, new { @class = "k-textbox", id = id, style = "width: 100%; padding-left: 25px;", data_bind = "value: Lang." + lang, rows = 5 })
+
+                                            <span class="k-icon icon-flag-@lang" style="position: absolute; left: 20px; top: 10px;"></span>
+
+                                            <a title="Перевести" style="position: absolute; left: 20px; top: 30px; cursor: pointer;" onclick="window['@wrapID'].translate('@lang', '@id'); return false;"><span class="halfling halfling-transfer" role="button"></span></a>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </text>)
+        )
+    </div>
+}
+else if (Model.EditorType == typeof(Base.Entities.Complex.MultilanguageHtml))
+{
+    @Html.Kendo().TabStrip().Name(Guid.NewGuid().ToString("N")).Animation(false).Items(tabstrip =>
+        {
+            var vmodel = new EditorViewModel()
+            {
+                PropertyName = Model.PropertyName + ".Lang.ru"
+            };
+
+            tabstrip.Add().Text("").SpriteCssClasses("icon-flag-ru").Selected(true).ContentHtmlAttributes(new { style = "padding: 10px 5px 5px 5px;" }).Content(Html.Partial("~/Views/Shared/EditorTemplates/SimpleHtml.cshtml", vmodel).ToHtmlString());
+
+            foreach (string lang in language)
+            {
+                var vm = new EditorViewModel()
+                {
+                    PropertyName = Model.PropertyName + ".Lang." + lang
+                };
+
+                tabstrip.Add().Text("").SpriteCssClasses("icon-flag-" + lang).ContentHtmlAttributes(new { style = "padding: 10px 5px 5px 5px;" }).Content(Html.Partial("~/Views/Shared/EditorTemplates/SimpleHtml.cshtml", vm).ToHtmlString());
+            }
+        })
+}
+else if (Model.EditorType == typeof(Base.Content.MultilanguageContent))
+{
+    var langs = language.ToList();
+    langs.Add("ru");
+    langs.Reverse();
+    var colID = "col_" + Guid.NewGuid().ToString("N");
+
+    var items = langs.Select((x, i) => new
+        {
+            Lang = x,
+            Model = new EditorViewModel
+            {
+                PropertyName = Model.PropertyName + ".Lang." + x
+            },
+            ID = "col_" + Guid.NewGuid().ToString(),
+            i
+        }).ToList();
+
+    <div id="@colID" role="tabpanel">
+        <ul class="nav nav-tabs" role="tablist">
+            @foreach (var item in items)
+            {
+                <li role="presentation" class="@(item.i == 0 ? "active" : "")"><a href="#@item.ID" data-toggle="tab"><span class="k-icon icon-flag-@item.Lang"></span></a></li>
+            }
+        </ul>
+
+        <div class="tab-content">
+            @foreach (var item in items)
+            {
+                <div role="tabpanel" class="tab-pane @(item.i == 0 ? "active" : "")" id="@item.ID">
+                    @Html.Partial("~/Views/Shared/EditorTemplates/Content.cshtml", item.Model);
+                </div>
+            }
+        </div>
+    </div>
+
+    <script>
+        // Тут плохо!
+
+        $('#@colID a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            $(".k-splitter").each(function () {
+                $(this).data("kendoSplitter")._resize();
+            });
+        });
+    </script>
+}
+

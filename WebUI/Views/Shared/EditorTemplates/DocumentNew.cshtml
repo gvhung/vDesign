@@ -1,0 +1,102 @@
+﻿
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    window["@wrapID"] = {
+        allowedExtensions: [".xls", ".xlsx", ".docx", ".pdf"],
+       
+        onUpload: function (e) {
+            if (window["@wrapID"].allowedExtensions.indexOf(e.files[0].extension.toLowerCase()) == -1) {
+                alert("Недопустимый формат файла.");
+                e.preventDefault();
+            }
+        },
+        onSuccess: function (e) {
+            var data = e.response;
+            if (data) {
+                console.log(e.response);
+
+                var $wrap = $("#@wrapID");
+                var $form = $wrap.closest("form");
+                var form = $form.data("pbaForm");
+
+                form.setPr("Value", data.content);
+                form.setPr("Type", data.type);
+
+                $("#@wrapID").html(data.view);
+                $form.trigger("onEditDocument", form);
+            }
+        },
+        onSelect: function () {
+            $(".k-upload-files").empty();
+        }
+
+    };
+
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            $(this).find(".k-upload-status").remove();
+            $(this).find(".k-upload-files").remove();
+        });
+    });
+</script>
+
+<script>
+    
+</script>
+
+<div id="@wrapID" data-type="null">
+    <div style="padding: 10px 30px" class="new-doc">
+        <div>
+            <label>Импорт из файла:</label>
+            @(Html.Kendo().Upload()
+                .Name("file")
+                .Multiple(false)
+                .ShowFileList(true)
+                .Events(e => e.Upload(wrapID + ".onUpload").Success(wrapID + ".onSuccess").Select(wrapID + ".onSelect"))
+                .Messages(m => m.Select("Выбрать..."))
+                .Async(a => a
+                    .Save("Upload", "Document")
+                    .AutoUpload(true)
+            ))
+
+            <div><span class="small" style="color: darkgray">Допустимые форматы: Word (.docx), Excel (.xls, .xlsx), PDF (.pdf)</span></div>
+        </div>
+        <br/>
+        <div>
+            <div><label>Создание нового документа:</label>
+            </div>
+            <div class="btn-group-vertical" role="group" style="width: 120px">
+                <button type="button" class="btn btn-default btn-block" id="btn-new-word">Word</button>
+                <button type="button" class="btn btn-default btn-block" id="btn-new-excel">Excel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        function createNewDoc(typeName) {
+            var $wrap = $("#@wrapID").closest(".document-wrapper");
+            var $form = $wrap.closest("form");
+            var form = $form.data("pbaForm");
+
+            $wrap.empty();
+
+            $.get(application.url.GetStandart("GetEditorTemplate"), { name: typeName }, function (html) {
+                $wrap.html(html);
+                $wrap.attr("data-type", typeName);
+
+                form.setPr("Type", typeName);
+
+                $form.trigger("onEditDocument", form);
+            });
+        }
+
+        $("#@wrapID #btn-new-word").click(function () { createNewDoc("Word"); });
+        $("#@wrapID #btn-new-excel").click(function () { createNewDoc("Excel"); });
+    });
+</script>

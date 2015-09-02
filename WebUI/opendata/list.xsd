@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+attributeFormDefault="unqualified" elementFormDefault="qualified">
+  <xs:element type="List" name="list"/>
+  <xs:complexType name="List">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Opendata list.
+      </xs:documentation>
+      <xs:documentation  xml:lang="ru">
+        Реестр  наборов  открытых данных.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element type="xs:anyURI" name="standardversion">
+        <xs:annotation>
+          <xs:documentation  xml:lang="en">
+            Link  to  opendata  standard version, which corresponds to current opendata list.
+          </xs:documentation>
+          <xs:documentation  xml:lang="ru">
+            Ссылка  на  версию  методических рекомендаций,  которой  соответствует  публикация  этого  реестра  наборов  открытых данных.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="Meta" name="meta"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Meta">
+    <xs:annotation>
+      <xs:documentation  xml:lang="en">
+        Opendata  metadatalist.
+      </xs:documentation>
+      <xs:documentation  xml:lang="ru">
+        Список  паспортов  наборов  открытых данных.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element  type="MetaItem"  name="item"  maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MetaItem">
+    <xs:annotation>
+      <xs:documentation  xml:lang="en">
+        Opendata metadata.
+      </xs:documentation>
+      <xs:documentation  xml:lang="ru">
+        Паспорт  набора  открытых данных.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element type="xs:string" name="identifier">
+        <xs:annotation>
+          <xs:documentation  xml:lang="en">
+            Opendata  identification number.
+          </xs:documentation>
+          <xs:documentation  xml:lang="ru">
+            Идентификационный  номер  набора данных.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="title">
+        <xs:annotation>
+          <xs:documentation  xml:lang="en">
+            Opendata title.
+          </xs:documentation>
+          <xs:documentation  xml:lang="ru">
+            Наименование  набора данных.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:anyURI" name="link">
+        <xs:annotation>
+          <xs:documentation  xml:lang="en">
+            Opendata  meta link.
+          </xs:documentation>
+          <xs:documentation  xml:lang="ru">
+            Ссылка  на  паспорт  набора открытых данных.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="format">
+        <xs:annotation>
+          <xs:documentation  xml:lang="en">
+            Opendata  meta format.
+          </xs:documentation>
+          <xs:documentation  xml:lang="ru">
+            Формат  паспорта  набора  открытых данных.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

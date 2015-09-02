@@ -1,0 +1,10 @@
+﻿@using Base.OpenID.Entities
+@{
+    ViewBag.Title = "Вход в систему";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+<h4>OpenID:</h4>
+<div class="text-center">
+    @Html.Action("OpenIdMenu", new { mode = OpenIdAuthMode.LogOn, isVertical = true })
+</div>

@@ -1,0 +1,206 @@
+﻿@model DashboardWidget
+
+@using Base.Task.Entities;
+
+@(Html.DashboardWidget()
+    .Content(@<text>
+        <div id="dashboard-widget-tasks">
+            <div class="info">
+                <span class="color-status" data-status="new"></span><span class="label-status">Новые</span>
+                <span class="color-status" data-status="viewed"></span><span class="label-status">Просмотренные</span>
+                <span class="color-status" data-status="inprocess"></span><span class="label-status">В работе</span>
+                <span class="color-status" data-status="rework"></span><span class="label-status">На доработке</span>
+            </div>
+            <ul id="dashboard-widget-tasks-list"></ul>
+        </div>
+    </text>))
+
+<script>
+    $(function () {
+        var $tasks = $("#dashboard-widget-tasks-list");
+        var $widget = $tasks.closest(".dashboard-widget");
+
+        var getStrStatus = function (task) {
+            var status;
+
+            switch (task.Status.toString()) {
+                case "@TaskStatus.New.GetValue()":
+                    status = "new";
+                    break;
+                case "@TaskStatus.Viewed.GetValue()":
+                    status = "viewed";
+                    break;
+                case "@TaskStatus.InProcess.GetValue()":
+                    status = "inprocess";
+                    break;
+                case "@TaskStatus.Rework.GetValue()":
+                    status = "rework";
+                    break;
+            }
+
+            return status;
+        };
+
+        var init = function () {
+            $tasks.empty();
+
+            $tasks.addClass("wnd-loading-content");
+
+            $.get("/Task/GetMyTasks", { maxcount: 10 }, function (res) {
+                if (res.error) {
+                    pbaAPI.errorMsg(res.error);
+                } else {
+                    $tasks.removeClass("wnd-loading-content");
+
+                    for (var i = 0; i < res.length; i++) {
+                        var task = res[i];
+
+                        $tasks.append(
+                            $("<li>", { id: task.ID })
+                                .append($("<a>", { "data-status": getStrStatus(task) }).on("click", function (e) {
+                                    var id = $(e.target).closest("li").attr("id");
+
+                                    pbaAPI.openViewModelEx("InTask",
+                                      {
+                                          wid: "dashboard-widget-tasks-list",
+                                          id: id,
+                                          callback: function (e) {
+                                              var $li = $tasks.find("li#" + e.model.ID);
+                                              var $sticker = $li.find("[data-status]");
+
+                                              var newstatus = getStrStatus(e.model);
+
+                                              if (newstatus) {
+                                                  if ($sticker.attr("data-status") !== newstatus) {
+                                                      $sticker.attr("data-status", newstatus);
+                                                  }
+                                              } else {
+                                                  $li.remove();
+                                              }
+                                          }
+                                      });
+                                })
+                                .append($("<p>").html(pbaAPI.getUserStr(task.AssignedFrom, true, 50, 50)))
+                                .append($("<p>").html(pbaAPI.truncateStr(task.Title, 100)))));
+                    }
+                }
+            });
+        };
+
+        init();
+
+        $widget.on("onChange", function () {
+            init();
+        });
+    });
+</script>
+
+<style>
+    #dashboard-widget-tasks {
+        min-height: 560px;    
+    }
+    
+    #dashboard-widget-tasks [data-status=new] {
+        background: #ffc;
+    }
+
+    #dashboard-widget-tasks [data-status=viewed] {
+        background: #ccf;
+    }
+
+    #dashboard-widget-tasks [data-status=inprocess] {
+        background: #cfc;
+    }
+
+    #dashboard-widget-tasks [data-status=rework] {
+        background: #ECAC83;
+    }
+
+    #dashboard-widget-tasks .info {
+        text-align: center;
+    }
+
+    #dashboard-widget-tasks .color-status {
+        border-radius: 50%;
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+    }
+
+    #dashboard-widget-tasks .label-status {
+        font-size: 12px;
+        text-transform: uppercase;
+        padding-left: 5px;        
+    }
+
+    #dashboard-widget-tasks-list {
+        overflow: hidden;
+        padding: 2em;
+        min-height: 17em;
+    }
+
+    #dashboard-widget-tasks-list li {
+        margin: 1em;
+        float: left;
+    }
+
+    #dashboard-widget-tasks-list li {
+        list-style: none;
+    }
+
+    #dashboard-widget-tasks-list li {
+        display: list-item;
+        text-align: -webkit-match-parent;
+    }
+
+    #dashboard-widget-tasks-list li a {
+        -webkit-transform: rotate(-6deg);
+        -o-transform: rotate(-6deg);
+        -moz-transform: rotate(-6deg);
+    }
+
+    #dashboard-widget-tasks-list li a {
+        cursor: pointer;
+        text-decoration: none;
+        color: #000;
+        display: block;
+        min-height: 15em;
+        width: 13em;
+        padding: 1em;
+        -moz-box-shadow: 5px 5px 7px rgba(33,33,33,1);
+        -webkit-box-shadow: 5px 5px 7px rgba(33,33,33,.7);
+        box-shadow: 5px 5px 7px rgba(33,33,33,.7);
+        -moz-transition: -moz-transform .15s linear;
+        -o-transition: -o-transform .15s linear;
+        -webkit-transition: -webkit-transform .15s linear;
+    }
+
+
+
+    #dashboard-widget-tasks-list li:nth-child(even) a {
+        -o-transform: rotate(4deg);
+        -webkit-transform: rotate(4deg);
+        -moz-transform: rotate(4deg);
+        position: relative;
+        top: 5px;
+    }
+
+    #dashboard-widget-tasks-list li:nth-child(3n) a {
+        -o-transform: rotate(-3deg);
+        -webkit-transform: rotate(-3deg);
+        -moz-transform: rotate(-3deg);
+        position: relative;
+        top: -5px;
+    }
+
+    #dashboard-widget-tasks-list li a:hover, #dashboard-widget-tasks li a:focus {
+        box-shadow: 10px 10px 7px rgba(0,0,0,.7);
+        -moz-box-shadow: 10px 10px 7px rgba(0,0,0,.7);
+        -webkit-box-shadow: 10px 10px 7px rgba(0,0,0,.7);
+        -webkit-transform: scale(1.25);
+        -moz-transform: scale(1.25);
+        -o-transform: scale(1.25);
+        position: relative;
+        z-index: 5;
+    }
+</style>

@@ -1,0 +1,113 @@
+﻿@model StepViewModel
+
+@{
+    Layout = "../../_WizardFormLayout.cshtml";
+
+    const string editorName = "~/Views/Shared/EditorTemplates/Common/Editor.cshtml";
+
+    var tabPrefix = "_" + Guid.NewGuid().ToString("N");
+}
+
+<link href="~/Content/css/wizard.css" rel="stylesheet" />
+<div class="tab-content common-tab">
+    <div class="tab-pane container active" id="@(Model.StepIndex + "_" + Model.Mnemonic)" style="height: 100%">
+        <form id="@Model.FormName" class="common-form">
+            <div class="wizard">
+                <ul class="steps">
+                    @foreach (var step in Model.Wizard.Steps)
+                    {
+                        var liClass = "";
+                        if (step.Index < Model.StepIndex)
+                        {
+                            liClass += " passed";
+                        }
+                        else if (step.Index == Model.StepIndex)
+                        {
+                            liClass += " active";
+                        }
+
+                        <li class="@liClass"><span class="badge">@(step.Index + 1)</span>&nbsp;<span class="chevron"></span></li>
+                    }
+                </ul>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.StepTitle))
+            {
+                <div class="w-header">
+                    @if (!string.IsNullOrEmpty(Model.StepTitle))
+                    {
+                        <p class="w-title">@Model.StepTitle</p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.StepDescription))
+                    {
+                        <p class="w-description alert alert-info">@Model.StepDescription</p>
+                    }
+                </div>
+            }
+
+            @foreach (var editor in Model.Editors)
+            {
+                <div class="row e-row">
+                    @if (editor.IsLabelVisible)
+                    {
+                        if (editor.EditorTemplate == "Boolean")
+                        {
+                            <div class="col-md-3 e-label">
+                            </div>
+                            <div class="col-md-9 e-editor">
+                                @{ Html.RenderPartial(editorName, editor); } @RenderLabel(editor)
+                            </div>
+                        }
+                        else
+                        {
+
+                            <div class="col-md-3 d-label">
+                                @RenderLabel(editor)
+                            </div>
+                            <div class="col-md-9 d-editor">
+                                @{ Html.RenderPartial(editorName, editor); }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        Html.RenderPartial(editorName, editor);
+                    }
+                </div>
+            }
+        </form>
+
+    </div>
+
+</div>
+
+
+@helper RenderLabel(EditorViewModel editor)
+{
+    if (editor.EditorTemplate == "Boolean")
+    {
+        <label class="k-checkbox-label" for="@editor.UID">@editor.Title</label>
+
+        @RenderHelp(editor)
+    }
+    else
+    {
+        <label for="@editor.UID">@editor.Title</label>
+
+        if (editor.IsRequired)
+        {
+            <span style="color: red;">*</span>
+        }
+
+        @RenderHelp(editor)
+    }
+}
+
+@helper RenderHelp(EditorViewModel editor)
+{
+    if (String.IsNullOrEmpty(editor.Description))
+    {
+        return;
+    }
+
+    <span title="@editor.Description" class="edt-label halfling halfling-question-sign"></span>
+}

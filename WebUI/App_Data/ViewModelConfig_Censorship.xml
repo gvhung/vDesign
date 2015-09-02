@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>Censorship_Settings</mnemonic>
+    <title>Уведомления - Настройки</title>
+    <entity>Base.Censorship.Entities.Setting, Base.Censorship</entity>
+    <detailview title="Настройки"></detailview>
+  </item>
+</ViewModelConfig>

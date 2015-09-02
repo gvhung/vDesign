@@ -1,0 +1,86 @@
+﻿img.book {
+    border: 1px outset #C0C0C0;
+}
+
+.content-body * {
+    /*border: none;
+        font-size:14px;
+        color: #3f3f3f;
+        font-family: Bodoni;
+        text-align: left;
+        padding-bottom: 0px;
+        padding-left: 0px;
+        padding-right: 0px;
+        padding-top: 0px;
+        text-transform:none;*/
+    color: #3f3f3f;
+    /*text-align: left;*/
+    padding: 0;
+    margin: 0;
+    float: none;
+}
+
+.content-body h1 {
+    border: none;
+}
+
+    .content-body h2  {
+        text-align:left;
+            }
+
+/*.content-body h1 * {
+                display: block;
+                font-size: 2em;
+                font-weight: bold;
+                text-transform:uppercase;
+        }
+
+
+
+        .content-body h2 * {
+                display: block;
+                font-size: 1.8em;
+                font-weight: bold;
+                text-transform:uppercase;
+        }
+
+        .content-body h3 * {
+                display: block;
+                font-size: 1.6em;
+                font-weight: bold;
+                text-transform:uppercase;
+        }
+
+        .content-body h4 * {
+                display: block;
+                font-size: 1.4em;
+                font-weight: bold;
+        }
+
+        .content-body h5 * {
+                display: block;
+                font-size: 1.2em;
+                font-weight: bold;
+        }
+
+         .content-body h6 * {
+                display: block;
+                font-size: 1em;
+                font-weight: bold;
+        }*/
+
+.content-body ul {
+    margin-left: 20px;
+}
+
+.content-body ol {
+    margin-left: 20px;
+}
+
+.content-body sub {
+    font-size: 0.8em;
+}
+
+.content-body sup {
+    font-size: 0.8em;
+}

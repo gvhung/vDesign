@@ -1,0 +1,15 @@
+﻿@model string
+
+@{
+    var tooltip = "tltp_" + Guid.NewGuid().ToString("N");
+
+}
+
+<span id="@tooltip" style="margin-left: 10px;" title="@Model" class="label label-danger">Ошибка бизнес-процесса</span>
+
+<script>
+    $("#@tooltip").tooltip({
+        placement: 'bottom',
+        container: 'body'
+    });
+</script>

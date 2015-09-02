@@ -1,0 +1,29 @@
+﻿@using Framework.Maybe
+@model WebUI.Models.BusinessProcess.ClosedTimeLineElementVm
+
+@{
+    var renderDevider = true;
+}
+
+<div id="@Model.ID" class="timeline-badge" style="background-color: @Model.Color"><i class="halfling halfling-ok"></i></div>
+<div class="timeline-panel">
+    <div class=" timeline-heading">
+        <h4 title="@Model.Description" class="timeline-title">&nbsp;@Model.Title</h4>
+    </div>
+    <hr />
+    <div class="timeline-body">
+        <div class="media">
+            <div class="pull-left performers">
+                <img data-userid="@Model.Performer.ID" class="media-object img-circle" style="width: 128px; height: 128px;" src="@Html.GetImageSrc(Model.Performer.Image, 128, 128)">
+            </div>
+            <div class="media-body">
+                <h4 class="text-primary"><small>@Model.Performer.FullName </small></h4>
+                <blockquote>
+                    <footer>@Model.Comment</footer>
+                    <div title="@Model.Action.Description" class="btn btn-white" style="background-color: @Model.Action.Color">@Model.Action.Title</div>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+
+</div>

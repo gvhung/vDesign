@@ -1,0 +1,62 @@
+﻿@using Base.BusinessProcesses.Entities
+@using Newtonsoft.Json
+@using WebUI.Models.BusinessProcess
+@model WithCustomEditorVm
+
+@{
+    Layout = "EditorLayout.cshtml";
+
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID">
+    <div class="form-group">
+        <input type="checkbox" class="form-control">
+    </div>
+    <div class="list-group">
+        @foreach (var item in Model.Editors)
+        {
+            <a href="#" data-type="@((int) MacroType.InitObject)" data-member="@item.Member" class="list-group-item">@item.Name</a>
+        }
+    </div>
+    <a href="#" data-clear class="btn btn-danger">Очистить</a>
+</div>
+
+<script>
+    $(function () {
+        var wrap = $('#@wrapID');
+        var toClear;
+
+        $('[data-clear]', wrap).click(function() {
+            toClear = true;
+        });
+
+        wrap.closest('[property-editor]').on('onLoad', function (e, args) {
+            toClear = false;
+            var data = args.model;
+
+            if (data && data.Value) {
+                var array = $.parseJSON(data.Value);
+
+                if (array.length) {
+                    var obj = array[0];
+                    if (obj.MacroType == "@((int)MacroType.Boolean)") {
+                        $('#@wrapID').find('input[type=checkbox]').prop('checked', obj.Value);
+                    }
+                }
+            }
+
+            wrap.closest('[data-role=wraplayout]').find('[data-role=apply]').click(function () {
+                if (toClear) {
+                    data.set('Value', null);
+                } else {
+                    var result = [{ "MacroType": "@((int)MacroType.Boolean)", "Value": $('#@wrapID').find('input[type=checkbox]').prop('checked') }];
+
+                    data.set('Value', JSON.stringify(result));
+                }
+
+                $(this).closest('[data-role=window]').data('kendoWindow').close();
+            });
+        });
+    });
+</script>

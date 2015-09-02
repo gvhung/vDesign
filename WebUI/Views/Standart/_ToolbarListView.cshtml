@@ -1,0 +1,463 @@
+﻿@model Dialog_WidgetViewModel
+
+@using IronPython.Modules
+@using Newtonsoft.Json
+
+@{
+    Type typeEntity = Model.ViewModelConfig.TypeEntity;
+
+    bool isCategorizedItem = typeEntity.GetInterfaces().Contains(typeof(ICategorizedItem));
+
+    Type typeCategory = null;
+
+    bool isExtendedCategory = false;
+
+    if (isCategorizedItem)
+    {
+        ViewModelConfig configCategory = Model.GetViewModelConfig((Model.ViewModelConfig.ListView as ListViewCategorizedItem).MnemonicCategory);
+
+        isExtendedCategory = (configCategory.ListView as Base.UI.TreeView).ExtendedCategory;
+    }
+
+    string nameToolbar = "toolbar_" + Guid.NewGuid().ToString("N");
+    string btnToggleTreeId = Guid.NewGuid().ToString("N");
+    string btnAddId = Guid.NewGuid().ToString("N");
+    string btnWizardId = Guid.NewGuid().ToString("N");
+    string btnEditId = Guid.NewGuid().ToString("N");
+    string btnDeleteId = Guid.NewGuid().ToString("N");
+    string btnChangeCatId = Guid.NewGuid().ToString("N");
+    string btnSettings = Guid.NewGuid().ToString("N");
+    string btnExportExcel = Guid.NewGuid().ToString("N");
+    string btnExportPdf = Guid.NewGuid().ToString("N");
+    string cbRecursiveViewId = Guid.NewGuid().ToString("N");
+
+    Model.ViewModelConfig.ListView.Toolbars.ForEach(x =>
+    {
+        x.Url = String.Format("/{0}/{1}/{2}", x.Area, x.Controller, x.Action).Replace("//", "/");
+    });
+
+    string toolbarsClientObject = JsonConvert.SerializeObject(Model.ViewModelConfig.ListView.Toolbars);
+
+    bool actionCreate = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Create);
+    bool actionWizard = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Create) && Model.HasWizard;
+    bool actionEdit = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Write);
+    bool actionDelete = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Delete);
+    bool actionChangeCategory = isCategorizedItem && !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Write);
+    bool actionAllCategorizedItems = isCategorizedItem;
+    bool actionSettings = true;
+    bool actionSearch = Model.ViewModelConfig.TypeEntity.IsFullTextSearchEnabled();
+    bool actionExport = true;
+
+
+    List<Base.UI.Action> hiddenActions = Model.ViewModelConfig.ListView.HiddenActions;
+
+    if (hiddenActions != null && hiddenActions.Count() > 0)
+    {
+        if (actionCreate) { actionCreate = !hiddenActions.Any(m => m.ID == "Create"); }
+
+        if (actionWizard) { actionWizard = !hiddenActions.Any(m => m.ID == "Wizard"); }
+
+        if (actionDelete) { actionDelete = !hiddenActions.Any(m => m.ID == "Delete"); }
+
+        if (actionChangeCategory) { actionChangeCategory = !hiddenActions.Any(m => m.ID == "ChangeCategory"); }
+
+        if (actionAllCategorizedItems) { actionAllCategorizedItems = !hiddenActions.Any(m => m.ID == "AllCategorizedItems"); }
+
+        if (actionSettings) { actionSettings = !hiddenActions.Any(m => m.ID == "Settings"); }
+
+        if (actionExport) { actionExport = !hiddenActions.Any(m => m.ID == "Export"); }
+
+        if (actionSearch) { actionSearch = !hiddenActions.Any(m => m.ID == "Search"); }
+    }
+}
+
+<script>
+    window["@nameToolbar"] = new WrapToolbar("@nameToolbar", "ToolbarListView");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+        var toolbar = window["@nameToolbar"];
+
+        composite.registerWidget(toolbar);
+
+        toolbar.toolbars = @Html.Raw(toolbarsClientObject);
+
+        toolbar.listViewSelectedObject = null;
+
+        toolbar.refreshListView = function(){
+            composite.onWidgetChanged(
+                {
+                    sender: toolbar,
+                    event: "refresh",
+                    params: { }
+                });
+        };
+
+        toolbar.onNeighbourWidgetChanged = function (e) {
+            switch (e.sender.desc) {
+                case "GridView":
+                case "Scheduler":
+                    if (e.event == "select" || e.event == "onDataBound") {
+
+                        if (e.event == "select")
+                            toolbar.listViewSelectedObject = e.params.dataItem;
+                        else toolbar.listViewSelectedObject = null;
+
+                        var isSelected = toolbar.listViewSelectedObject != null;
+
+                        var isMnemonic = true;
+                        var isSelectNode = true;
+
+                        @if (isCategorizedItem) {
+                            @: if (!e.sender["nodeID"]) isSelectNode = false;
+                                                                                                                        }
+
+                        @if (isCategorizedItem && isExtendedCategory) {
+                            @: if (!e.sender["categoryItemMnemonic"]) isMnemonic = false;
+                                                                                                                        }
+
+                        @if (actionCreate) {
+                            @: toolbar.enable("#@btnAddId", isSelectNode && isMnemonic);
+                                                                                                                        }
+
+                        @if (actionWizard) {
+                            @: toolbar.enable("#@btnWizardId", isSelectNode && isMnemonic);
+                                                                                                }
+
+                        @if (actionEdit) {
+                            @: toolbar.enable("#@btnEditId", isSelected && isSelectNode && isMnemonic);
+
+                        }
+                        else
+                        {
+                            @: toolbar.enable("#@btnEditId", isSelected && isSelectNode && isMnemonic);
+                        }
+
+                        @if (actionDelete) {
+                            @: toolbar.enable("#@btnDeleteId", isSelected);
+                                                                                                                        }
+
+                        @if (actionChangeCategory) {
+                            @: toolbar.enable("#@btnChangeCatId", isSelected);
+                                                                                                                        }
+
+                        @if (actionAllCategorizedItems) {
+                            @: toolbar.updateCategoryCheckbox();
+                                                                                                                        }
+
+                        toolbar.element().find("button[data-onlyForSelected=true]").each(function(){ $(this).data("kendoButton").enable(isSelected);});
+
+                        if (e.event == "onDataBound") {
+                            toolbar.element().find('#searchbox').find('.cancel-search').removeClass('k-loading').addClass('k-i-close');
+                            toolbar.popupEl().find('#searchbox').find('.cancel-search').removeClass('k-loading').addClass('k-i-close');
+                        }
+                    } else if (e.event == "dblclick") {
+                        var $btnEdit = $("#@btnEditId");
+
+                        if(!$btnEdit.hasClass("k-state-disabled")) {
+                            composite.onWidgetChanged(
+                            {
+                                sender: toolbar,
+                                event: "click",
+                                params: { action: "edit" }
+                            });
+                        }
+                    }
+
+                    break;
+            }
+        };
+
+        toolbar.updateCategoryCheckbox = function () {
+            if (toolbar.getCookie("@Model.Mnemonic", "allItems", "false") == "true") {
+                toolbar.element().find("#@cbRecursiveViewId").attr('checked', 'checked');
+            };
+        };
+
+        //events
+        toolbar.onClick = function (e) {
+            //console.log({
+            //    event: e,
+            //    action: e.target[0].dataset.action
+            //});
+            composite.onWidgetChanged(
+                {
+                    sender: toolbar,
+                    event: "click",
+                    params: {
+                        event: e,
+                        action: e.target[0].getAttribute("data-action")
+                    }
+                });
+        };
+
+        toolbar.searchBox_onClick = function (e) {
+            if (e.str) {
+                e.sender.find('.cancel-search').addClass('k-loading').removeClass('k-i-close');
+            }
+
+            composite.onWidgetChanged(
+                {
+                    sender: toolbar,
+                    event: "search",
+                    params: { str: e.str }
+                });
+        };
+
+        toolbar.openCustomToolbar = function (btnID, toolbarID, url) {
+            var tbr = $.grep(toolbar.toolbars, function (x) {
+                return x.ToolbarID == toolbarID;
+            })[0];
+
+            var wid;
+
+            if("wndID" in tbr.Params)
+                wid = tbr.Params["wndID"];
+            else
+                wid = "w_" + btnID;
+
+            var $w = $("#" + wid);
+            var $btn = $("#" + btnID);
+
+            if ($w.length == 0) {
+                $("body").append("<div id='" + wid + "' data-toolbarID='@nameToolbar' class='w-custom-toolbar view-model-window wnd-loading-content'></div>");
+
+                $w = $("#" + wid);
+
+                $w.kendoWindow({
+                    width: "auto",
+                    height: "auto",
+                    title: tbr.Title,
+                    content: !tbr.IsAjax ? pbaAPI.addUrlParametrs(tbr.Url, tbr.params) : "",
+                    visible: false,
+                    resizable: false,
+                    modal: true,
+                });
+            }
+
+            var wnd = $w.data("kendoWindow");
+
+            if(tbr.IsAjax) {
+                wnd._events.open = [];
+                wnd._events.open.push(function(e) {
+                    var selectedObject = toolbar.listViewSelectedObject;
+                    var params = selectedObject ? pbaAPI.replaceListPlaceholders(selectedObject, tbr.Params) : null;
+
+                    $.ajax({
+                        url: tbr.Url,
+                        data: $.extend({ viewtype: "@((int)MnemonicViewType.ListView)" }, params),
+                        success: function (data) {
+                            var $content = e.sender.element;
+
+                            var dialogID = $content.find("#DialogID").val();
+
+                            if(dialogID){
+                                var dialog = window[dialogID];
+                                dialog.destroy();
+                            }
+
+                            $content.removeClass("wnd-loading-content");
+
+                            if (data) {
+                                $content.html(data);
+
+                                var dialogID = $content.find("#DialogID").val();
+
+                                if(dialogID){
+                                    var $dialog = $("#" + dialogID);
+
+                                    if($dialog.hasClass("dialog-listview")) {
+                                        $dialog.data("dialogListView").resize($content.height() - 45);
+
+                                    } else if ($dialog.hasClass("dialog-vm")) {
+                                        //var id = 1;
+                                        //var entities = {};
+
+                                        //entities[id] = { model: null, order: 0 };
+
+                                        //$dialog.data("dialogVM").initDialog({
+                                        //    wnd: wnd,
+                                        //    currentID: 1,
+                                        //    entities: entities,
+                                        //    toSave: true,
+                                        //});
+                                    }
+                                }
+                            } else {
+                                $content.html('<p style="text-align: center; margin:10px; color:#ddd">Действий нет</p>');
+                            }
+                        }
+                    });
+                });
+            }
+
+            if(tbr.IsMaximize) wnd.maximize();
+
+            wnd.center();
+            wnd.open();
+        };
+    })();
+</script>
+
+
+@(Html.Kendo().ToolBar()
+    .Name(nameToolbar)
+        .Events(e => e.OverflowOpen(nameToolbar + ".onOverflowOpen"))
+    .Items(items =>
+    {
+        if (isCategorizedItem)
+        {
+            items.Add().Type(CommandType.Button).Text("Отобразить / скрыть дерево")
+                .SpriteCssClass("btntoolbar button-tree-collapse halfling halfling-chevron-left").Id(btnToggleTreeId)
+                .HtmlAttributes(new { @class = "button-tree-collapse", data_action = "toggleTree" })
+                .ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            items.Add().Type(CommandType.Separator);
+        }
+
+
+        items.Add().Type(CommandType.ButtonGroup).Buttons(buttons =>
+        {
+            if (actionCreate)
+            {
+                buttons.Add().Text("Создать").HtmlAttributes(new { title = "Создать", data_action = "add" }).SpriteCssClass("btntoolbar halfling halfling-plus").Enable(actionCreate).Id(btnAddId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            }
+            
+            if (actionWizard)
+            {
+                buttons.Add().Text("Мастер").HtmlAttributes(new { title = "Мастер", data_action = "wizard" }).SpriteCssClass("btntoolbar glyphicon glyphicon-magic").Enable(actionWizard).Id(btnWizardId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            }
+
+            if (actionEdit)
+            {
+                buttons.Add().Text("Редактировать").HtmlAttributes(new { title = "Редактировать", data_action = "edit" }).SpriteCssClass("btntoolbar halfling halfling-pencil").Id(btnEditId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            }
+            else
+            {
+                buttons.Add().Text("Просмотр").HtmlAttributes(new { title = "Просмотр", data_action = "edit" }).SpriteCssClass("btntoolbar halfling halfling-eye-open").Id(btnEditId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            }
+
+            if (actionDelete)
+            {
+                buttons.Add().Text("Удалить").HtmlAttributes(new { title = "Удалить", data_action = "delete" }).SpriteCssClass("btntoolbar halfling halfling-remove").Enable(actionDelete).Id(btnDeleteId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            }
+            
+            if (actionChangeCategory)
+            {
+                buttons.Add().Text("Переместить в...").HtmlAttributes(new { title = "Переместить в...", data_action = "changeCategory" }).SpriteCssClass("btntoolbar halfling halfling-indent-left").Id(btnChangeCatId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            }
+        });
+
+        if (actionAllCategorizedItems)
+        {
+            items.Add().Type(CommandType.Separator);
+
+            items.Add()
+                .Template(@"<div style='display:inline-block' title='Рекурсивный просмотр'>
+                    <input id='" + cbRecursiveViewId + "' type='checkbox' />" +
+                    "</div>");
+        }
+
+        if (Model.ViewModelConfig.ListView.Toolbars.Count > 0)
+        {
+            items.Add().Type(CommandType.Separator);
+
+            foreach (var toolbar in Model.ViewModelConfig.ListView.Toolbars)
+            {
+                string btnContent = "";
+                string btnID = "btn_" + Guid.NewGuid().ToString("N");
+
+                if (!String.IsNullOrEmpty(toolbar.Icon))
+                {
+                    btnContent = String.Format("<span class='btntoolbar {0}'></span>", toolbar.Icon);
+                }
+                else
+                {
+                    btnContent = String.Format("<span>{0}</span>", toolbar.Title);
+                }
+
+                items.Add().Template(Html.Kendo().Button().Name(btnID)
+                        .HtmlAttributes(new { title = toolbar.Title, data_onlyForSelected = toolbar.OnlyForSelected.ToString().ToLower(), onclick = nameToolbar + String.Format(".openCustomToolbar('{0}', '{1}')", btnID, toolbar.ToolbarID) })
+                        .Content(btnContent).ToHtmlString());
+            }
+        }
+
+        if (actionExport)
+        {
+            items.Add().Type(CommandType.Separator);
+
+            items.Add().Type(CommandType.SplitButton).Text("Excel").SpriteCssClass("k-icon menu-icon icon-xlsx").HtmlAttributes(new { data_action = "exportExcel" }).Id(btnExportExcel).Click(nameToolbar + ".onClick").MenuButtons(menuButtons =>
+            {
+                menuButtons.Add().Text("Excel").SpriteCssClass("k-icon menu-icon icon-xlsx").HtmlAttributes(new { data_action = "exportExcel" }).Id(btnExportExcel);
+                menuButtons.Add().Text("Pdf").SpriteCssClass("k-icon menu-icon icon-pdf").HtmlAttributes(new { data_action = "exportPfd" }).Id(btnExportPdf);
+            });
+        }
+
+        if (actionSettings)
+        {
+            items.Add().Type(CommandType.Button).Text("Настройки").HtmlAttributes(new { data_action = "settings" }).SpriteCssClass("btntoolbar halfling halfling-cog").Id(btnSettings).Overflow(ShowInOverflowPopup.Always).Click(nameToolbar + ".onClick");
+        }
+
+        if (actionSearch)
+        {
+            items.Add().Type(CommandType.Separator);
+
+            items.Add().Template(
+                        String.Format(@"<div id='searchbox'>
+                            <div class='search-tools'>
+                                <span class='k-icon k-i-close cancel-search'></span>
+                                <input class='k-textbox pull-right' placeholder='Поиск' value='{0}'>
+                            </div>
+                        </div>", Model.SearchStr))
+                        .OverflowTemplate(
+                        String.Format(@"<div id='searchbox'>
+                            <div class='search-tools'>
+                                <span class='k-icon k-i-close cancel-search'></span>
+                                <input class='k-textbox pull-right' placeholder='Поиск' value='{0}'>
+                            </div>
+                        </div>", Model.SearchStr));
+        }
+    })
+)
+
+<script>
+    $(function () {
+        var toolbar = window["@nameToolbar"];
+        var $toolbar = toolbar.element();
+
+        $toolbar.find("#searchbox").pbaSearchBox(toolbar.searchBox_onClick);
+        toolbar.popupEl().find("#searchbox").pbaSearchBox(toolbar.searchBox_onClick);
+
+        //NOTE: в данной версии toolbar-а возможно использовать иконки только из кендо-спрайтов
+        //TODO: убрать!!!
+        $toolbar.find(".k-sprite.glyphicon").removeClass("k-sprite");
+        toolbar.popupEl().find(".k-sprite.glyphicon").removeClass("k-sprite");
+
+        toolbar.enable("#@btnEditId", false);
+        toolbar.enable("#@btnDeleteId", false);
+        toolbar.enable("#@btnChangeCatId", false);
+    });
+</script>
+
+
+@if (actionAllCategorizedItems)
+{
+    <script>
+        $(function(){
+            var toolbar = window["@nameToolbar"];
+            var $tb = toolbar.element();
+
+            if (toolbar.getCookie("@Model.Mnemonic", "allItems", "false") == "true") {
+                $tb.find("#@cbRecursiveViewId").attr('checked','checked')
+            };
+
+            $tb.find('#@cbRecursiveViewId').iphoneStyle({
+                checkedLabel: '<span class="k-icon icon-hierarchy"></span>',
+                uncheckedLabel: '<span class="k-icon icon-no-hierarchy"></span>',
+                onChange: function($e, value){
+                    toolbar.setCookie("@Model.Mnemonic", "allItems", value);
+                    toolbar.refreshListView();
+                }
+            });
+        });
+    </script>
+}

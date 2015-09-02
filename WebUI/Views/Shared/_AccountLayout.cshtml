@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link rel="icon" href="@Url.Content("~/Content/images/favicon.ico")" type="image/x-icon">
+
+    @Styles.Render("~/Content/bootstrapcss")
+    @Styles.Render("~/Content/main_css")
+    @Scripts.Render("~/bundles/jquery")
+    @Styles.Render("~/Content/account")
+</head>
+
+<body class="login">
+    <div class="page-center-parent">
+        <div class="page-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+                        <div class="component-shadow">
+                            <div class="account-form">
+                                @RenderBody()
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center footer-info">
+                © 2015 Минэкономразвития России
+            </div>
+        </div>
+    </div>
+</body>
+</html>

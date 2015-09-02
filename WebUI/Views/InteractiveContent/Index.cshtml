@@ -1,0 +1,249 @@
+﻿@model Base.Content.Entities.Lesson
+
+@{
+    Layout = null;
+}
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+<link href="~/Content/css/wizard.css" rel="stylesheet" />
+<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+<div class="container">
+    <h1>Тест</h1>
+
+    <div class="wizard" data-courseid="@Model.ID">
+        <ul class="steps">
+            <li data-step="0" class="active loaded"><span class="glyphicon glyphicon-star"></span> Старт<span class="chevron"></span></li>
+            @foreach (var ex in Model.Exercises)
+            {
+                <li @(ex.Content.HasInteractive ? "data-interactive" : "") data-step="@ex.ID"><span class="badge">@ex.ID</span>&nbsp;<span class="chevron"></span></li>
+            }
+        </ul>
+        <div class="actions">
+            <button data-wizard="prev" class="btn btn-default btn-prev"><span class="glyphicon glyphicon-arrow-left"></span>Назад</button>
+            <button data-wizard="check" class="btn btn-primary btn-next" style="display: none;">Проверка<span class="glyphicon glyphicon-share-alt"></span></button>
+            <button data-wizard="next" class="btn btn-default btn-next" style="display: inline-block;">Далее<span class="glyphicon glyphicon-arrow-right"></span></button>
+        </div>
+        <div class="step-content">
+            <div data-step="0">
+                <h4>Это тест</h4>
+                <p>Veggies es bonus vobis, proinde vos postulo essum magis kohlrabi welsh onion daikon amaranth tatsoi tomatillo melon azuki bean garlic. Beetroot water spinach okra water chestnut ricebean pea catsear courgette.</p>
+                <button data-wizard="next" class="btn btn-primary">Начать тест</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $.fn.interactivePlayer = function (options) {
+        var currentStepID = 0;
+        var currentStep = 0;
+        var isLoading = false;
+        var courseID = this.attr('data-courseid');
+
+        var $nextBtn = this.find('[data-wizard=next]').click(moveNext);
+        var $checkBtn = this.find('[data-wizard=check]').click(checkStep).hide();
+        var $prevBtn = this.find('[data-wizard=prev]').click(movePrev);
+
+        var $currentStep;
+        var $currentStepContent;
+        var $stepsContent = this.find('.step-content');
+
+        var $steps = this.find('.steps [data-step]');
+        $steps.each(function (i) {
+            $(this).attr('data-order', i);
+        });
+
+        $steps.on('click', function () {
+            var $el = $(this);
+
+            if ($el[0] === $currentStep[0]) {
+                return;
+            }
+
+            if ($el.hasClass('loaded')) {
+                setStepByID($el.attr('data-step'));
+            };
+        });
+
+        setStepByID(0);
+
+        function canMoveNext() {
+            return !isLoading && currentStep < ($steps.length - 1);
+        }
+
+        function moveNext() {
+            if (!canMoveNext()) return;
+            var $nextStep = $steps.eq(currentStep + 1);
+            var nextID = $nextStep.attr('data-step');
+
+            if ($nextStep.length) {
+                if ($nextStep.hasClass('loaded')) {
+                    setStepByID(nextID);
+                } else {
+                    isLoading = true;
+
+                    moveNextSimple(nextID).done(setNewStep).fail(errorMoveNext).always(function () {
+                        isLoading = false;
+                    });
+                }
+            }
+        }
+
+        function moveNextSimple(nextID) {
+            var def = new $.Deferred();
+
+            $.get('/interactivecontent/getnextstep', { courseID: courseID }).success(function (data) {
+                if (data.Allowed) {
+                    var newStep = $('<div />', {
+                        html: data.Body
+                    }).attr('data-step', nextID + 1);
+
+                    $steps.eq(currentStep + 1).addClass('loaded');
+                    def.resolve({
+                        isNew: true,
+                        stepBody: newStep,
+                        stepID: nextID
+                    });
+                } else {
+                    def.reject(data);
+                }
+            });
+
+            return def.promise();
+        }
+
+        function disableInteractive($stepBody) {
+            $stepBody.find('[uid]').each(function () {
+                var $el = $(this);
+                switch ($el.attr('type')) {
+                    case 'checkbox':
+                        $el.attr('disabled', 'disabled');
+                        break;
+                    default:
+                }
+            });
+        }
+
+        function getInteractiveData($stepBody) {
+            return $.map($stepBody.find('[uid]'), function (el) {
+                var $el = $(el);
+
+                var obj = {
+                    UID: $el.attr('uid')
+                };
+
+                switch ($el.attr('type')) {
+                    case 'checkbox':
+                        obj.Value = $el.is(":checked");
+                        break;
+                    default:
+                }
+
+                return obj;
+            });
+        }
+
+        function checkStep() {
+
+            $.ajax({
+                type: 'POST',
+                url: '/interactivecontent/checkresult',
+                data: JSON.stringify({
+                    ID: currentStepID,
+                    Values: getInteractiveData($currentStepContent)
+                }),
+                dataType: "json",
+                contentType: 'application/json'
+            }).done(function (result) {
+                $currentStep.addClass('checked');
+
+                if (result.IsPassed) {
+                    setCurrentPassed();
+                } else {
+                    setCurrentFailed();
+                }
+
+                $nextBtn.show();
+                $checkBtn.hide();
+
+                disableInteractive($currentStepContent);
+
+            }).always(function () {
+                isLoading = false;
+            });
+        }
+
+        function setCurrentPassed() {
+            $currentStepContent.addClass('passed');
+            $currentStep.addClass('passed');
+        }
+
+        function setCurrentFailed() {
+            $currentStepContent.addClass('failed');
+            $currentStep.addClass('failed');
+        }
+
+        function showCurrent() {
+            $steps.removeClass('active');
+            $currentStep.addClass('active');
+
+            $stepsContent.find('[data-step]').hide();
+            $currentStepContent.show();
+
+            toggleButtons();
+        }
+
+        function setNewStep(step) {
+            $stepsContent.append(step.stepBody);
+            setStepByID(step.stepID);
+        }
+
+        function setStepByID(id) {
+            $currentStep = $steps.filter('[data-step=' + id + ']');
+            $currentStepContent = $stepsContent.find('[data-step=' + id + ']');
+
+            currentStepID = id;
+            currentStep = parseInt($currentStep.attr('data-order'));
+
+            showCurrent();
+        }
+
+        function movePrev() {
+            var prevStep = currentStep - 1;
+
+            if (prevStep >= 0) {
+                var nextID = $steps.eq(prevStep).attr('data-step');
+
+                setStepByID(nextID);
+            }
+        }
+
+        function errorMoveNext(reason) {
+            //console.log(reason.Reason);
+        }
+
+        function toggleButtons() {
+            if (currentStep - 1 < 0) {
+                $prevBtn.attr('disabled', 'disabled');
+            } else {
+                $prevBtn.removeAttr('disabled');
+            }
+
+            if (currentStep < ($steps.length - 1)) {
+                $nextBtn.removeAttr('disabled');
+            } else {
+                $nextBtn.attr('disabled', 'disabled');
+            }
+
+            var interactiveAttr = $currentStep.attr('data-interactive');
+            if (!$currentStep.hasClass('checked') && typeof interactiveAttr !== typeof undefined && interactiveAttr !== false) {
+                $nextBtn.hide();
+                $checkBtn.show();
+            }
+        }
+    };
+
+    $('.wizard').interactivePlayer();
+</script>

@@ -1,0 +1,159 @@
+﻿@using Framework.Maybe
+
+@model EditorViewModel
+
+@{
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string uploadID = "upload_" + Guid.NewGuid().ToString("N");
+    string selectFileID = "selectFile_" + Guid.NewGuid().ToString("N");
+    string deleteFileID = "deleteFile_" + Guid.NewGuid().ToString("N");
+    string imgID = "img_" + Guid.NewGuid().ToString("N");
+
+    bool hideSelect = false, hideUpload = false;
+    
+    if (Model.EditorTemplateParams != null)
+    {
+        hideSelect = Model.EditorTemplateParams.IndexOf("hideSelect", StringComparison.CurrentCultureIgnoreCase) >= 0;
+        hideUpload = Model.EditorTemplateParams.IndexOf("hideUpload", StringComparison.CurrentCultureIgnoreCase) >= 0;
+    }
+}
+
+<script>
+    window['@wrapID'] = {
+        getForm: function () {
+            var e_form = $("#@wrapID").closest("form");
+            return e_form.data("pbaForm");
+        },
+        onSuccess: function (e) {
+            if (e.response) {
+                var form = window['@wrapID'].getForm();
+
+                form.setPr("@htmlFieldName", e.response);
+                form.setPr("@(htmlFieldName).State", 1);
+
+                pbaAPI.imageHelpers.src($("#@imgID"), e.response.FileID);
+            }
+        },
+        onSelect: function () {
+            $(".k-upload-files").empty();
+        },
+        onSelectFile: function (e) {
+            pbaAPI.openModalDialog('FileStorageItemImage', function (items) {
+                if (!items || !items.length)
+                    return pbaAPI.errorMsg('Ошибка при выборе изображения');
+
+                var file = items[0].File;
+                var form = window['@wrapID'].getForm();
+
+                form.setPr('@htmlFieldName', { ID: file.ID, FileID: file.FileID });
+                pbaAPI.imageHelpers.src($('#@imgID'), file.FileID);
+            });
+        },
+        onDelete: function (e) {
+            var form = window['@wrapID'].getForm();
+
+            form.setPr("@htmlFieldName", null);
+            pbaAPI.imageHelpers.src($("#@imgID"), null);
+        },
+        onUpload: function (e) {
+
+                var allowExt = ["jpeg", "jpg", "gif", "png"];
+
+                if (allowExt.indexOf(e.files[0].extension.slice(1).toLowerCase()) > -1) return;
+
+                alert("Недопустимый формат!\nВыберите файл с расширением: jpeg, gif, png");
+                e.preventDefault();
+        },
+    };
+</script>
+
+
+<script>
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function(e, form) {
+            $(this).find(".k-upload-status").remove();
+            $(this).find(".k-upload-files").remove();
+
+            var img = form.getPr('@(htmlFieldName)');
+            var $img = $('#@imgID');
+
+            if (img) {
+                img.State = 0;
+                pbaAPI.imageHelpers.src($img, img.FileID);
+            } else {
+                pbaAPI.imageHelpers.src($img, null);
+            }
+
+            $img.css('cursor', 'pointer')
+                .attr('title', 'Открыть изображение')
+                .off().on('click', function() {
+                    pbaAPI.showImage(img.FileID, img.FileName);
+                });
+
+            @if (hideUpload)
+            {
+                @:$("#@uploadID").closest(".k-button").hide();
+            }
+        });
+    });
+</script>
+
+
+
+    @*turn off load status/file name*@
+    <style>
+    #@wrapID .k-upload-status,
+    #@wrapID .k-dropzone > em {
+        display: none;
+    }
+
+    #@wrapID .k-upload {
+        border-width: 0 !important;
+        background: 0 !important;
+    }
+    </style>
+
+    <div id="@wrapID">
+
+        <div>
+            <img id="@imgID" src='' width='@(Model.Width ?? 150)' height='@(Model.Height ?? 150)' class="k-editor-image-preview" />
+        </div>
+
+        <div>
+            @if (!hideSelect)
+            {
+                <div style="float: left; padding: .8em 0 0 0; margin-left: -0.16em;">
+                    @(Html.Kendo().Button()
+                      .Name(selectFileID)
+                      .Tag("a").HtmlAttributes(new { title = "Выбрать..." })
+                      .Events(e => e.Click(wrapID + ".onSelectFile"))
+                      .Content("<i class=\"glyphicon glyphicon-list\"></i>")
+                    )
+                </div>
+            }
+            <div style="float: left;">
+                @(Html.Kendo().Upload()
+                  .Name(uploadID)
+                  .HtmlAttributes(new { accept = "image/*" })
+                  .Multiple(false)
+                  .ShowFileList(false)
+                  .Events(e => e.Upload(wrapID + ".onUpload").Success(wrapID + ".onSuccess").Select(wrapID + ".onSelect"))
+                  .Messages(m => m.Select("<i class=\"glyphicon glyphicon-upload\"></i>"))
+                  .Async(a => a
+                      .Save("SaveFile", "FileData")
+                      .AutoUpload(true)
+                  )
+                )
+            </div>
+            <div style="float: left; padding: .8em 0 0 0; margin-left: -0.16em;">
+                @(Html.Kendo().Button()
+                  .Name(deleteFileID)
+                  .Tag("a").HtmlAttributes(new { title = "Удалить" })
+                  .Events(e => e.Click(wrapID + ".onDelete"))
+                  .Content("<i class=\"glyphicon glyphicon-remove\"></i>")
+                )
+            </div>
+        </div>
+
+    </div>

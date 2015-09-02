@@ -1,0 +1,31 @@
+﻿@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html
+    .ContentEditorWidget("layout1")
+    .Title("Разметка - 1")
+    .TitleTemplate(
+    @<text>
+        <div class="row layout-preview">
+            <div class="col-sm-12">&nbsp;</div>
+        </div>
+    </text>)
+    .Wrap(wrapID)
+    .Mnemonic("Content_Layout")
+    .Template("tpl_" + wrapID).ExtendWith(
+    @<text>
+        <script>
+            new Object({
+                remove: function (element) {
+                    pbaAPI.msg('Вы не можете удалть подложку');
+                }
+            })
+        </script>
+    </text>))
+
+<script id="tpl_@wrapID" type="text/template">
+    <div class="row">
+        <div class="col-sm-12 droptarget"></div>
+    </div>
+</script>

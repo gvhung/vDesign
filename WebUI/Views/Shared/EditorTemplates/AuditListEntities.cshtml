@@ -1,0 +1,81 @@
+﻿@model EditorViewModel
+
+@{
+    var editor = Model;
+
+    string wrapid = "wrap_" + Guid.NewGuid().ToString("N");
+
+    var values = Html.GetViewModelConfigs().Where(x => x.TypeEntity != typeof(Base.Audit.Entities.AuditItem) && x.TypeService != null)
+        .GroupBy(m => m.TypeEntity)
+        .Select(x => new
+        {
+            Value = x.Key.FullName,
+            Text = x.First().Title,
+        })
+        .OrderBy(x => x.Text);
+}
+
+<div id="@wrapid" class="k-content">
+    <table id="grid">
+        <colgroup>
+            <col style="width:30px" />
+            <col />
+        </colgroup>
+        <thead>
+            <tr>
+                <th data-field="fl"><input id="check-rows" type="checkbox" /></th>
+                <th data-field="text">Наименование</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var val in values)
+            {
+                <tr>
+                    <td><input data-value="@val.Value" type="checkbox" /></td>
+                    <td>@val.Text</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(function () {
+        var $wrap = $("#@wrapid");
+        var $form = $wrap.closest("form");
+        var $grid = $wrap.find("#grid");
+
+        $grid.kendoGrid({});
+
+        $wrap.find("#check-rows").on("click", function () {
+            var val = $(this).prop("checked");
+
+            grid.tbody.find("input").prop("checked", val);
+        });
+
+        var grid = $grid.data("kendoGrid");
+
+        $form.on("onAfterBind", function (e, form) {
+
+            $wrap.find("#check-rows").prop("checked", false);
+            grid.tbody.find("input").prop("checked", false);
+
+            var enties = form.getPr("@editor.PropertyName");
+
+            if (enties) {
+                for (var i = 0; i < enties.length; i++) {
+                    grid.tbody.find("input[data-value='" + enties[i].FullName + "']").prop("checked", true);
+                }
+            }
+        });
+
+        $form.on("onSave", function (e, form) {
+            var enties = [];
+            var i = 0;
+
+            grid.tbody.find("input:checkbox:checked").each(function () { enties.push({ ID: ++i, FullName: $(this).attr("data-value") }); });
+
+            form.setPr("@editor.PropertyName", enties);
+        });
+    });
+</script>

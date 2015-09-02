@@ -1,0 +1,15 @@
+﻿@model StandartDialogViewModel
+
+@{
+    ViewBag.Title = Model.ViewModelConfig.ListView.Title;
+}
+
+@{Html.RenderPartial("_Dialog", Model);}
+
+@section scripts {
+    <script>
+        layout.onResize = function (w) {
+            window["@Model.DialogID"].resize(w);
+        };
+    </script>
+}

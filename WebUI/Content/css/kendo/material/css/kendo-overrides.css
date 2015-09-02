@@ -1,0 +1,57 @@
+﻿body {
+    font-family: fira_sanslight;    
+}
+
+.k-button,
+.k-grid {
+    font-family: fira_sanslight, "DejaVu Sans", "Arial", sans-serif;
+}
+
+.k-grid-header th.k-with-icon .k-link {
+    margin-right: 1.8em;
+}
+
+.k-toolbar .k-button, .k-toolbar .k-split-button, .k-toolbar .k-button-group, .k-toolbar .k-widget, .k-toolbar .k-textbox, .k-toolbar label, .k-toolbar .k-separator {
+    line-height: 1.6em;
+}
+
+.k-overflow-anchor.k-button {
+   line-height: 2.9em;
+}
+
+.k-grid-header th.k-header, .k-filter-row th {
+    padding: .5em .6em .5em .6em;
+}
+
+.k-toolbar .k-i-close {
+    background-position: -32px -16px;
+}
+
+.k-toolbar .k-button:not(.k-state-disabled):hover .k-i-close {
+    /*background-position: -48px -16px;*/
+}
+
+.e-editor .k-widget.k-grid {
+    top: 55px;
+}
+
+.one-to-many .k-widget.k-grid {
+    top: 52px;
+}
+
+.k-slider-horizontal .k-draghandle {
+    top: -2px;
+    /*outline: 0;*/
+}
+
+.k-slider-horizontal .k-draghandle:focus {
+    outline: 0;
+}
+
+.k-slider-horizontal .k-draghandle.k-state-selected {
+    top: -4px;
+}
+
+.k-state-selected {
+    background-color: #ebebeb;
+}

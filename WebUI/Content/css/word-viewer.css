@@ -1,0 +1,42 @@
+﻿.word-viewer {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
+
+.word-viewer .content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 45px;
+    left: 0;
+}
+
+    .word-viewer .content iframe {
+        width: 100%;
+        height: 100%;
+        border: 1px solid darkgrey;
+    }
+
+.word-viewer .actions {
+    position: absolute;
+    bottom: 4px;
+    right: 15px;
+}
+
+.word-viewer .actions a span {
+    margin-right: 4px;
+}
+
+#popupLink {
+    position: absolute;
+    display: none;
+    background: #fefee9;
+    border: #777 solid 1px;
+    -ms-border-radius: 3px;
+    border-radius: 3px;
+    padding: 5px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.20) 2px 2px 5px;
+    -ms-box-shadow: rgba(0, 0, 0, 0.20) 2px 2px 5px;
+    box-shadow: rgba(0, 0, 0, 0.20) 2px 2px 5px;
+}

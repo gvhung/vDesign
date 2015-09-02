@@ -1,0 +1,69 @@
+﻿@model EditorViewModel
+
+@{
+
+    EditorViewModel eViewModel = Model;
+
+    string htmlFieldName = eViewModel.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string filesID = "files_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    window['@filesID'] = {
+        property: "@htmlFieldName",
+        getForm: function () {
+            return $("#@filesID").closest("form").data("pbaForm");
+        },
+        syncValue: function (form) {
+            if (!form.getPr(this.property)) {
+                form.setPr(this.property, []);
+            }
+
+            var files = form.getPr(this.property);
+
+            var $list = $("#@filesID");
+
+            $list.empty();
+
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+
+                var item = {
+                    uid: file.uid,
+                    icon: pbaAPI.extensionClass(file.FileName),
+                    title: file.FileName,
+                    href: "#",
+                };
+
+                if (file.ID != 0) {
+                    item.href = pbaAPI.getHrefFile(file.FileID);
+                }
+
+                var icon = "";
+
+                var template = kendo.template(
+                    "<a href='#= href #' data-uid='#= uid #' class='list-group-item'>" +
+                        "<span style='width: 48px; height: 48px;' class='k-icon #= icon #'></span>" +
+                        "<span>&nbsp#= pbaAPI.truncateStr(title, 400) #</span>" +
+                    "<a>");
+
+                $list.append(template(item));
+            }
+        },
+    };
+</script>
+
+<div id="@wrapID">
+    <div class="k-multiselect">
+        <ul id="@filesID" style="padding:0;"></ul>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $("#@filesID").closest("form").on("onAfterBind", function (e, form) {
+            window['@filesID'].syncValue(form);
+        })
+    });
+</script>

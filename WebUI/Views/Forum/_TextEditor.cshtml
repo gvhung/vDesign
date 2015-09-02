@@ -1,0 +1,66 @@
+﻿@{
+    bool needSendButton = ViewData["NeedSendButton"] as bool? ?? true;
+    string editorID = Guid.NewGuid().ToString();
+    
+}
+
+<script src="~/Scripts/jquery.hotkeys.js"></script>
+<script src="~/Scripts/bootstrap-wysiwyg.js"></script>
+
+<div class="text-editor" id="editor-@editorID">
+    <div class="btn-toolbar" data-role="editor-toolbar" data-target="#editor">
+        <div class="btn-group">
+            <a class="btn" data-edit="bold" title="Жирный"><i class="glyphicon glyphicon-bold"></i></a>
+            <a class="btn" data-edit="italic" title="Курсив"><i class="glyphicon glyphicon-italic"></i></a>
+            <a class="btn" data-edit="underline" title="Подчеркнутый"><i class="glyphicon glyphicon-text-underline"></i></a>
+            <a class="btn" data-edit="strikethrough" title="Зачеркнутый"><i class="glyphicon glyphicon-text-strike"></i></a>
+        </div>
+        <div class="btn-group">
+            <a class="btn" data-edit="insertunorderedlist" title="Маркеры"><i class="glyphicon glyphicon-sort-by-attributes"></i></a>
+            <a class="btn" data-edit="insertorderedlist" title="Нумерация"><i class="glyphicon glyphicon-sort-by-order"></i></a>
+        </div>
+        <div class="btn-group">
+            <a class="btn" data-edit="justifyleft" title="Выровнять по левому краю"><i class="glyphicon glyphicon-align-left"></i></a>
+            <a class="btn" data-edit="justifycenter" title="Выровнять по центру"><i class="glyphicon glyphicon-align-center"></i></a>
+            <a class="btn" data-edit="justifyright" title="Выровнять по правому краю"><i class="glyphicon glyphicon-align-right"></i></a>
+            <a class="btn" data-edit="justifyfull" title="Выровнять по ширине"><i class="glyphicon glyphicon-justify"></i></a>
+        </div>
+        <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" title="Ссылка">
+                <i class="glyphicon glyphicon-link"></i>
+            </a>
+            <div class="dropdown-menu link-dropdown-menu" >
+                <div class="input-group">
+                    <input class="form-control" placeholder="URL" type="text" data-edit="createLink" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" >Добавить</button>
+                    </span>
+                </div>
+            </div>
+            <a class="btn @(needSendButton ? "btn-unrequired" : "")" data-edit="unlink" title="Удалить ссылку"><i class="glyphicon glyphicon-scissors"></i></a>
+        </div>
+        <div class="btn-group">
+            <a class="btn @(needSendButton ? "btn-unrequired" : "")" data-edit="undo" title="Отменить"><i class="glyphicon glyphicon-undo"></i></a>
+            <a class="btn @(needSendButton ? "btn-unrequired" : "")" data-edit="redo" title="Повторить"><i class="glyphicon glyphicon-redo"></i></a>
+        </div>
+        @{
+            if (needSendButton)
+            {<text>
+                <div class="pull-right">
+                    <button type="button" class="btn btn-primary btn-send">Отправить</button>
+                </div>
+            </text>}
+        }
+    </div>
+
+    <div class="editor-content">
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $("#editor-@editorID input[data-edit='createLink']").on("click", function (e) {
+            return false;
+        })
+    });
+</script>

@@ -1,0 +1,271 @@
+﻿@using Base.BusinessProcesses.Entities
+@using Base.BusinessProcesses.Services.Concrete
+@using WebUI.Models.BusinessProcess
+@model IEnumerable<StageVM>
+
+<style>
+    .action-dropdown {
+        padding: 1px;
+        margin: 2px 0 0;
+        list-style: none;
+        background-color: #FFF;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+        z-index: 1000;
+    }
+
+        .action-dropdown * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            white-space: normal;
+        }
+
+    .action-dropdown__item {
+        padding: 10px;
+        border-bottom: 1px solid #CCC;
+    }
+
+    .action-dropdown > li:last-child > .action-dropdown__item {
+        padding-bottom: 10px;
+        margin-bottom: 0;
+        border-bottom: none;
+    }
+
+    .action-dropdown__header {
+        color: #666;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="btn-group">
+    @if (Model.Any(IsCurrentUserParticipant))
+    {
+        var triggerID = "toggle_" + Guid.NewGuid().ToString("N");
+        var dropID = "dropdown_" + Guid.NewGuid().ToString("N");
+
+        <button type="button" id="@triggerID" class="btn btn-success"><i class="halfling halfling-flash"></i>&nbsp;Действия&nbsp;<i class="halfling halfling-triangle-bottom"></i></button>
+        <ul id="@dropID" class="action-dropdown">
+
+            @foreach (StageVM stageVm in Model)
+            {
+                if (IsCurrentUserParticipant(stageVm))
+                {
+                    var stageID = "stage_" + Guid.NewGuid().ToString("N");
+
+                    <li id="@stageID">
+                        @RenderCurrentParticipantStage(stageVm, stageID)
+                        @RenderCurrentParticipantStageScript(stageVm, stageID)
+                    </li>
+                }
+            }
+
+        </ul>
+
+        <script>
+            $(function() {
+                $("#@triggerID").pbaDropdown({
+                    delay: 100,
+                    maxWidth: 350,
+                    selector: "#@dropID",
+                    //trigger: "both",
+                    //trigger: "hover",
+                    trigger: "click",
+                    zIndex: 99999
+                });
+            });
+        </script>
+    }
+
+</div>
+<style>
+    .stage-vm {
+        padding-left: 25px;
+    }
+</style>
+
+@helper RenderCurrentParticipantStage(StageVM stageVm, string selector)
+{
+    <div class="action-dropdown__item">
+        <div class="action-dropdown__header text-center clearfix">
+            <h5 title="@stageVm.Name">@stageVm.Name.Truncate(60)</h5>
+
+            <div style="padding: 5px 0;">
+                @if (stageVm.FromUser != null && stageVm.Performer != null)
+                {
+                    @: @RenderStageExecutionActions(stageVm)
+                }
+                else
+                {
+                    if (@stageVm.PerformerType == PerformerType.Admin || stageVm.PerformerType == PerformerType.Curator)
+                    {
+                        <button id="force-perform" title="Назначить исполнителя" type="button" class="btn btn-danger"><span class="halfling halfling-hand-right"></span></button>
+                    }
+                    <button id="take-for-perform" title="Взять на исполнение" type="button" class="btn btn-primary"><span class="halfling halfling-play"></span></button>
+                }
+            </div>
+
+        </div>
+        <div class="action-dropdown__body">
+            <hr style="margin: 10px 0;">
+
+            @foreach (var action in stageVm.Actions)
+            {
+                <button class="btn btn-block"
+                        title="@action.Description"
+                        data-wfaction="@action.ID"
+                        data-wfrequiredcomment="@action.RequiredComment.ToString().ToLower()"
+                        style="color: #FFF; background-color: @(action.Color); padding: 6px;">
+                    @action.Title
+                </button>
+            }
+
+
+        </div>
+    </div>
+}
+
+@helper RenderCurrentParticipantStageScript(StageVM stageVm, string selector)
+{
+    <script>
+        (function() {
+            var $container = $("#@selector");
+            var $toolbar = $container.closest("[data-role=\"toolbar\"]");
+            var ajaxParams = {
+                objectID: parseInt("@stageVm.ObjectID"),
+                objectType: "@stageVm.ObjectType",
+                stageID: parseInt("@stageVm.ID")
+            };
+            var invokeAction = function(data) {
+                if (data.error) {
+                    return pbaAPI.errorMsg(data.message);
+                }
+
+                $toolbar.trigger("onActionInvoke");
+            };
+
+            $container.find("#take-for-perform").click(function() {
+                $.get("/businessprocess/takeforperform", ajaxParams, invokeAction);
+            });
+
+            $container.find("#release-perform").click(function() {
+                $.get("/businessprocess/releaseperform", ajaxParams, invokeAction);
+            });
+
+            $container.find("#force-perform").click(function() {
+                $.get("/businessprocess/getpermittedusers", ajaxParams, function(data) {
+                    if (!data.Dialog) {
+                        return pbaAPI.errorMsg("К сожалению для данного этапа не могут быть назначены исполнители, " +
+                            "обратитесь к администратору данного бизнес-процесса");
+                    }
+
+                    var kendoWindow = $("<div>").html(data.Dialog).kendoWindow({
+                        width: 600,
+                        height: "auto",
+                        maxHeight: 900,
+                        title: "Выберите исполнителя",
+                        actions: ["Maximize", "Close"],
+                        modal: true,
+                        deactivate: this.destroy.bind(this)
+                    });
+
+                    kendoWindow.data("kendoWindow").center().open();
+
+                    kendoWindow.find("[data-userid]").click(function() {
+                        kendoWindow.data("kendoWindow").close();
+                        $.get("/businessprocess/takeforperform", $.extend({ userID: this.getAttribute("data-userid") }, ajaxParams), invokeAction);
+                    });
+                });
+            });
+        }());
+    </script>
+}
+
+@helper RenderStageExecutionActions(StageVM stageVm)
+{
+    string toID = "thumb_" + Guid.NewGuid().ToString("N");
+    string fromID = "thumb_" + Guid.NewGuid().ToString("N");
+    bool assignedByYourself = stageVm.FromUser.ID == stageVm.Performer.ID;
+    bool canRelease = stageVm.PerformerType == PerformerType.Admin ||
+                      stageVm.PerformerType == PerformerType.Curator ||
+                      stageVm.PerformerType == PerformerType.Performer && assignedByYourself;
+
+    if (!assignedByYourself)
+    {
+        <button type="button" class="btn btn-default disabled"><span class="halfling halfling-hand-right"></span></button>
+        <button id="@fromID" type="button" class="btn btn-default">
+            <img data-user-image="@stageVm.FromUser.ID" class="img-circle" src="@Html.GetImageSrc(stageVm.FromUser.Image, 20, 20, "NoPhoto")" alt="" width="20" height="20" />
+        </button>
+    }
+
+    <button id="@toID" type="button" class="btn btn-default">
+        <img data-user-image="@stageVm.Performer.ID"  class="img-circle" src="@Html.GetImageSrc(stageVm.Performer.Image, 20, 20, "NoPhoto")" alt="" width="20" height="20" />
+    </button>
+
+    if (canRelease)
+    {
+        <button id="release-perform" title="Снять с исполнения" type="button" class="btn btn-default">
+            <span class="halfling halfling-stop"></span>
+        </button>
+    }
+    
+    if (!assignedByYourself)
+    {
+        <script data-img="@fromID" type="text/template">
+            <div class="thumbnail">
+                <img src="@Html.GetImageSrc(stageVm.FromUser.Image, 200, 200)" alt="" width="200" height="200">
+            </div>
+            <dl>
+                <dt>ФИО</dt>
+                <dd>@stageVm.FromUser.FullName</dd>
+                <dt>Отдел</dt>
+                <dd>@stageVm.FromUser.UserCategory.Name</dd>
+            </dl>
+        </script>
+        <script>
+            $(function() {
+                var $from = $("#@fromID");
+
+                $from.popover({
+                    trigger: "hover",
+                    container: "body",
+                    title: "Назначено пользователем",
+                    html: true,
+                    placement: "bottom",
+                    content: $("[data-img=\"@fromID\"]").html()
+                });
+
+                $from.click(function() {
+                    pbaAPI.openViewModelEx("User", {
+                        wid: "@fromID",
+                        title: "Пользователь",
+                        isMaximaze: false,
+                        id: @stageVm.FromUser.ID,
+                        isReadOnly: true
+                    });
+
+                    $from.popover("hide");
+                });
+            });
+        </script>
+    }
+}
+
+@functions {
+    bool IsCurrentUserParticipant(StageVM stageVM)
+    {
+        bool result = false;
+
+        if (stageVM.PerformerType == PerformerType.Admin || stageVM.PerformerType == PerformerType.Curator || stageVM.PerformerType == PerformerType.Performer)
+        {
+            result = true;
+        }
+        else if (stageVM.PerformerType == PerformerType.Regular)
+        {
+            result = stageVM.PermittedUsers.Any(x => x.ID == stageVM.CurrentUser.ID);
+        }
+
+        return result;
+    }
+}

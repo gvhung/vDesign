@@ -1,0 +1,14 @@
+﻿@model StepViewModel
+
+@RenderBody()
+
+<script>
+    (function () {
+        var $form = $('#@Model.FormName');
+
+        $form.kendoTooltip({
+            filter: ".edt-label",
+            width: 300
+        });
+    })();
+</script>

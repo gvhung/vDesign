@@ -1,0 +1,36 @@
+﻿@model EditorViewModel
+
+@{  
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    ViewModelConfig config =  Html.GetViewModelConfig("Goszakupki");
+    
+}
+
+<div id="@wrapID">
+    <span class="@config.Icon">&nbsp;</span><a href="javascript:void(0)" id="@htmlFieldName"></a>
+</div>
+
+<script>
+    $(function () {
+        var $f = $("#@wrapID").find("#@htmlFieldName");
+
+        $f.closest("form").on("onAfterBind", function (e, form) {
+            var id = form.getPr("@htmlFieldName");
+
+            if (id) {
+                $f.html("Гос. закупка").click(function () {
+                    pbaAPI.openViewModelEx("Goszakupki",
+                        {
+                            wid: "@wrapID",
+                            id: id,
+                            isReadOnly: true
+                        });
+                });
+            } else {
+                $f.html("").hide();
+            }
+        })
+    });
+</script>

@@ -1,0 +1,172 @@
+﻿@using Newtonsoft.Json
+@model WebUI.Models.Validation.ValidationVm
+
+@{
+    var wrapId = "wrp_" + Guid.NewGuid().ToString("N");
+}
+
+<script src="~/Scripts/bootstrap-tagsinput.js"></script>
+<link href="~/Content/css/bootstrap-tagsinput.css" rel="stylesheet" />
+<script src="~/Scripts/typeahead.js"></script>
+
+<script id="property-template" type="text/x-kendo-template">
+    <a href="javascript:void(0)" data-bind="click: editProperty, text: Name, attr: { class: activeClass }"></a>
+</script>
+
+<script id="validation-template" type="text/x-kendo-template">
+    <a href="javascript:void(0)" data-bind="click : chooseValidationRule, text: Name , attr : {class : selectedRule }"></a>
+</script>
+<script>
+    $('#@wrapId a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    })
+</script>
+
+<div id="@wrapId">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#property-tab" role="tab">Правила валидации для свойств</a></li>
+        <li role="presentation"><a href="#object-tab">Правила валидации для объекта</a></li>
+    </ul>
+    <div class="tab-content common-tab">
+        <div class="tab-pane container list-group active" id="property-tab">
+            <div data-template="property-template" data-bind="source: properties"></div>
+        </div>
+        <div class="tab-pane container list-group" id="object-tab">
+            <div data-template="validation-template" data-bind="source : validationRules"></div>
+        </div>
+    </div>
+    <div class="footer-buttons">
+        <button data-apply class="btn btn-success">Применить</button>
+    </div>
+</div>
+
+<script>
+    $(function() {
+        $("#@wrapId").closest('[constructor-wnd]').on('onLoad', function(e, args) {
+            var data = args.model;
+            var properties = @Html.Raw(JsonConvert.SerializeObject(Model.Editors));
+            var validationRules = @Html.Raw(JsonConvert.SerializeObject(Model.ObjectValidationRules));
+
+            var tmp = [];
+            var objtmp2 = [];
+
+
+            $.each(properties, function(i, prop) {
+                var obj = $.extend({}, { Type: prop.PropertyType, Name: prop.PropertyName, Member : prop.Member , Rules: [] });
+
+                var dataelem = $.grep(data, function(elem) { return elem.Property === prop.Member; });
+                if (dataelem && dataelem.length > 0) {
+                    $.each(dataelem, function(i, p) {
+                        obj.Rules.push(p.ValidationRule);
+                    });
+                }
+
+                tmp.push(obj);
+            });
+
+            $.each(validationRules, function(i, valrule) {
+                var obj = $.extend({}, { Name: valrule.Title, Type : valrule.Type ,ruleselected: false });
+                var dataelem = $.grep(data, function(elem) { return elem.ValidationRule === valrule.Type });
+                if (dataelem && dataelem.length > 0) {
+                    obj.ruleselected = true;
+                }
+                objtmp2.push(obj);
+            });
+
+            var viewModel = kendo.observable(
+            {
+                activeClass: function(e) {
+                    return e.Rules.length > 0 ? "list-group-item active" : "list-group-item";
+                },
+
+                selectedRule: function(e) {
+                    var t = e.ruleselected === true;
+                    return t? "list-group-item active" : "list-group-item";
+                },
+
+                editProperty: function(e) {
+                    var model = e.data;
+                    var kendoWindow = $("<div property-editor />").kendoWindow({
+                        width: 600,
+                        content: "@Url.Action("GetValidationRules", "Validation")?property=" + model.Name + "&objectType=" + model.Type,
+                        height: 900,
+                        maxHeight: 900,
+                        title: "Правила валидации",
+                        actions: ["Maximize", "Close"],
+                        modal: true,
+                        deactivate: function() {
+                            this.destroy();
+                        },
+                        refresh: function() {
+                            kendoWindow.trigger('onLoad', { model: model });
+                        }
+                    });
+
+                    var wnd = kendoWindow.data("kendoWindow");
+                    wnd.center().open();
+                },
+
+                chooseValidationRule : function(e) {
+                    e.preventDefault();
+                    var model = e.data;
+                    model.ruleselected = !model.ruleselected;
+                    $(e.target).toggleClass('active',model.ruleselected);
+                },
+
+                properties: tmp,
+                validationRules : objtmp2
+            });
+
+            viewModel.bind('change', function() {
+                kendo.unbind($("#@wrapId"));
+                kendo.bind($("#@wrapId"), viewModel);
+            });
+
+            kendo.bind($("#@wrapId"), viewModel);
+
+            var filter = function() {
+                var allNew = viewModel.get('properties');
+                var allobjectRules = viewModel.get('validationRules');
+
+                var propertyRules = $.grep(allNew, function (elem) {
+                    if (elem.Rules.length > 0) {
+                        return elem;
+                    }
+                    return null;
+                });
+
+                var valRule = [];
+                for (var i = 0; i < propertyRules.length; i ++) {
+                    var currProp = propertyRules[i];
+                    for (var j = 0; j < currProp.Rules.length; j++) {
+                        var ruleBinding = {};
+                        ruleBinding.Property = currProp.Member;
+                        ruleBinding.ValidationRule = currProp.Rules[j];
+                        valRule.push(ruleBinding);
+                    }
+                }
+
+                var objectRules = $.grep(allobjectRules, function(elem) {
+                    if (elem.ruleselected) return elem;
+                    return null;
+                });
+
+                for (var i = 0; i < objectRules.length; i ++) {
+                    var currObjectRule = {};
+                    currObjectRule.Property = '';
+                    currObjectRule.ValidationRule = objectRules[i].Type;
+                    valRule.push(currObjectRule);
+                }
+
+                return valRule;
+            }
+
+            $("#@wrapId").find('[data-apply]').click(function () {
+                args.apply(filter());
+                $("#@wrapId").closest('[data-role=window]').data('kendoWindow').close();
+            });
+
+        });
+    })
+</script>

@@ -1,0 +1,59 @@
+﻿@import "../_variables";
+
+.special-menu {
+    font-size: round(@font-size-base * 0.8);
+    margin-bottom: 20px;
+    padding: 15px 0 5px 0;
+}
+.special-menu__item {
+    display: inline-block;
+    padding: 0 6px;
+    border-radius: 3px;
+    height: 25px;
+    line-height: 25px;
+    overflow: hidden;
+    vertical-align: middle;
+
+    &.active {
+        box-shadow: 0 2px 2px 0 rgba(0,0,0,.5) inset;
+        background: rgba(0,0,0,.1);
+    }
+}
+.special-menu__item_size_1 {
+    font-size: @fs1;
+}
+.special-menu__item_size_2 {
+    font-size: @fs2;
+}
+.special-menu__item_size_3 {
+    font-size: @fs3;
+}
+
+a.special-menu__item_style_1 {
+    background: @s1c1;
+    color: @s1c2;
+}
+a.special-menu__item_style_2 {
+    background: @s2c1;
+    color: @s2c2;
+}
+a.special-menu__item_style_3 {
+    background: @s3c1;
+    color: @s3c2;
+}
+
+.special-style-1 {
+    .special-menu {
+        background: @s1c3;
+    }
+}
+.special-style-2 {
+    .special-menu {
+        background: @s2c3;
+    }
+}
+.special-style-3 {
+    .special-menu {
+        background: @s3c3;
+    }
+}

@@ -1,0 +1,119 @@
+﻿@using Base.OpenID.Entities
+@model EditorViewModel
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    window["@wrapID"] = {
+        delAccount: function (id) {
+            var $form = $("#@wrapID").closest("form");
+            var form = $form.data("pbaForm");
+            
+            var accounts = form.getPr("AccountInfos");
+
+            for (i = 0; i < accounts.length; i++) {
+                if (accounts[i].ID === id) {
+                    accounts.splice(i, 1);
+                    form.setPr("AccountInfos", accounts);
+                    $form.find(".accounts-tbl tr#" + id).remove();
+                    pbaAPI.msg("Необходимо сохранить профиль");
+                    break;
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    .add-account {
+        margin-bottom: 20px;
+    }
+     .accounts-wrap {
+         margin: 10px 20px;
+     }
+
+    .accounts-tbl {
+        max-height: 500px;
+    }
+
+    .accounts-tbl td {
+        vertical-align: middle !important;
+    }
+
+    .accounts-tbl td span {
+        padding-right: 3px;
+        color: #428bca;
+    }
+</style>
+
+
+<div id="@wrapID" class="accounts-wrap">
+    @if (TempData["OpenIDError"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@TempData["OpenIDError"]</div>
+    }
+
+    <div class="add-account">
+        <div>
+            <label>Подключить:</label>
+            @Html.Action("OpenIdMenu", "OpenID", new {mode = OpenIdAuthMode.AddToExisting})
+        </div>
+    </div>
+
+    <div class="accounts-tbl">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Сервис</th>
+                @*<th>Логин</th>*@
+                <th>Email</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
+</div>
+
+
+<script>
+    $(function () {
+        var $form = $("#@wrapID").closest("form");
+        $form.on("onAfterBind", function(e, form) {
+
+            var $tbody = $(".accounts-tbl tbody").empty();
+
+            var accounts = form.getPr("AccountInfos");
+            if (!accounts) {
+                $(".accounts-tbl").hide();
+                return;
+            } else {
+                $(".accounts-tbl").show();
+            }
+
+            for (i = 0; i < accounts.length; i++) {
+                var $tr = $("<tr>", { id: accounts[i].ID });
+
+                var $profileLink;
+                if (accounts[i].ProfileLink) {
+                    $profileLink = $("<a/>", { href: accounts[i].ProfileLink, text: accounts[i].TypeName, target: "_blank" });
+                } else {
+                    $profileLink = $("<div/>", { text: accounts[i].TypeName });
+                }
+                $profileLink.prepend($("<span/>", { class: accounts[i].IconCssClass }));
+                $("<td>").css("font-size", "larger").append($profileLink).appendTo($tr);
+                /*$("<td>").html(accounts[i].Login).appendTo($tr);*/
+                $("<td>").html(accounts[i].Email).appendTo($tr);
+                $("<td>").html(accounts[i].FirstName).appendTo($tr);
+                $("<td>").html(accounts[i].LastName).appendTo($tr);
+                $("<td>").append($("<a/>", { onclick: "@(wrapID).delAccount(" + accounts[i].ID + ")", text: "Удалить", class: "btn btn-danger btn-sm" })).appendTo($tr);
+
+                $tr.appendTo($tbody);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,112 @@
+﻿@import "../_variables";
+
+.navbar-default  {
+    .navbar-nav {
+        > li {
+            > a {
+                &:hover,
+                &:focus {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    border-radius: 0;
+    border-width: 1px 0 2px 0;
+    border-style: solid;
+}
+
+.special-style-1 {
+    .navbar-default  {
+        .navbar-nav {
+            > li {
+                > a {
+                    color: @s1c2;
+                }
+            }
+        }
+        .navbar-toggle {
+            border-color: @s1c2;
+
+            .icon-bar {
+                background-color: @s1c2;
+            }
+
+            &:hover,
+            &:focus {
+                background-color: @s1c1;
+            }
+        }
+        .navbar-collapse {
+            border-color: @s1c2;
+        }
+
+        background-color: @s1c1;
+        border-color: @s1c2;
+    }
+}
+
+.special-style-2 {
+    .navbar-default  {
+        .navbar-nav {
+            > li {
+                > a {
+                    color: @s2c2;
+                }
+            }
+        }
+        .navbar-toggle {
+            border-color: @s2c2;
+
+            .icon-bar {
+                background-color: @s2c2;
+            }
+
+            &:hover,
+            &:focus {
+                background-color: @s2c1;
+            }
+        }
+        .navbar-collapse {
+            border-color: @s2c2;
+        }
+
+        background-color: @s2c1;
+        border-color: @s2c2;
+    }
+}
+
+.special-style-3 {
+    .navbar-default  {
+        .navbar-nav {
+            > li {
+                > a {
+                    color: @s3c2;
+                }
+            }
+        }
+        .navbar-toggle {
+            border-color: @s3c2;
+
+            .icon-bar {
+                background-color: @s3c2;
+            }
+
+            &:hover,
+            &:focus {
+                background-color: @s3c1;
+            }
+        }
+        .navbar-collapse {
+            border-color: @s3c2;
+        }
+
+        background-color: @s3c1;
+        border-color: @s3c2;
+    }
+}
+
+@media (min-width: 768px) {
+    
+}

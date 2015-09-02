@@ -1,0 +1,116 @@
+﻿@using Base.BusinessProcesses.Entities
+@model WebUI.Models.BusinessProcess.WithCustomEditorVm
+
+@{
+    Layout = "EditorLayout.cshtml";
+
+    var config = ViewBag.Config as ViewModelConfig;
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID">
+    <div class="input-group" style="margin-bottom: 10px;">
+        <input type="text" data-bind="value: Title" class="form-control" readonly="readonly">
+        <span class="label label-info" data-bind="text: Mnemonic" style="position: absolute; right: 90px; top: 10px;"></span>
+        <div class="input-group-btn">
+            <button data-role="select" title="Выбрать объект" type="button" class="btn btn-default" tabindex="-1"><span class="halfling halfling-align-justify"></span></button>
+            <button data-role="clear" title="Очистить" type="button" class="btn btn-default" tabindex="-1"><span class="halfling halfling-remove"></span></button>
+        </div>
+    </div>
+    <hr />
+    <div class="list-group">
+        @foreach (var item in Model.Editors)
+        {
+            <a href="#" data-type="@((int)MacroType.InitObject)" data-member="@item.Member" class="list-group-item">@item.Name</a>
+        }
+    </div>
+</div>
+
+<script>
+    @*[{ "MacroType":  4, "Value": "{ \"Type\": \"Base.Security.User\", \"ID\": 3 }" }]*@
+    $(function () {
+        var lookup = "@config.LookupProperty";
+        var objType = "@config.TypeEntity.FullName";
+        var wrap = $('#@wrapID');
+        var parentWrapID = wrap.closest("[data-wrapid]").data('wrapid');
+
+        var viewModel = kendo.observable({ Title: "", Value: "", MacroType: null });
+        kendo.bind($("#@wrapID"), viewModel);
+
+        wrap.closest('[property-editor]').on('onLoad', function(e, args) {
+            var data = args.model;
+
+            if (data) {
+                if (data.Value) {
+                    var val = $.parseJSON(data.Value)[0];
+
+                    if (val.MacroType == "@((int)MacroType.BaseObject)") {
+                        var initObj = $.parseJSON(val.Value);
+                        if (initObj) {
+                            $.get("/BusinessProcess/GetObject", { type: initObj.Type, id: initObj.ID }, function (resp) {
+                                if (resp.Object) {
+                                    viewModel.set("Value", val.Value);
+                                    viewModel.set("Title", resp.Object.Title);
+                                }
+                            });
+                        }
+                    } else if (val.MacroType == "@((int)MacroType.InitObject)") {
+                        viewModel.set("Title", $("#@wrapID").find('[data-member=' + val.Value + ']').html());
+                        viewModel.set("Value", val.Value);
+                    }
+
+                    viewModel.set("MacroType", val.MacroType);
+                }
+            }
+
+            wrap.closest('[data-role=wraplayout]').find('[data-role=apply]').click(function() {
+                if (viewModel.MacroType) {
+                    console.log(args);
+
+                    data.set('Value', JSON.stringify([
+                        {
+                            MacroType: viewModel.MacroType,
+                            Value: viewModel.Value
+                        }
+                    ]));
+                } else {
+                    data.set('Value', null);
+                }
+
+                $(this).closest('[data-role=window]').data('kendoWindow').close();
+            });
+        });
+
+        
+        var methods = {
+            clear: function () {
+                viewModel.set("Value", "");
+                viewModel.set("Title", "");
+                viewModel.set("MacroType", null);
+            },
+            select: function () {
+                pbaAPI.openModalDialog("@config.Mnemonic", function (e) {
+                    if (e.length && e[0]) {
+                        viewModel.set("Value", JSON.stringify({
+                            ID: e[0].ID,
+                            Type: objType
+                        }));
+                        viewModel.set("Title", e[0][lookup]);
+                        viewModel.set("MacroType", @((int)MacroType.BaseObject));
+                    }
+                });
+            }
+        }
+
+        $("#@wrapID").on("click", "[data-role]", function () {
+            methods[$(this).data("role")]();
+        });
+
+        $("#@wrapID").on("click", "[data-member]", function () {
+            var self = $(this);
+            viewModel.set("Title", self.html());
+            viewModel.set("Value", self.data('member'));
+            viewModel.set("MacroType", @((int)MacroType.InitObject));
+        });
+    });
+</script>

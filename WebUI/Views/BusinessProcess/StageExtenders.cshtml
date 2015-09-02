@@ -1,0 +1,6 @@
+﻿@model IEnumerable<ViewModelConfig>
+
+@foreach (var item in Model)
+{
+    <li><a href="#" mnemonic="@item.Mnemonic"><i class="@item.Icon"></i>  @item.Title</a></li>
+}

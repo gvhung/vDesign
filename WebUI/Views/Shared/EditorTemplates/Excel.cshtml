@@ -1,0 +1,265 @@
+﻿<!-- EDITOR -->
+@{  
+    string spreadGUID = Guid.NewGuid().ToString("N");
+}
+
+<!-- SpreadJS CSS and script -->
+<link href="~/Scripts/SpreadJS/jquery.wijmo.css" rel="stylesheet" />
+<link href="~/Scripts/SpreadJS/jquery.wijmo.wijspread.css" rel="stylesheet" />
+<link href="~/Scripts/SpreadJS/pba.wijspread.css" rel="stylesheet" />
+<script src="~/Scripts/SpreadJS/pba.wijspread.js"></script>
+
+<div id="wrapper_@spreadGUID" class="kendo_toolbar">
+    @(Html.Kendo().TabStrip()
+    
+        .Deferred()
+        
+        .Name("tab_" + spreadGUID).Items(item =>
+        {
+            item.Add().Text("Главная").Selected(true)
+                .Content(Html.Kendo().ToolBar()
+                    .Name("toolbar_" + Guid.NewGuid().ToString("N"))
+                    .Items(toolbars =>
+                    {
+                        toolbars.Add().HtmlAttributes(new { title = "Новый документ", Class = "halfling halfling-file" }).Type(CommandType.Button).Text("Новый документ").ShowText(ShowIn.Overflow).Id("action-new_document_" + spreadGUID);
+                        toolbars.Add().Type(CommandType.Separator);
+                        toolbars.Add().Type(CommandType.ButtonGroup).Buttons(buttons =>
+                        {
+                            buttons.Add().HtmlAttributes(new { title = "Вырезать", Class = "glyphicon glyphicon-scissors" }).Text("Вырезать").ShowText(ShowIn.Overflow).Id("action-cut_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Копировать", Class = "glyphicon glyphicon-file-export" }).Text("Копировать").ShowText(ShowIn.Overflow).Id("action-copy_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Вставить", Class = "glyphicon glyphicon-file-import" }).Text("Вставить").ShowText(ShowIn.Overflow).Id("action-paste_" + spreadGUID);
+                        });
+                        toolbars.Add().Type(CommandType.Separator);
+                        toolbars.Add().HtmlAttributes(new { title = "Редактировать границы", Class = "pbaspread-icon bound" }).Type(CommandType.Button).Text("Редактировать границы").ShowText(ShowIn.Overflow).Id("action-border_dialog_" + spreadGUID);
+                        toolbars.Add().Type(CommandType.Separator);
+                        toolbars.Add().Type(CommandType.ButtonGroup).Buttons(buttons =>
+                        {
+                            buttons.Add().HtmlAttributes(new { title = "Жирный", Class = "glyphicon glyphicon-bold" }).Text("Жирный").ShowText(ShowIn.Overflow).Id("action-bold_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Курсив", Class = "glyphicon glyphicon-italic" }).Text("Курсив").ShowText(ShowIn.Overflow).Id("action-italic_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Подчеркивание", Class = "glyphicon glyphicon-text-underline" }).Text("Подчеркивание").ShowText(ShowIn.Overflow).Id("action-underline_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Перечеркивание", Class = "glyphicon glyphicon-text-strike" }).Text("Перечеркивание").ShowText(ShowIn.Overflow).Id("action-crossline_" + spreadGUID);
+                        });
+                        toolbars.Add().Type(CommandType.Separator);
+                        toolbars.Add().Type(CommandType.ButtonGroup).Buttons(buttons =>
+                        {
+                            buttons.Add().HtmlAttributes(new { title = "Выравнивание влево", Class = "glyphicon glyphicon-align-left" }).Text("Выравнивание влево").ShowText(ShowIn.Overflow).Id("action-align_left_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Выравнивание по центру", Class = "glyphicon glyphicon-align-center" }).Text("Выравнивание по центру").ShowText(ShowIn.Overflow).Id("action-align_center_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Выравнивание направо", Class = "glyphicon glyphicon-align-right" }).Text("Выравнивание направо").ShowText(ShowIn.Overflow).Id("action-align_right_" + spreadGUID);
+                        });
+                        toolbars.Add().Type(CommandType.Separator);
+                        toolbars.Add().Type(CommandType.ButtonGroup).Buttons(buttons =>
+                        {
+                            buttons.Add().HtmlAttributes(new { title = "Увеличить отступ", Class = "glyphicon glyphicon-left-indent" }).Text("Увеличить отступ").ShowText(ShowIn.Overflow).Id("action-indent_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Уменьшить отступ", Class = "glyphicon glyphicon-right-indent" }).Text("Уменьшить отступ").ShowText(ShowIn.Overflow).Id("action-outdent_" + spreadGUID);
+                        });
+                        toolbars.Add().Type(CommandType.Separator);
+                        toolbars.Add().Type(CommandType.ButtonGroup).Buttons(buttons =>
+                        {
+                            buttons.Add().HtmlAttributes(new { title = "Добавить колонку слева" }).Text("Добавить колонку слева").ShowText(ShowIn.Overflow).SpriteCssClass("k-tool-icon k-addColumnLeft").Id("action-add_column_before_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Добавить колонку справа" }).Text("Добавить колонку справа").ShowText(ShowIn.Overflow).SpriteCssClass("k-tool-icon k-addColumnRight").Id("action-add_column_after_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Добавить строку сверху" }).Text("Добавить строку сверху").ShowText(ShowIn.Overflow).SpriteCssClass("k-tool-icon k-addRowAbove").Id("action-add_row_before_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Добавить строку снизу" }).Text("Добавить строку снизу").ShowText(ShowIn.Overflow).SpriteCssClass("k-tool-icon k-addRowBelow").Id("action-add_row_after_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Удалить колонку" }).Text("Удалить колонку").ShowText(ShowIn.Overflow).SpriteCssClass("k-tool-icon k-deleteColumn").Id("action-delete_column_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Удалить строку" }).Text("Удалить строку").ShowText(ShowIn.Overflow).SpriteCssClass("k-tool-icon k-deleteRow").Id("action-delete_row_" + spreadGUID);
+                        });
+                        toolbars.Add().Type(CommandType.Separator);
+                        toolbars.Add().Type(CommandType.ButtonGroup).Buttons(buttons =>
+                        {
+                            buttons.Add().HtmlAttributes(new { title = "Отменить последнее действие", Class = "glyphicon glyphicon-undo" }).Text("Отменить последнее действие").ShowText(ShowIn.Overflow).Id("action-undo_" + spreadGUID);
+                            buttons.Add().HtmlAttributes(new { title = "Повторить последнее действие", Class = "glyphicon glyphicon-redo" }).Text("Повторить последнее действие").ShowText(ShowIn.Overflow).Id("action-redo_" + spreadGUID);
+                        });
+                        toolbars.Add().Type(CommandType.Separator);
+                        toolbars.Add().HtmlAttributes(new { title = "Распечатать таблицу", Class = "glyphicon glyphicon-print" }).Type(CommandType.Button).Text("Распечатать таблицу").ShowText(ShowIn.Overflow).Id("action-print_" + spreadGUID);
+                    }).ToHtmlString());
+
+            item.Add().Text("Импорт")
+                .Content(Html.Kendo().ToolBar()
+                    .Name("toolbar_" + Guid.NewGuid().ToString("N"))
+                    .Items(toolbars =>
+                    {
+                        toolbars.Add().Type(CommandType.Button).Text("Выбрать файл").Id("action-import_document_" + spreadGUID);
+                    }).ToHtmlString());
+        }))
+</div>
+<div class="wijspread"></div>
+
+@Html.Kendo().DeferredScriptsFor("tab_" + spreadGUID)
+<script>
+    (function () {
+        var guid = "@spreadGUID";
+        var toolbar = $('#wrapper_' + guid);
+        var $form = toolbar.closest('form');
+        var $tab = $('a[href="#' + toolbar.closest('.tab-pane').attr('id') + '"]');
+        var $tabPane = toolbar.closest('.tab-pane.container');
+        var kendoTabstrip = $('#tab_' + guid).data('kendoTabStrip');
+        var $buttons = {
+            clear: $('#action-new_document_' + guid),
+            cut: $('#action-cut_' + guid),
+            copy: $('#action-copy_' + guid),
+            paste: $('#action-paste_' + guid),
+            borderDialog: $('#action-border_dialog_' + guid),
+            bold: $('#action-bold_' + guid),
+            italic: $('#action-italic_' + guid),
+            underline: $('#action-underline_' + guid),
+            crossline: $('#action-crossline_' + guid),
+            alignLeft: $('#action-align_left_' + guid),
+            alignCenter: $('#action-align_center_' + guid),
+            alignRight: $('#action-align_right_' + guid),
+            indent: $('#action-indent_' + guid),
+            outdent: $('#action-outdent_' + guid),
+            'add-column-before': $('#action-add_column_before_' + guid),
+            'add-column-after': $('#action-add_column_after_' + guid),
+            'add-row-before': $('#action-add_row_before_' + guid),
+            'add-row-after': $('#action-add_row_after_' + guid),
+            'delete-column': $('#action-delete_column_' + guid),
+            'delete-row': $('#action-delete_row_' + guid),
+            'undo': $('#action-undo_' + guid),
+            'redo': $('#action-redo_' + guid),
+            'print': $('#action-print_' + guid),
+            'importFile': $('#action-import_document_' + guid)
+        };
+        var spreadInitialized = false;
+
+        var spread;
+
+        //function selectTab
+        function initSpread(opts) {
+
+            var $wijspread = $('.wijspread');
+            if ($wijspread.length > 1) {
+
+                // destroy and remove all previous wijspreads and his other tools - it's not needed to have multiple of them
+                for (var i = 0; i < $wijspread.length - 1; i++) {
+                    $wijspread.eq(i).data('pbaSpread').destroy();
+                    $wijspread.eq(i).remove();
+                }
+
+                var $wijspread_toolbar = $('.kendo_toolbar');
+
+                for (i = 0; i < $wijspread_toolbar.length - 1; i++)
+                    $wijspread_toolbar.eq(i).remove();
+
+                $wijspread = $wijspread.last();
+
+                $('.pbawijspread_kendoContextMenu').remove();
+                $('.pbawijspread_kendoCalendar').remove();
+            }
+            spread = $wijspread.pbaSpread({
+                sheets: 1, // default
+                columns: 50, // default
+                rows: 100, // default
+                positionBox: true, // default
+                formulaBox: true, // default
+                wijspreadJsUrl: '/Scripts/SpreadJS/jquery.wijmo.wijspread.js',
+                importServiceUrl: '/Files/ImportExcel',
+                buttons: $buttons,
+                events: {
+                    onImportComplete: function () {
+                        kendoTabstrip.select(0);
+                    },
+                    onError: function (message) {
+                        pbaAPI.msg(message, 'error');
+                    }
+                },
+                kendo: {
+                    calendar: true, // default
+                    contextMenu: true // default
+                }
+            });
+
+            var fullsizedParent = spread.closest('.tab-content.common-tab');
+            var height;
+
+            if (opts && opts.useInterval) {
+
+                var intervalId = setInterval(function () {
+
+                    height = fullsizedParent.height() - toolbar.height();
+                    if (height > 0) {
+
+                        spread.height(height).update();
+
+                        if (opts.json) {
+                            spread.fromJSON(opts.json);
+                        }
+
+                        clearInterval(intervalId);
+
+                        // ПОВЕСИТЬ spread.update() на РЕСАЙЗ ОКНА ЗДЕСЬ !!!
+                        //
+                        $form.off('onResize').on('onResize', function () {
+                            if (form.getPr("Type") != @Base.Document.Entities.DocumentType.Excel.GetValue()) return;
+                            height = fullsizedParent.height();
+                            spread.height(height).update();
+                        });
+                    }
+                }, 150);
+            } else {
+
+                height = fullsizedParent.height() - toolbar.height();
+                spread.height(height).update();
+
+                if (opts.json) spread.fromJSON(opts.json);
+
+                // ПОВЕСИТЬ spread.update() на РЕСАЙЗ ОКНА ЗДЕСЬ !!!
+                //
+                $form.off('onResize').on('onResize', function () {
+                    if (form.getPr("Type") != @Base.Document.Entities.DocumentType.Excel.GetValue()) return;
+                    height = fullsizedParent.height();
+                    spread.height(height).update();
+                });
+            }
+        }
+
+        var json = null;
+
+        // triggers every time, when tab "Редактор" opens (by user click on tab)
+        $tab.on('shown.bs.tab', function () {
+            if (form.getPr("Type") != @Base.Document.Entities.DocumentType.Excel.GetValue()) return;
+
+            if (!spreadInitialized) {
+
+                initSpread({
+                    useInterval: false,
+                    json: json
+                });
+                spreadInitialized = true;
+            }
+        });
+
+        // triggers every time, when document opens
+        $form.on('onEditDocument', function (e, form) {
+            if (form.getPr("Type") != @Base.Document.Entities.DocumentType.Excel.GetValue()) return;
+
+            if (!!(json = form.getPr('Value'))) {
+                // TODO: Временно! Убрать замену по регулярке.
+                try {
+                    json = JSON.parse( json.replace( /\n/g, '' ));
+                } catch (e) {
+                    pbaAPI.msg('Ошибка при парсинге данных таблицы!', 'error');
+                    json = '"{"version":"2.0","sheets":{"Sheet1":{"name":"Sheet1","selections":{"0":{"row":4,"rowCount":1,"col":6,"colCount":1}},"activeRow":4,"activeCol":6}}}"';
+                }
+            }
+
+            if (spreadInitialized) {
+                spread.destroy();
+                spreadInitialized = false;
+            }
+
+            if ($tabPane.hasClass('active')) {
+
+                initSpread({
+                    useInterval: true,
+                    json: json
+                });
+                json = null;
+                spreadInitialized = true;
+            }
+        });
+
+        $form.on('onSave', function (e, form) {
+            if (form.getPr("Type") != @Base.Document.Entities.DocumentType.Excel.GetValue()) return;
+            form.setPr('Value', JSON.stringify(spread.toJSON()));
+        });
+    })();
+</script>

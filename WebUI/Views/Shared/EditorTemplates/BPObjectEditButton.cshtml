@@ -1,0 +1,60 @@
+﻿@model EditorViewModel
+
+@{
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+    string htmlFieldName = Model.PropertyName;
+}
+
+<div id="@wrapID">
+    <a onclick="window['@wrapID'].openConstructor()" href="#" class="btn btn-primary">Редактировать</a>
+</div>
+<script>
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            console.log('bind');
+
+            window["@wrapID"].openConstructor = function () {
+                var form = $('#@wrapID').closest('form').data('pbaForm');
+
+                var data = form.getPr('@htmlFieldName');
+
+                if (!data) {
+                    data = [];
+                    form.setPr('@htmlFieldName', data);
+                }
+
+                var type = form.getPr('ObjectType') || (form.parentForm && form.parentForm.getPr('ObjectType'));
+                var parentObjectType = form.getPr('ParentObjectType') || form.parentForm.getPr('ObjectType');
+
+                if (type) {
+                    var kendoWindow = $("<div constructor-wnd />").kendoWindow({
+                        width: 900,
+                        content: "@Url.Action("GetEditorList", "BusinessProcess")" + '?objectType=' + (type.Value || type),
+                        height: 900,
+                        maxHeight: 900,
+                        title: "Инициализатор объекта",
+                        actions: ["Maximize", "Close"],
+                        modal: true,
+                        refresh: function () {
+                            kendoWindow.trigger('onLoad', {
+                                model: data,
+                                type: type,
+                                parentObjectType: parentObjectType,
+                                apply: function (newVal) {
+                                    form.setPr('@htmlFieldName', newVal);
+                                }
+                            });
+                        },
+                        deactivate: function () {
+                            this.destroy();
+                        }
+                    });
+                    var wnd = kendoWindow.data("kendoWindow");
+                    wnd.center().open();
+                } else {
+                    pbaAPI.errorMsg("Выберите тип объекта");
+                }
+            }
+        });
+    })
+</script>

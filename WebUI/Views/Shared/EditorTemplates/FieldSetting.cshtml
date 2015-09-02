@@ -1,0 +1,70 @@
+﻿@model EditorViewModel
+
+<script>
+    (function () {
+        var editor = window["@Model.UID"] = {
+            _form: null
+        };
+
+        editor.getForm = function () {
+            if (this._form == null) {
+                this._form = $("#@Model.UID").closest("form").data("pbaForm");
+            }
+
+            return this._form;
+        };
+
+        editor.onAdditionalData = function (e) {
+            return {
+                mnemonic: editor.getForm().parentForm.getModel().Type
+            };
+        };
+
+        editor.onSelect = function (e) {
+            var item = e.sender.dataItem(e.item);
+            var form = editor.getForm();
+            var model = form.getModel();
+
+            for (var key in item) {
+                if (key !== "_events" && item.hasOwnProperty(key) && model.hasOwnProperty(key)) {
+                    form.setPr(key, item[key]);
+                }
+            }
+        };
+    })();
+</script>
+
+@(Html.Kendo().DropDownList()
+    .AutoBind(false)
+    .Name(Model.UID)
+    .HtmlAttributes(new { required = true, validationMessage = "Обязательное поле", style = "width: 100%;" })
+    .DataValueField("FieldName")
+    .DataTextField("Title")
+    .OptionLabel("Выберите поле...")
+    .Events(e => e.Select(Model.UID + ".onSelect"))
+    .DataSource(source =>
+    {
+        source.Read(read =>
+            {
+                read.Action("GetProperties", "Standart").Data(Model.UID + ".onAdditionalData");
+            });
+    })
+)
+
+<script>
+    $(function () {
+        var $form = $("#@Model.UID").closest("form");
+
+        $form.on("onAfterBind", function (e, form) {
+            var val = form.getPr("@Model.PropertyName");
+
+            if (val) {
+                $("#@Model.UID").data("kendoDropDownList").value(val);
+            }
+        });
+
+        $form.on("onSave", function (e, form) {
+            form.setPr("@Model.PropertyName", $("#@Model.UID").data("kendoDropDownList").value());
+        });
+    });
+</script>

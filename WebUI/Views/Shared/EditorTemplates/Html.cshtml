@@ -1,0 +1,73 @@
+﻿@model EditorViewModel
+
+@{
+    string propertyName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string name = "n_" + Guid.NewGuid().ToString("N");
+}
+
+
+<script>
+    window['@wrapID'] = {
+        onPaste: function (e) {
+            e.html = window['@wrapID'].clearStyles(e.html);
+        },
+        removeStyles: function () {
+            var editor = $("#@wrapID").find("#@name").data("kendoEditor");
+            editor.value(window['@wrapID'].clearStyles(editor.value()));
+        },
+        clearStyles: function (str) {
+            var $html = $("<div />").html(str);
+            $html.find("[width]").removeAttr("width");
+            $html.find("[height]").removeAttr("height");
+            $html.find("[style]").removeAttr("style");
+            $html.find("[class]").removeAttr("class");
+            $html.find("[lang]").removeAttr("lang");
+
+            return $html.html();
+        }
+    };
+</script>
+
+<div id="@wrapID" style="height:100%">
+    @(Html.Kendo().Editor()
+        .Name(name)
+        .HtmlAttributes(new { style = "height:100%;" })
+        .Encode(false)
+        .Events(e => e.Paste(wrapID + ".onPaste"))
+        .Tools(t => t.Clear()
+            .Bold().Italic().Underline().Strikethrough()
+            .JustifyLeft().JustifyCenter().JustifyRight().JustifyFull()
+            .InsertUnorderedList().InsertOrderedList()
+            .Outdent().Indent()
+            .TableEditing()
+            .ViewHtml()
+            .Formatting().FontColor()
+            .CreateLink()
+            .CleanFormatting()
+    ))
+</div>
+
+<script>
+    $(function () {
+        var $wrap = $("#@wrapID");
+        var $form = $wrap.closest("form");
+        var $editor = $wrap.find("#@name");
+        var editor = $editor.data("kendoEditor");
+
+        $form.on("onAfterBind", function (e, form) {
+            var val = form.getPr("@propertyName");
+
+            editor.refresh();
+            editor.value(val || "");
+        });
+
+        $form.on("onSave", function (e, form) {
+            form.setPr("@propertyName", editor.value());
+        });
+
+        $form.on("onCancel", function (e, form) {
+
+        });
+    });
+</script>

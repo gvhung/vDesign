@@ -1,0 +1,71 @@
+﻿@using Base.Forum.Entities
+@using WebUI.Models.Forum
+@model ForumViewModel
+@{
+    IEnumerable<TopicViewModel> topics = Model.Items.Cast<TopicViewModel>();
+    string wrapID = Guid.NewGuid().ToString();
+}
+
+<script src="~/Scripts/jquery.hotkeys.js"></script>
+<script src="~/Scripts/bootstrap-wysiwyg.js"></script>
+
+
+<div class="f-topics-wrap" id="@wrapID">
+    <div class="row">
+        <div class="col-md-6 col-sm-12 vertical-align">
+            <h2>Результаты поиска</h2>
+            <a class="up-level-link" href="@Url.Action("Index", new { sect = Model.SectionID })">< назад</a>
+        </div>
+    </div>
+    
+    @{
+        foreach (var item in topics)
+        {
+            <text>
+                @RenderTopic(item)
+            </text>
+        }
+    }
+
+</div>
+
+
+@helper RenderTopic(TopicViewModel topic)
+{
+    <div class="f-row f-topic row" 
+         onclick="location.href='@Url.Action("Index", "forum", new { sect = topic.SectionID, topic = topic.ID }, null)'"
+         topic-id="@topic.ID">
+        <div class="col-lg-8 col-xs-9 vertical-align">
+            <div class="f-title">
+                <h4>@topic.Title</h4>
+            </div>
+            <div class="f-description text-muted">
+                @topic.Description
+            </div>
+        </div><!--
+        --><div class="f-last col-lg-2 hidden-md hidden-sm hidden-xs vertical-align">
+            <div class="f-last-user">
+                <small>Послед.&nbsp;<strong>@(topic.LastRecord.UserLogin)</strong></small>
+            </div>
+            <div class="f-last-time">
+                <small>@(topic.LastRecord.Date.ToShortDateString() + " " + topic.LastRecord.Date.ToShortTimeString())</small>
+            </div>
+        </div><!--
+        --><div class="f-counts col-lg-2 col-xs-3 vertical-align">
+            <div class="row">                
+                <div class="f-posts-count col-sm-6 col-xs-12 text-right">
+                    <strong>@(topic.PostsCount)</strong>&nbsp;<small>сообщ.</small>
+                </div>
+                <div class="f-views-count col-sm-6 col-xs-12 text-right">
+                    <strong>@(topic.ViewsCount)</strong>&nbsp;<small>просм.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    $(function () {
+
+    });
+</script>

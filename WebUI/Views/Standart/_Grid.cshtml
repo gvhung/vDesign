@@ -1,0 +1,80 @@
+﻿@model StandartGridView
+
+@{
+    var selectionMode = GridSelectionMode.Multiple;
+
+    var preset = Model.Preset;
+
+    if (Model.IsPermission(Base.Security.TypePermission.Write) && !Model.IsReadOnly && (Model.Type == TypeDialog.Frame || Model.Type == TypeDialog.Lookup) && Model.ViewModelConfig.ListView.Sortable)
+    {
+        selectionMode = GridSelectionMode.Single;
+    }
+
+    string actionRead = "KendoUI_CollectionRead";
+    string controllerRead = "Standart";
+
+    var config = Model.ViewModelConfig.ListView;
+
+    if (config != null && config.DataSource != null && config.DataSource.Get != null)
+    {
+        actionRead = config.DataSource.Get.Name;
+        controllerRead = config.DataSource.Get.Controller;
+    }
+}
+
+<style scoped>
+    /* Use the DejaVu Sans font for display and embedding in the PDF file.
+            The standard PDF fonts have no support for Unicode characters. */
+    .k-grid {
+        font-family: "DejaVu Sans", "Arial", sans-serif;
+    }
+</style>
+
+<script>
+    // Import DejaVu Sans font for embedding
+    kendo.pdf.defineFont({
+        "DejaVu Sans": "@Url.Content("~/Content/css/fonts/DejaVuSans.ttf")",
+        "DejaVu Sans|Bold": "@Url.Content("~/Content/css/fonts/DejaVuSans-Bold.ttf")",
+        "DejaVu Sans|Bold|Italic": "@Url.Content("~/Content/css/fonts/DejaVuSans-Oblique.ttf")",
+        "DejaVu Sans|Italic": "@Url.Content("~/Content/css/fonts/DejaVuSans-Oblique.ttf")",
+    });
+</script>
+
+@(Html.Kendo().Grid<dynamic>()
+    .Name(Model.WidgetID)
+    .AutoBind(false)
+    .Columns(columns => columns.InitColumns(this))
+    .Sortable()
+    .Scrollable(s => s.Enabled(config.Scrollable))
+    .Selectable(sel => sel.Mode(selectionMode))
+    .Filterable(f => f.InitFilterable(this))
+    .Events(e => e.InitEvents(this))
+    
+    .Pdf(pdf => pdf
+        .FileName(Model.ViewModelConfig.ListView.Title + ".pdf")
+        .ProxyURL(Url.Action("KendoUI_Export_Save", "Standart", new { area = "" }))
+    )
+    .Excel(e =>
+    {
+        e.FileName(Model.ViewModelConfig.ListView.Title + ".xlsx");
+        e.Filterable(true);
+        e.ProxyURL(Url.Action("KendoUI_Export_Save", "Standart", new { area = "" }));
+    })
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(a => a.InitModel(this))
+        .Sort(sort => sort.InitDataSourceSort(this))
+        .Filter(filter => filter.InitDataSourceFilter(this))
+        .Group(group => group.InitDataSourceGroup(this))
+        .PageSize(preset.PageSize)
+        .ServerOperation(Model.ViewModelConfig.ListView.DataSource.ServerOperation && Model.Type != TypeDialog.Lookup)
+        .Events(events => events.Error(Model.WidgetID + ".onErrorHandler"))
+        .Read(read => read.Action(actionRead, controllerRead, new { area = "", mnemonic = Model.Mnemonic, searchStr = Model.SearchStr, sysFilter = Model.SysFilter }))
+        .Aggregates(ag => ag.InitDataSourceAggregate(this))
+    )
+    .Groupable(x => x.Enabled(preset.Groupable))
+    .Pageable(p => p.InitPageable(this))
+    .Reorderable(r => r.Columns(true))
+    .Resizable(r => r.Columns(true))
+)
+

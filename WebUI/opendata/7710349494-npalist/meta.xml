@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<meta>
+  <standardversion>http://opendata.gosmonitor.ru/standard/3.0</standardversion>
+  <identifier>7710349494-npalist</identifier>
+  <title>Список нормативных правовых актов</title>
+  <description>
+    Список нормативных правовых актов
+  </description>
+  <creator>Миниэкономразвития</creator>
+  <created>20150619</created>
+  <modified>20150619</modified>
+  <subject>Нормативный правовой акт, НПА</subject>
+  <format>api</format>
+  <data>
+    <dataversion>
+      <source>http://regulation.pba.su/api/npalist</source>
+      <created>20150619</created>
+      <provenance></provenance>
+      <valid>20150619</valid>
+      <structure>20150619</structure>
+    </dataversion>
+  </data>
+  <structure>
+    <structureversion>
+      <source>http://regulation.pba.su/opendata/7710349494-npalist/data.xsd</source>
+      <created>20150619</created>
+    </structureversion>
+  </structure>
+  <publisher>
+    <name>Минэкономразвития России</name>
+    <phone>+74956508639</phone>
+    <mbox>mineconom@economy.gov.ru</mbox>
+  </publisher>
+</meta>

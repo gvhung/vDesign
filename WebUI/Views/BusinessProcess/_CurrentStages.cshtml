@@ -1,0 +1,58 @@
+﻿@using Base.Security
+@using Framework.Maybe
+@model WebUI.Models.BusinessProcess.CurrentStagesVM
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="current_stages_@(wrapID)" class="container row">
+    @if (Model.CurrnetStages.Any())
+    {
+        <div class="page-header">
+            <h3>Текущие этапы:</h3>
+        </div>
+        foreach (var item in Model.CurrnetStages)
+        {
+            if(String.IsNullOrEmpty(item.Color))
+             {
+                 item.Color = "#999999";
+             }
+
+            <div id="stage_@(item.ID)" class="timeline-current-stage" style="border-color:  @item.Color">
+                <div class="timeline-current-stage-header">
+                    <h4 title="@item.Name">@item.Name</h4>
+                </div>
+                <hr />
+                @Html.Partial("_Progress", item)
+                <hr />
+                <div class="current-stage-performer">
+                    @if (item.Performer != null)
+                    {
+                        <div class="media">
+                            <div class="pull-left performers">
+                                <img data-userid="item.Performer.ID" class="media-object img-circle" style="width: 128px; height: 128px;" src="@Html.GetImageSrc(item.Performer.Image, 128, 128)">
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading"><small>Исполнитель: </small></h4>
+                                <blockquote>
+                                    <p>@item.Performer.FullName</p>
+                                </blockquote>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning" role="alert" style="text-align: center; margin-bottom: 0;">
+                            Исполнители не назначены
+                        </div>
+                    }
+                </div>
+                <hr />
+                <div class="current-stage-footer text-primary">
+                    <span><i class="glyphicon glyphicon-calendar"></i>&nbsp;@item.BeginDate.ToShortDateString()</span>
+                    <span><i class="halfling halfling-time"></i>&nbsp;@item.BeginDate.ToShortTimeString()</span>
+                </div>
+            </div>
+        }
+    }
+</div>

@@ -1,0 +1,74 @@
+﻿@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    window["@wrapID"] = {
+        loadContent: function($form) {
+            var form = $form.data("pbaForm");
+            var editor = $form.find("#editor").data("kendoEditor");
+
+            var data = form.getPr('Value');
+            editor.value(data);
+        },
+        resize: function() {
+            var $editor = $("#@wrapID #editor");
+            $editor.closest(".k-editor-widget").height($editor.closest(".tab-pane.container").height());
+        }
+    }
+</script>
+
+<div id="@wrapID">
+    @(Html.Kendo().Editor()
+      .Name("editor")
+      .HtmlAttributes(new { style = "height: 500px;" })
+      .Tools(tools => tools
+          .Clear()
+          .Bold().Italic().Underline().Strikethrough()
+          .JustifyLeft().JustifyCenter().JustifyRight().JustifyFull()
+          .InsertUnorderedList().InsertOrderedList()
+          .Outdent().Indent()
+          .CreateLink().Unlink()
+          .InsertImage()
+          .InsertFile()
+          .SubScript()
+          .SuperScript()
+          .TableEditing()
+          .ViewHtml()
+          .Formatting()
+          .CleanFormatting()
+          .FontName()
+          .FontSize()
+          .FontColor().BackColor()
+    ))
+</div>
+
+<script>
+
+    $(function () {
+        var $form = $('#@wrapID').closest('form');
+
+        window["@wrapID"].loadContent($form);
+
+        $form.on("onAfterBind", function (e, form) {
+            if (form.getPr('Type') != @Base.Document.Entities.DocumentType.Word.GetValue()) return;
+            window["@wrapID"].loadContent($form);
+        });
+
+        $form.on('onResize', function (e, form) {
+            window["@wrapID"].resize();
+        });
+        window["@wrapID"].resize();
+
+        $form.on('onSave', function (e, form) {
+            if (form.getPr('Type') != @Base.Document.Entities.DocumentType.Word.GetValue()) return;
+            form.setPr('Value', $("#@wrapID #editor").data("kendoEditor").value());
+        });
+
+        //        var $tab = $('a[href="#' + $('#@wrapID').closest('.tab-pane').attr('id') + '"]');
+        //        $tab.on('shown.bs.tab', function() {
+        //            if ($form.data("pbaForm").getPr('Type') != @Base.Document.Entities.DocumentType.Word.GetValue()) return;
+        //            $form.trigger("onResize");
+        //        });
+    });
+</script>

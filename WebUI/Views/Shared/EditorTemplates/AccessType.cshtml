@@ -1,0 +1,28 @@
+﻿@model EditorViewModel
+
+@{
+    string name = "n_" + Guid.NewGuid().ToString("N");
+    
+    string htmlFieldName = Model.PropertyName;
+}
+
+<label class="checkbox">
+    <input type="checkbox" id="inlineCheckbox1" value="option1"> Чтение
+</label>
+<label class="checkbox">
+    <input type="checkbox" id="inlineCheckbox2" value="option2"> Редактирование
+</label>
+<label class="checkbox">
+    <input type="checkbox" id="inlineCheckbox3" value="option3"> Удаление
+</label>
+
+<script>
+    $(function () {
+        @*$("#@name").data("kendoDropDownList").options.valueTemplate = templates.enumValueTemplate("@enumType.Name");*@
+
+
+        @*$("#@name").closest("form").on("onSave", function (e, form) {
+            form.setPr("@(htmlFieldName)", $("#@name").data("kendoDropDownList").value());
+        });*@
+    });
+</script>

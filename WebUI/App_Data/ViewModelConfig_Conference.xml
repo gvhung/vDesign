@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>Conference</mnemonic>
+    <title>Связь</title>
+    <service>Base.Conference.Service.IConferenceMessageService, Base.Conference</service>
+    <entity>Base.Conference.Entities.Conference, Base.Conference</entity>
+    <listview>
+    </listview>
+    <detailview>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-send</icon>
+  </item>
+
+  <item>
+    <mnemonic>ConferenceMessage</mnemonic>
+    <title>Сообщение</title>
+    <service>Base.Conference.Service.IConferenceMessageService, Base.Conference</service>
+    <entity>Base.Conference.Entities.ConferenceMessage, Base.Conference</entity>
+    <listview>
+    </listview>
+    <detailview>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-send</icon>
+  </item>
+
+  <item>
+    <mnemonic>PrivateMessage</mnemonic>
+    <title>Приватное сообщение</title>
+    <service>Base.Conference.Service.IPrivateMessageService, Base.Conference</service>
+    <entity>Base.Conference.Entities.PrivateMessage, Base.Conference</entity>
+    <listview>
+    </listview>
+    <detailview>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-send</icon>
+  </item>
+
+  <item>
+    <mnemonic>PublicMessage</mnemonic>
+    <title>Сообщение конференции</title>
+    <service>Base.Conference.Service.IPublicMessageService, Base.Conference</service>
+    <entity>Base.Conference.Entities.PublicMessage, Base.Conference</entity>
+    <listview>
+    </listview>
+    <detailview>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-send</icon>
+  </item>
+
+</ViewModelConfig>

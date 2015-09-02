@@ -1,0 +1,533 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Regulation</title>
+
+    <link rel="shortcut icon" href="/content/img/favicon.png" type="image/x-icon">
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/content/img/114-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/content/img/72-72.png">
+
+    <link href="/content/img/apple-touch-launch-precomposed_320-460.png" rel="apple-touch-startup-image">
+    <link href="/content/img/apple-touch-launch-precomposed_460-320.png" media="(orientation:landscape)" rel="apple-touch-startup-image">
+    <link href="/content/img/apple-touch-launch-precomposed_640-920.png" media="(device-width: 320px) and (-webkit-device-pixel-ratio: 2) and (orientation:portrait)" rel="apple-touch-startup-image">
+    <link href="/content/img/apple-touch-launch-precomposed_920-640.png" media="(device-width: 320px) and (-webkit-device-pixel-ratio: 2) and (orientation:landscape)" rel="apple-touch-startup-image">
+    <link href="/content/img/apple-touch-launch-precomposed_748-1024.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)" rel="apple-touch-startup-image">
+    <link href="/content/img/apple-touch-launch-precomposed_1024-748.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)" rel="apple-touch-startup-image">
+
+    <link href="Content/css/bootstrap.css" rel="stylesheet" />
+    <link href="Content/css/kendo.dataviz.min.css" rel="stylesheet" />
+    <link href="Content/css/kendo.material.min.css" rel="stylesheet" />
+    <link href="Content/css/kendo.mobile.all.min.css" rel="stylesheet" />
+    <link href="Content/css/fonts/glyphicons-regular.css" rel="stylesheet" />
+    <link href="Content/css/fonts/glyphicons-halflings-regular.css" rel="stylesheet" />
+
+    <link href="Content/css/data-style.css" rel="stylesheet" />
+    <link href="Content/css/npa-preview.css" rel="stylesheet" />
+    <link href="Content/css/styles.css" rel="stylesheet" />
+</head>
+<body>
+    <script src="Scripts/jquery-1.9.1.min.js"></script>
+    <script src="Scripts/jquery.cookie.js"></script>
+    <script src="Scripts/kendo.all.min.js"></script>
+    <script src="Scripts/app.js"></script>
+    <script src="Scripts/InitEnum.js"></script>
+    <script src="Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <script src="Scripts/hubs.js"></script>
+
+
+    <!-- TEMPLATES -->
+
+    <script type="text/x-kendo-tmpl" id="npaListElement">
+        <div class="row">
+            <div class="col-md-offset-2 col-md-8 tile animated zoomIn" onclick="navigateToDetails(this);" npa-id="#: ID #">
+                <div class="npa-stats clearfix">
+                    <div class="npa-rate pull-left">
+                        <i style="color:\\#5bc0de;" class="glyphicon glyphicon-eye-open"></i>
+                        <span>#: Statistic.Views #</span>
+                    </div>
+                    <div class="npa-rate pull-left">
+                        <i style="color:\\#f0ad4e;" class="glyphicon glyphicon-star"></i>
+                        <span>#: Statistic.Rating #</span>
+                    </div>
+                    <div class="npa-rate pull-left">
+                        <i style="color:\\#428bca;" class="glyphicon glyphicon-quote"></i>
+                        <span>#: Statistic.Comments #</span>
+                    </div>
+                    <div class="pull-right">
+                        <span style="color: #: pba.npa.Stage[Stage].Color #" class="#: pba.npa.Stage[Stage].Icon #"></span>
+                        <span>#: pba.npa.Stage[Stage].Description #</span>
+                    </div>
+                </div>
+                <div class="npa-info">
+                    <div class="media">
+                        <div class="media-left">
+                            <img class="media-object" src="#: getSafeImageUrl(data, 'CreatorDepartment.Image', 64, 64) #" style="width: 64px; height: 64px;">
+                        </div>
+                        <div class="media-body">
+                            <span>#: Title #</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-row dept">
+                    <p>
+                        #: CreatorDepartment ? CreatorDepartment.Title : "Нет" #
+                    </p>
+                </div>
+                <div class="progress-wrap">
+                    # if(DiscussionPercentage) { #
+                    <div class="progress npa-progress">
+                        <div title="Прошло: #: Math.round(DiscussionPercentage * 100) #% времени обсуждения. Осталось: #: DiscussionDaysLeft # дней."
+                             class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"
+                             style="width: #: DiscussionPercentage * 100 #%">
+                            <span class="sr-only">#: DiscussionPercentage * 100 #%</span>
+                        </div>
+                    </div>
+                    # } #
+                </div>
+                <div class="info-row clearfix" style="height: 40px;">
+                    <p class="pull-left text-left okveds">
+                        # for (var i = 0; i < Okveds.length; i++) { #
+                        <img class="okved-img" title="#: Okveds[i].Title #" width="18" height="18" src="#: getImageUrl(Okveds[i].Image, 18, 18) #">
+                        # } #
+                    </p>
+                    <p class="pull-right text-right kind">
+                        <span title="#: Kind ? Kind.Title : '' #" class="prop-val kind">#: Kind ? Kind.Title : '' #</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-kendo-tmpl" id="noticeListElement">
+        <div class="notice-item" data-role="touch" data-enable-swipe="true" data-swipe="onSwipe" data-min-x-delta="160" notice-id="#: ID #">
+            <div class="notice-body">
+                <dl class="dl-horizontal">
+                    <dt>
+                        <span>#: Date #</span>
+                    </dt>
+                    <dd>
+                        <span>#: Title #:</span><br><span class="small notice-description">#: Description #</span>
+                    </dd>
+                </dl>
+            </div>
+            <div class="notice-control">
+                <a class="button" data-role="button" data-animated="true" data-click="hideClick"><span class="halfling halfling-eye-close"></span></a>
+                <!--                <a class="button" data-role="button" data-animated="true" data-click="openWeb"><span class="halfling halfling-globe"></span></a>-->
+            </div>
+        </div>
+    </script>
+
+    <!-- LAYOUTS -->
+
+    <div data-role="layout" data-id="default">
+        <header data-role="header">
+            <div data-role="navbar">
+                <span data-role="view-title"></span>
+                <a class="nav-button logout-button" style="display: none" data-align="right" data-role="button" data-click="logout">
+                    <span class="halfling halfling-log-out"></span>
+                </a>
+            </div>
+        </header>
+        <!-- View content -->
+        <footer data-role="footer">
+            <div data-role="tabstrip">
+                <a href="#npaList" data-icon="bookmarks"></a>
+                <a href="#statisticsview" data-icon="organize"></a>
+                <a href="#notificationview" data-icon="info" data-badge="" id="notif-badge"></a>
+            </div>
+        </footer>
+    </div>
+
+    <div data-role="layout" data-id="secondlevel">
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button back-button" data-role="button" data-align="left" onclick="app.navigate('#npaList'); return false;"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+    </div>
+
+
+    <!-- VIEWS -->
+
+    <div data-role="view" id="statisticsview" data-model="viewModel" data-layout="default" data-title="Статистика" data-persist="true">
+        <div data-role="chart"
+             data-title="{ text: 'Активные проекты на портале по этапам', position: 'top' }"
+             data-theme="material"
+             data-series-defaults="{ type: 'donut' }"
+             data-series="[{
+                                field: 'count',
+                                categoryField: 'stage'
+                              }]"
+             data-legend="{
+                    labels: {
+                        font: '12px fira_sanslight',
+                        color: '#9c9c9c',
+                        template: '#= pba.truncateString((pba.npa.Stage[text] || { Description: \'Не определен\' }).Description, 24) #: #= value #'
+                    },
+                    inactiveItems: {
+                        labels: {
+                            background: 'green',
+                            color: 'white'
+                        }
+                    },
+                    position: 'bottom'
+                }"
+             data-bind="source: statistics.diagram1">
+        </div>
+        <div data-role="chart"
+             data-title="{ text: 'Активные проекты на портале по статусам', position: 'top' }"
+             data-theme="material"
+             data-series-defaults="{ type: 'pie' }"
+             data-series="[{
+                                field: 'count',
+                                categoryField: 'status'
+                              }]"
+             data-legend="{
+                    labels: {
+                        color: '#9c9c9c',
+                        template: '#= pba.truncateString((pba.npa.Status[text] || { Description: \'Не определен\' }).Description, 24) #: #= value #'
+                    },
+                    inactiveItems: {
+                        labels: {
+                            background: 'green',
+                            color: 'white'
+                        }
+                    },
+                    position: 'bottom'
+                }"
+             data-bind="source: statistics.diagram2">
+
+        </div>
+    </div>
+    <div data-role="view" id="notificationview" data-layout="default" data-title="Уведомления" data-model="viewModel" data-init="initNoticeList">
+        <div class="auth-form" data-bind="invisible: notifications.isAuthorized">
+            <div class="text-center">
+                <img src="Content/img/Coat_of_Arms.png" alt="" />
+            </div>
+            <div class="auth-data">
+                <ul data-role="listview">
+                    <li><label for="username">Логин: <input type="text" id="username" data-bind="value: notifications.login" /></label></li>
+                    <li><label for="password">Пароль: <input type="password" id="password" data-bind="value: notifications.password" /></label></li>
+                </ul>
+                <div>
+                    <span data-bind="visible: notifications.authmessage, text: notifications.authmessage"></span>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <a class="button" data-role="button" data-animated="true" data-click="login" style="width: 50%">Войти</a><br />
+            </div>
+        </div>
+        <div class="notifications" data-bind="visible: notifications.isAuthorized">
+            <ul id="noticeList" data-role="listview" data-bind="source: notifications.data" data-template="noticeListElement" data-endless-scroll="true" data-pull-to-refresh="true"
+                data-messages='{ "pullTemplate": "Потяните для обновления", "releaseTemplate": "Отпустите для обновления", "refreshTemplate": "Обновление..." }'></ul>
+        </div>
+    </div>
+
+    <div data-role="view" id="npaList" data-model="viewModel" data-title="Нормативные правовые акты" data-layout="default" data-init="initNpaList">
+        <div container>
+            <ul id="listView" data-role="listview" data-bind="source: npaList" data-template="npaListElement" data-endless-scroll="true" data-pull-to-refresh="true"
+                data-messages='{ "pullTemplate": "Потяните для обновления", "releaseTemplate": "Отпустите для обновления", "refreshTemplate": "Обновление..." }'></ul>
+
+        </div>
+    </div>
+
+    <div data-role="view" id="detailview" data-layout="secondlevel" data-title="Детальная информация" data-show="showNpaDetail">
+        <div class="view-content"></div>
+    </div>
+
+    <!-- SCRIPTS -->
+
+    <script>
+        var viewModel = kendo.observable({
+            npaList: new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: getHostName() + "Api/GetNpaList?mnemonic=Npa_AreaRegulation_ListView",
+                        dataType: "jsonp"
+                    }
+                },
+                pageSize: 15,
+                serverPaging: true,
+                serverSorting: true,
+                serverFiltering: true,
+                sort: {
+                    field: "SortOrder",
+                    dir: "desc"
+                },
+                schema: {
+                    "data": "Data",
+                    "total": "Total",
+                    "errors": "Errors"
+                }
+            }),
+            statistics: {
+                diagram1: new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            url: getHostName() + "api/graphnpatypes?filter[0]=Notification&filter[1]=Text&filter[2]=Procedure&filter[3]=Finalzation&filter[4]=Complete",
+                            dataType: "jsonp"
+                        }
+                    },
+                    schema: {
+                        parse: function (res) {
+                            if (!res || !res.items || !res.items.length) return res;
+                            var mapped = res.items
+                                .map(function (item) {
+                                    item.color = pba.npa.Stage[item.stage].Color;
+                                    item.percentage = (item.count / res.count * 100).toFixed() - 0;
+                                    return item;
+                                });
+                            return mapped;
+                        }
+                    }
+                }),
+                diagram2: new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            url: getHostName() + "api/graphnpaevaluations?filter[0]=PreDiscussion&filter[1]=Discussion&filter[2]=EndDiscussion&filter[3]=Complete&filter[4]=Rejected",
+                            dataType: "jsonp"
+                        }
+                    },
+                    schema: {
+                        parse: function (res) {
+                            if (!res || !res.items || !res.items.length) return res;
+                            var mapped = res.items
+                                .map(function (item) {
+                                    item.color = pba.npa.Status[item.status].Color;
+                                    item.percentage = (item.count / res.count * 100).toFixed() - 0;
+                                    return item;
+                                });
+                            return mapped;
+                        }
+                    }
+                })
+            },
+            notifications: {
+                isAuthorized: false,
+                login: "",
+                password: "",
+                authmessage: null,
+                data: new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            url: getHostName() + "Api/GetNotifications",
+                            dataType: "jsonp"
+                        }
+                    },
+                    pageSize: 50,
+                    serverPaging: true,
+                    serverSorting: true,
+                    serverFiltering: true,
+                    schema: {
+                        "data": "Data",
+                        "total": "Total",
+                        "errors": "Errors"
+                    }
+                })
+            }
+        });
+
+        var app = new kendo.mobile.Application(document.body,
+        {
+            initial: "npaList",
+            transition: "slide",
+            loading: "<h1>Загрузка...</h1>",
+            skin: "material "
+        });
+
+        function navigateToDetails(e) {
+            app.navigate("#detailview?id=" + $(e).attr("npa-id"), "fade reverse");
+            app.showLoading();
+        };
+
+        function showNpaDetail(e) {
+            var content = $(e.sender.element[0]).find(".view-content");
+            content.html("");
+
+            $.get(getHostName() + "Npa/GetAjaxForm?mnemonic=Npa_AreaRegulation&id=" + e.sender.params.id, function (data) {
+                app.hideLoading();
+                content.html(data);
+
+            });
+        };
+
+        function initNoticeList(e) {
+            var $authform = $(e.sender.element).find(".auth-form");
+            var top = $authform.closest(".km-content").height() * 0.5 - $authform.height() * 0.75;
+            $authform.css("margin-top", top);
+        };
+
+        function login(e) {
+            $.ajax({
+                url: getHostName() + "regulation/api/authorize?login=" + viewModel.get("notifications.login")
+                    + "&password=" + viewModel.get("notifications.password"),
+                dataType: "jsonp",
+                type: "POST"
+            })
+            .done(function (data) {
+                if (!data.result) {
+                    viewModel.set("notifications.authmessage", "Неправильный логин или пароль");
+                    return;
+                }
+
+                $.cookie("notific", JSON.stringify({
+                    isAuthorized: true,
+                    login: viewModel.get("notifications.login")
+                }), { expires: 14400 });
+
+                loginSuccess();
+            });
+        };
+
+        var interval;
+        function loginSuccess() {
+            viewModel.set("notifications.authmessage", "");
+            viewModel.set("notifications.isAuthorized", true);
+
+
+
+            app.view().header.find(".logout-button").show();
+
+            app.showLoading();
+            viewModel.notifications.data.one("requestEnd", function () {
+                app.hideLoading();
+            });
+
+            viewModel.notifications.data.transport.options.read.url = getHostName() + "Api/GetNotifications?login=" + viewModel.get("notifications.login");
+            refreshNotices();
+
+            //            $.connection.hub.start({ transport: "longPolling", jsonp: true }, function () {
+            //                $.connection.notificationHub.server.register(viewModel.get("notifications.login"));
+            //            });
+
+            interval = setInterval(function () {
+                refreshNotices();
+            }, 5000);
+
+        };
+
+        function logout(e) {
+            viewModel.set("notifications.isAuthorized", false);
+            app.view().header.find(".logout-button").hide();
+
+            $.cookie("notific", JSON.stringify({ isAuthorized: false, login: viewModel.get("notifications.login") }, { expires: 14400 }));
+            $.cookie(".ASPXAUTH", null);
+
+            $.connection.hub.stop({ transport: "longPolling", jsonp: true });
+
+            $(app.view().footer).find("[data-role='tabstrip']").data("kendoMobileTabStrip").badge("#notif-badge", false);
+            app.navigate('#notificationview');
+
+            clearInterval(interval);
+        };
+
+        function refreshNotices() {
+            $.ajax({
+                url: getHostName() + "regulation/api/GetNotificationsCount?login=" + viewModel.get("notifications.login"),
+                dataType: "jsonp"
+            })
+            .done(function (data) {
+
+                var $tabstrip = $(app.view().footer).find("[data-role='tabstrip']").data("kendoMobileTabStrip");
+
+                var oldval = $tabstrip.badge("#notif-badge");
+
+                if (data.count) {
+                    $tabstrip.badge("#notif-badge", data.count);
+                } else {
+                    $tabstrip.badge("#notif-badge", false);
+                }
+
+                if (oldval != data.count) {
+                    viewModel.notifications.data.read();
+                    $("#noticeList").data("kendoMobileListView").refresh();
+                }
+            });
+        };
+
+        function onSwipe(e) {
+            var id = e.sender.element.attr("notice-id");
+            hideNotice(id);
+        };
+
+        function hideClick(e) {
+            var id = e.sender.element.closest(".notice-item").attr("notice-id");
+            hideNotice(id);
+        };
+
+        function hideNotice(id) {
+            var notice = findNotice(id);
+            if (!notice) return;
+
+            $.ajax({
+                url: getHostName() + "regulation/api/ReadNotice?id=" + id,
+                dataType: "jsonp"
+            });
+
+            viewModel.notifications.data.remove(notice);
+            $("#noticeList").data("kendoMobileListView").refresh();
+        };
+
+        function openWeb(e) {
+            var id = e.sender.element.closest(".notice-item").attr("notice-id");
+
+            var notice = findNotice(id);
+            if (!notice) return;
+
+            console.log(notice);
+
+            if (notice.Entity.Mnemonic.indexOf("Npa") >= 0) {
+                notice.Entity.Mnemonic = "Npa_AreaRegulation_ListView";
+            }
+
+            var url = getHostName() + "Standart/GetViewModel?mnemonic=" + notice.Entity.Mnemonic + "&typeDialog=0&id=" + notice.Entity.ID;
+
+            var win = window.open(url, "_blank");
+            win.focus();
+        };
+
+        function findNotice(id) {
+            var notices = viewModel.notifications.data.data();
+            for (i = 0; i < notices.length; i++) {
+                if (notices[i].ID == id) {
+                    return notices[i];
+                }
+            }
+            return null;
+        };
+
+        function initNpaList(e) {
+            app.showLoading();
+            viewModel.npaList.one("requestEnd", function () {
+                app.hideLoading();
+            });
+        };
+
+        $(function () {
+            var cookie = JSON.parse($.cookie("notific"));
+            viewModel.set("notifications.login", cookie.login || "");
+            if (cookie.isAuthorized === true) loginSuccess();
+
+            //            $.connection.notificationHub.client.create = function (text) {
+            //                console.log("create fired");
+            //                refreshNotices();
+            //            };
+            //
+            //            $.connection.notificationHub.client.update = function (id) {
+            //                console.log("update fired");
+            //                refreshNotices();
+            //            };
+        });
+
+    </script>
+</body>
+</html>

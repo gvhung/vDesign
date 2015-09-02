@@ -1,0 +1,121 @@
+﻿@model EditorViewModel
+
+@using Base.Attributes
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    string name = "ddl_" + Guid.NewGuid().ToString("N");
+
+    string htmlFieldName = Model.PropertyName;
+
+    LinkedListAttribute attr = null;
+}
+
+<script>
+    $(function () {
+        window['@wrapID'] = {
+            selected: null,
+            onOpen: function (e) {
+                var list = $("#@wrapID").closest("form").data("pbaForm").getPr("@attr.LinkedPropertyName");
+
+                var mappedList = $.map(list, function (element) {
+                    return {
+                        Text: element["@Model.ViewModelConfig.LookupProperty"],
+                        Value: element["ViewID"]
+                    }
+                });
+
+                if (!mappedList.length) {
+                    mappedList.push({
+                        Text: "Не выбрано",
+                        Value: "0"
+                    });
+                }
+
+                e.sender.setDataSource(new kendo.data.DataSource({
+                    data: mappedList
+                }));
+            },
+            onSelect: function (e) {
+                var list = $("#@wrapID").closest("form").data("pbaForm").getPr("@attr.LinkedPropertyName");
+                var dataItem = this.dataItem(e.item.index());
+                window['@wrapID'].selected = $.grep(list, function (x, i) {
+                    return dataItem.Value == x.ViewID;
+                })[0];
+            }
+        };
+
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            var form = $("#@wrapID").closest("form").data("pbaForm");
+
+            console.log(form);
+
+            var propValue = form.getPr("@htmlFieldName");
+
+            var selectedID;
+
+            if (propValue && propValue.ViewID && propValue.ViewID != "00000000-0000-0000-0000-000000000000") {
+                selectedID = propValue.ViewID;
+            }
+
+            var list = form.getPr("@attr.LinkedPropertyName");
+            $.each(list, function (i, e) {
+                if (!e.ViewID || e.ViewID == "00000000-0000-0000-0000-000000000000") {
+                    e.ViewID = pbaAPI.guidGenerator();
+                }
+            });
+
+            console.log(list);
+
+            var dropdownlist = $("#@wrapID").data("kendoDropDownList");
+            var mappedList = $.map(list, function (element) {
+                return {
+                    Text: element["@Model.ViewModelConfig.LookupProperty"],
+                    Value: element["ViewID"]
+                }
+            });
+
+            if (!mappedList.length) {
+                mappedList.push({
+                    Text: "Не выбрано",
+                    Value: "0"
+                });
+            }
+
+            dropdownlist.setDataSource(new kendo.data.DataSource({
+                data: mappedList
+            }));
+
+            if (propValue && !selectedID) {
+                if (propValue.ID && propValue.ID != 0) {
+                    selectedID = $.grep(list, function (x, i) {
+                        return propValue.ID == x.ID;
+                    })[0].ViewID;
+                }
+            }
+
+            dropdownlist.select(selectedID);
+        });
+
+        // Решить с удалением элементов
+        $("#@wrapID").closest("form").on("onSave", function (e, form) {
+            var form = $("#@wrapID").closest("form").data("pbaForm");
+            form.setPr("@htmlFieldName", window["@wrapID"].selected);
+        });
+    });
+</script>
+
+@(Html.Kendo().DropDownList()
+    .Name(wrapID)
+    .DataTextField("Text")
+    .DataValueField("Value")
+        .BindTo(new List<SelectListItem>() { new SelectListItem() { Text = "Не выбрано", Value = "0" } })
+        .Value("0")
+    .Events(e =>
+    {
+        e.Open(String.Format("window['{0}'].onOpen", wrapID))
+            .Select(String.Format("window['{0}'].onSelect", wrapID));
+    })
+)
+

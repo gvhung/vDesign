@@ -1,0 +1,47 @@
+﻿@{
+    string tlbr = "tlbr_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@tlbr" class="btn-group">
+    <button id="remove" type="button" class="btn btn-default"><span class="halfling halfling-remove"></span>&nbsp Сбросить</button>
+</div>
+
+<script>
+    $(function () {
+        var $toolbar = $("#@tlbr");
+
+        $toolbar.find("#remove").on("click", function () {
+            //pbaAPI.confirm("Настройки", "Сбросить настройки?", function () {
+
+            var $dialogVM = $toolbar.closest(".dialog-vm");
+            var dialogVM = $dialogVM.data("dialogVM");
+
+            var model = dialogVM.getCurrentModel();
+
+            console.log(dialogVM.mnemonic);
+
+            $.ajax({
+                type: "POST",
+                url: application.url.GetStandart("DeletePreset"),
+                data: JSON.stringify({ model: model, mnemonic: dialogVM.mnemonic }),
+                contentType: "application/json; charset=utf-8",
+                success: function (res) {
+                    if (res.error) {
+                        pbaAPI.errorMsg(res.error);
+                    } else {
+
+                        $.get(application.url.GetStandart("GetPreset"), { mnemonic: dialogVM.mnemonic, ownerMnemonic: model.OwnerMnemonic }, function (res) {
+                            if (res.error) {
+                                pbaAPI.errorMsg(res.error);
+                            } else {
+                                dialogVM.setCurrentModel(res);
+                                dialogVM.refresh();
+                            }
+                        });
+                    }
+                }
+            });
+            //});
+        });
+    });
+</script>

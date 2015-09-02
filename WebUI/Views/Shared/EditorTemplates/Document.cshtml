@@ -1,0 +1,50 @@
+﻿@model EditorViewModel
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID" class="document-wrapper" data-type="null">
+    
+</div>
+
+<script>
+    $(function () {
+        var $wrap = $("#@wrapID");
+        var $form = $wrap.closest("form");
+
+        $form.on("onAfterBind", function (e, form) {
+            var type = form.getPr("Type");
+
+            var typeName = "DocumentNew";
+
+            if (type != null) {
+                switch (type.toString()) {
+                    case "@Base.Document.Entities.DocumentType.Excel.GetValue()":
+                        typeName = "Excel";
+                        break;
+                    case "@Base.Document.Entities.DocumentType.Word.GetValue()":
+                        typeName = "Word";
+                        break;
+                    case "@Base.Document.Entities.DocumentType.Pdf.GetValue()":
+                        typeName = "Pdf";
+                        break;
+                }
+            }
+
+            if ($wrap.attr("data-type") != typeName) {
+                $wrap.empty();
+                
+                $.get(application.url.GetStandart("GetEditorTemplate"), { name: typeName }, function (html) {
+                    
+                    $wrap.html(html);
+                    $wrap.attr("data-type", typeName);
+
+                    $form.trigger("onEditDocument", form);
+                });
+            } else {
+                $form.trigger("onEditDocument", form);
+            }
+        });
+    });
+</script>

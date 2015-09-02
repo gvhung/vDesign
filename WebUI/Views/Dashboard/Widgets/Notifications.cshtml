@@ -1,0 +1,33 @@
+﻿@model DashboardWidget
+
+@{
+    string listid = Guid.NewGuid().ToString("N");
+    string notificTemplate = Guid.NewGuid().ToString("N");
+}
+
+@(Html.DashboardWidget()
+    .Content(@<text>
+        <div id="@listid" data-template="notificTemplate" data-bind="source: items">
+
+        </div>
+    </text>))
+
+<script id="@notificTemplate" type="text/x-kendo-template">
+    
+</script>
+
+<script>
+    $(function () {
+        var $list = $("#@listid");
+
+        var init = function () {
+            $.get("/Standart/KendoUI_CollectionRead", { mnemonic: "Notification" }, function (res) {
+                if (res.errors) {
+                    pbaAPI.errorMsg(res.errors);
+                } else {
+
+                }
+            });
+        };
+    });
+</script>

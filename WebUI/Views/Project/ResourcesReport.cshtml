@@ -1,0 +1,84 @@
+﻿@model List<GanttResourceViewModel>
+    
+@using Framework.Maybe
+@using Newtonsoft.Json
+
+@{
+    string reportID = "report_" + Guid.NewGuid().ToString();
+}
+
+<div id="@reportID"></div>
+
+
+<script>
+    var data = @(Html.Raw(JsonConvert.SerializeObject(Model)));
+
+    //function convertToSeries(data) {
+    //    var newData = [];
+    //    if(data) {
+    //        for(var item in data) {
+    //            newData.push({
+    //                name: data[item].Employee.FullName,
+    //                data: [data[item].TasksCount],
+    //                imageId: data[item].Image != null ? (data[item].Image.FileID) : null,
+    //                key: data[item].Image != null ? (data[item].Image.Key) : null,
+    //            });
+    //        }
+    //    }
+    //    return newData;
+    //};
+
+    //function convertToCategories(data) {
+    //    var newData = [];
+    //    if(data) {
+    //        for(var item in data) {
+    //            newData.push(data[item].Employee.FullName);
+    //        }
+    //    }
+    //    return newData;
+    //};
+
+    $(document).ready(function () {
+        //console.log(data);
+
+        var $chartArea = $("#@reportID");
+        var $parent = $chartArea.parent();
+        //$chartArea.width($parent.innerWidth());
+        $chartArea.height($parent.height());
+
+        $chartArea.kendoChart({
+            dataSource: {
+                data: data
+            },
+            title: {
+                text: 'Отчет по занятости'
+            },
+            legend: {
+                visible: false
+            },
+            seriesDefaults: {
+                type: "column",
+                labels: {
+                    visible: true,
+                    background: "transparent"
+                }
+            },
+            //series: convertToSeries(data),
+            series: [{
+                field: "TasksCount",
+                color: "#0187cb"
+            }],
+            categoryAxis: {
+                //categories: convertToCategories(data),
+                field: "Employee.FullName",
+                majorGridLines: {
+                    visible: false
+                }
+            },
+            tooltip: {
+                visible: true,
+                template: "<img class='img-circle many-perf' style='width: 32px; height: 32px; margin-right: 5px;' src='/Files/GetImage?id=#= dataItem.Image != null ? (dataItem.Image.FileID) : null #&width=32&height=32' alt='' /><span style='margin-right: 5px'>#= category #</span><span class='badge bg-default'>#= value #</span>"
+            }
+        });
+    });
+</script>

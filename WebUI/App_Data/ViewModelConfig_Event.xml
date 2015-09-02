@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>Event</mnemonic>
+    <title>События</title>
+    <service>Base.Event.Service.IEventService, Base.Event</service>
+    <entity>Base.Event.Entities.Event, Base.Event</entity>
+    <listview type="Scheduler">
+      <hiddenActions>
+        <action id="Search"/>
+        <action id="Settings"/>
+      </hiddenActions>
+    </listview>
+    <detailview title="Событие" isMaximaze="true"></detailview>
+    <icon>halfling halfling-flash</icon>
+  </item>
+  <item>
+    <mnemonic>EventType</mnemonic>
+    <title>События - Типы</title>
+    <service>Base.Event.Service.IEventTypeService, Base.Event</service>
+    <entity>Base.Event.Entities.EventType, Base.Event</entity>
+    <listview title="Типы событий"></listview>
+    <detailview title="Тип события"></detailview>
+    <icon></icon>
+  </item>
+</ViewModelConfig>

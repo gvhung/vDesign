@@ -1,0 +1,14 @@
+﻿@model StandartViewModel
+
+<script type="text/x-kendo-template">
+    @*<h4>#= @Model.ViewModelConfig.LookupPropertyForUI #</h4>*@
+    <div class="content-item-preview">
+        #= Content.Html #
+    </div>
+</script>
+
+<script>
+    $(function () {
+        var $view = $("#@Model.WidgetID");
+    });
+</script>

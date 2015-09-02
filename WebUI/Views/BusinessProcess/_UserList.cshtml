@@ -1,0 +1,15 @@
+﻿@using Base.Security
+@model IEnumerable<User>
+
+@foreach (User user in Model)
+{
+    <a href="#" class="list-group-item" data-userid="@user.ID">
+        <div class="media">
+            <img class="img-circle pull-left" style="width: 128px; height: 128px;" src="@Html.GetImageSrc(user.Image, 128, 128)" alt="..." />
+            <div class="media-body">
+                <h4 class="media-heading">@user.FullName</h4>
+                <p><span class="label label-primary">@user.UserCategoryName</span></p>
+            </div>
+        </div>
+    </a>
+}

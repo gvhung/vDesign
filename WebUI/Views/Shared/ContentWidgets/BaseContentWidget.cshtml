@@ -1,0 +1,40 @@
+﻿@using Newtonsoft.Json
+@model ContentEditorBuilder.ContentEditorWidget
+
+<div class="panel panel-default draggable widget-handle">
+    <div class="panel-body">
+        <div data-widget="@Model.Name" id="@Model.Wrap">
+            @if (Model.TitleTemplate != null)
+            {
+                @Model.TitleTemplate
+            }
+            else
+            {
+                @Model.Title
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        contentEditor.@Model.Name = contentEditor.ContentWidget.extend($.extend(@Html.Raw(Model.Extender), {
+            init: function (element, model) {
+                if (!element) {
+                    element = this.createElement($('#@Model.Template').html(), '@Model.Name');
+                }
+
+                if (!model) {
+                    model = @Html.Raw(JsonConvert.SerializeObject(Model.Model));
+                }
+
+                contentEditor.ContentWidget.fn.init.call(this, element, model);
+                this.wrap = "@Model.Wrap";
+                this.mnemonic = "@Model.Mnemonic";
+            },
+            title: '@Model.Title'
+        }));
+
+        $('#@Model.Wrap').data('ctor', contentEditor.@Model.Name);
+    })();
+</script>

@@ -1,0 +1,393 @@
+﻿.h-tl {
+    /*margin-top: 100px;*/
+}
+
+@media (min-width: 1200px) {
+    .h-tl {
+        white-space: nowrap;
+    }
+}
+
+.h-tl-col-1 {
+    position: relative;
+    display: block;
+}
+.h-tl-col-2 {
+    position: relative;
+    display: block;
+}
+.h-tl-col-3 {
+    position: relative;
+    display: block;
+}
+.h-tl-col-4 {
+    position: relative;
+    display: block;
+}
+.h-tl-col-5 {
+    position: relative;
+    display: block;
+}
+.h-tl-col-6 {
+    position: relative;
+    display: block;
+}
+
+@media (min-width: 1200px) {
+    .h-tl-cols-wrap {
+        font-size: 0;
+    }
+
+    .h-tl-col-1 {
+        font-size: 14px;
+        display: inline-block;
+        vertical-align: top;
+        width: 100%;
+    }
+
+    .h-tl-col-2 {
+        font-size: 14px;
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+    }
+
+    .h-tl-col-3 {
+        font-size: 14px;
+        display: inline-block;
+        vertical-align: top;
+        width: 33.3333%;
+    }
+
+    .h-tl-col-4 {
+        font-size: 14px;
+        display: inline-block;
+        vertical-align: top;
+        width: 25%;
+    }
+
+    .h-tl-col-5 {
+        font-size: 14px;
+        display: inline-block;
+        vertical-align: top;
+        width: 20%;
+    }
+
+    .h-tl-col-6 {
+        font-size: 14px;
+        display: inline-block;
+        vertical-align: top;
+        width: 16.6667%;
+    }
+}
+
+.h-tl-wrap {
+    min-width: 240px;
+}
+
+.h-tl .card {
+    font-size: 12px;
+    padding: 16px 0;
+    position: relative;
+    box-shadow: 0px 8px 17px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    background: #EEEEEE;
+}
+
+.h-tl .card:not(.current) {
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.h-tl .card:hover {
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.current-stage .card {
+    border-bottom: 5px solid #5CB85C;
+    border-top: 5px solid #5CB85C;
+    animation-delay: 1.5s;
+    -webkit-animation-delay: 1.5s;
+}
+
+.file-link {
+    display: block;
+    line-height: 24px;
+}
+
+    .file-link span {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .file-link .download {
+        display: none;
+    }
+
+    .file-link .title {
+        display: block;
+    }
+
+.fast-animation {
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+}
+
+.file-link:hover .download {
+    display: block;
+}
+
+.file-link:hover .title {
+    display: none;
+}
+
+.file-link .file-icon {
+    font-size: 22px;
+    width: 22px;
+    line-height: 22px;
+    height: 22px;
+}
+
+.h-divider {
+    padding: 10px;
+    text-align: center;
+    position: relative;
+}
+
+    .h-divider span {
+        background: #EEEEEE;
+        position: relative;
+        padding: 0 10px;
+    }
+
+
+    .h-divider:before {
+        content: ' ';
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        height: 1px;
+        background: #ddd;
+        top: 50%;
+    }
+
+.h-tl * {
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+}
+
+.h-tl .h-line {
+    margin: 32px 0;
+    height: 3px;
+    background: #777;
+    position: relative;
+    border-radius: 3px;
+}
+
+.h-tl .v-line {
+    margin: 0 32px;
+    width: 3px;
+    background: #777;
+    position: absolute;
+    border-radius: 3px;
+    top: 32px;
+    left: 0;
+    bottom: 0;
+}
+
+    .h-tl .v-line .stage-title {
+    }
+
+.v-line .t-icon {
+    position: absolute;
+    font-size: 32px;
+    left: 50%;
+    margin-left: -16px;
+    margin-top: -24px;
+    top: 50%;
+    z-index: 1;
+    padding: 10px 0;
+    background: #fff;
+}
+
+.h-tl .card-wrap:not([data-stage="50"]) .h-line:after {
+    position: absolute;
+    display: inline-block;
+    border-top: 7px solid transparent;
+    border-left: 16px solid #777;
+    border-bottom: 7px solid transparent;
+    border-right-color: rgba(0, 0, 0, 0.2);
+    right: -24px;
+    top: -6px;
+    content: '';
+}
+
+.h-tl .v-line:after {
+    position: absolute;
+    display: inline-block;
+    border-left: 7px solid transparent;
+    border-top: 16px solid #777;
+    border-right: 7px solid transparent;
+    border-bottom-color: rgba(0, 0, 0, 0.2);
+    right: -6px;
+    bottom: -24px;
+    content: '';
+}
+
+.h-tl .card-wrap {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    position: relative;
+    -webkit-animation-name: fadeInLeft;
+    animation-name: fadeInLeft;
+    white-space: normal;
+    padding: 0 15px;
+}
+
+    .h-tl .card-wrap .stage-status {
+        font-size: 36px;
+        color: #5CB85C;
+        line-height: 36px;
+        -webkit-animation-iteration-count: 1;
+        animation-iteration-count: 1;
+        animation-delay: 1.5s;
+        -webkit-animation-delay: 1.5s;
+    }
+
+.h-tl .card-wrap-title {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.h-line .t-icon {
+    position: absolute;
+    font-size: 32px;
+    left: 50%;
+    margin-left: -26px;
+    top: -16px;
+    z-index: 1;
+    padding: 0 10px;
+    /*background: #fff;*/
+}
+
+    .h-line .t-icon:after {
+        position: absolute;
+        content: ' ';
+        background: #fff;
+        width: 100%;
+        height: 3px;
+        left: 0;
+        top: 16px;
+        z-index: -1;
+    }
+
+.info-block i {
+    font-style: normal;
+}
+
+.info-block.with-icon:before {
+    content: "\E196";
+    color: #777;
+    position: absolute;
+    font-family: 'Glyphicons Regular';
+    top: -12px;
+    font-size: 20px;
+    left: -10px;
+}
+
+.btns-group {
+    margin-top: 16px;
+}
+
+    .btns-group .btn {
+        position: relative;
+        display: block;
+        margin-bottom: -1px;
+        border: 0;
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+    }
+
+        .btns-group .btn i {
+            margin: 0 10px;
+        }
+
+.h-tl .card:before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    margin-left: -10px;
+    width: 0;
+    height: 0;
+    border-bottom: solid 10px #eee;
+    border-left: solid 10px transparent;
+    border-right: solid 10px transparent;
+    left: 50%;
+}
+
+@media (max-width: 1200px) {
+    .h-tl .card:before {
+        top: 50%;
+        left: -10px;
+        margin-top: -5px;
+        border-right: solid 10px #eee;
+        border-top: solid 10px transparent;
+        border-bottom: solid 10px transparent;
+    }
+
+    .h-tl .card {
+        padding-top: 0;
+    }
+
+    .h-tl .card-wrap {
+        -webkit-animation-name: fadeInDown;
+        animation-name: fadeInDown;
+    }
+}
+
+@media (max-width: 768px) {
+    .h-tl .card:before {
+        content: none;
+    }
+}
+
+.h-tl .card-wrap:hover .card {
+    /*box-shadow: 0px 8px 17px rgba(0, 0, 0, 0.2);*/
+}
+
+.h-tl .card .info-block {
+    background: #fff;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+    .h-tl .card .info-block:last-child {
+        margin-bottom: 0;
+    }
+
+    .h-tl .card .info-block__fixed-text {
+        position: relative;
+        /*max-height: 285px;*/
+        overflow: hidden
+    }
+    .h-tl .card .info-block__line-end {
+        background: -moz-linear-gradient(left, rgba(255,255,255,0) 0, rgba(255,255,255,1) 75%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, right top, color-stop(0,rgba(255,255,255,0)), color-stop(75%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(left, rgba(255,255,255,0) 0,rgba(255,255,255,1) 75%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(left, rgba(255,255,255,0) 0,rgba(255,255,255,1) 75%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(left, rgba(255,255,255,0) 0,rgba(255,255,255,1) 75%); /* IE10+ */
+        background: linear-gradient(to right, rgba(255,255,255,0) 0,rgba(255,255,255,1) 75%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 ); /* IE6-9 */
+
+        width: 60px;
+        height: 19px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }

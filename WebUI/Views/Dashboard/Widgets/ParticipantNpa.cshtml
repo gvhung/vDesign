@@ -1,0 +1,89 @@
+﻿@using Newtonsoft.Json
+@using WebUI.Models.Dashboard.Widgets
+@model DashboardWidget
+
+@Html.DashboardWidget().Content(WidgetBody).HtmlAttrs(new { style = "background: rgba(255,255,255,0.4); padding: 0;" })
+
+@helper WidgetBody(object _)
+{
+    @(Html.Widgets()
+      .CounterWidget(Model)
+      .CountUrl("/Npa/GetCounts")
+      .ItemsUrl("/Npa/GetNpas")
+      .ItemTemplate(Template)
+      .Items(new List<CounterMnemonicVm>
+      {
+          new CounterMnemonicVm(Html.GetViewModelConfig("Participant_Npa_Notification")) { Color = "#5bc0de" },
+          new CounterMnemonicVm(Html.GetViewModelConfig("Participant_Npa_Text")) {  Color = "#428bca" },
+          new CounterMnemonicVm(Html.GetViewModelConfig("Participant_Npa_Procedure")) {  Color = "#f0ad4e" },
+          new CounterMnemonicVm(Html.GetViewModelConfig("Participant_Npa_Finalzation")) {  Color = "#428bca" },
+          new CounterMnemonicVm(Html.GetViewModelConfig("Participant_Npa_Complete")) {  Color = "#5cb85c" }
+      }).AdditionalScript(AdditionalScript))
+}
+
+@helper AdditionalScript(object _)
+{
+    var enums = new[] { typeof(NpaStatus) }.Select(x => new
+    {
+        Name = x.FullName,
+        Vaules = JsonConvert.SerializeObject(Enum.GetValues(x).Cast<Enum>()
+            .Select(v => new
+            {
+                Value = v.GetValue(),
+                Name = v.ToString(),
+                Text = v.GetDescription()
+            }))
+    });
+
+    foreach (var en in enums)
+    {
+        @: application.initEnumValues("@en.Name", @Html.Raw(en.Vaules));
+    }
+}
+
+@helper Template(object _)
+{
+    <script type="text/template" id="counter-widget-items-template">
+        <div class="container-fluid dynamic-tile">
+            <div class="row ">
+                <% var delay = 0, inc = 100; %>
+                <% _(items).each(function(item) { %>
+                <div class="col-xs-12 tile-wrap">
+                    <div class="tile single-tile animated zoomIn fadeout <%= isChanged(item.ID) ? "changed" : "" %>" style="-webkit-animation-delay: <%= delay %>ms; animation-delay: <%= delay %>ms;">
+                        <div class="npa-stats clearfix">
+                            <div class="npa-rate pull-left">
+                                <i style="color: #5bc0de;" class="glyphicon glyphicon-eye-open"></i>
+                                <span><%= item.ViewsCount %></span>
+                            </div>
+                            <div class="npa-rate pull-left">
+                                <i style="color:  #f0ad4e;" class="halfling halfling-star"></i>
+                                <span><%= item.RatingCount %></span>
+                            </div>
+                            <div class="npa-rate pull-left">
+                                <i style="color:#428bca;" class="glyphicon glyphicon-quote"></i>
+                                <span><%= item.CommentsCount %></span>
+                            </div>
+                        </div>
+                        <div class="npa-info">
+                            <p>
+                                <a href="#" data-mnemonic="<%= mnemonic %>" data-id="<%= item.ID %>" class="title"><%= item.Title %></a>
+                            </p>
+                            <p>
+                                <span class="prop-title text-muted">Статус: </span>
+                                <span class="prop-val"><%= application.getEnumText("Data.Entities.NpaStatus", item.Status) %></span>
+                            </p>
+                            <% if(item.Kind) { %>
+                            <p>
+                                <span class="prop-title text-muted">Вид: </span>
+                                <span class="prop-val"><%= item.Kind.Title %></span>
+                            </p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <% delay += inc %>
+                <% }) %>
+            </div>
+        </div>
+    </script>
+}

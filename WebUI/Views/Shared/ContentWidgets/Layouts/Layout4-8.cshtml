@@ -1,0 +1,24 @@
+﻿@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html
+    .ContentEditorWidget("layout4_8")
+    .Title("Разметка - 2")
+.TitleTemplate(
+    @<text>
+        <div class="row layout-preview">
+            <div class="col-sm-4">&nbsp;</div>
+            <div class="col-sm-8">&nbsp;</div>
+        </div>
+    </text>)
+                    .Wrap(wrapID)
+                    .Mnemonic("Content_Layout")
+                    .Template("tpl_" + wrapID))
+
+<script id="tpl_@wrapID" type="text/template">
+    <div class="row">
+        <div class="col-sm-4 droptarget"></div>
+        <div class="col-sm-8 droptarget"></div>
+    </div>
+</script>

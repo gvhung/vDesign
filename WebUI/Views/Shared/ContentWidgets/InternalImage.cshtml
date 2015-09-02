@@ -1,0 +1,26 @@
+﻿@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html.ContentEditorWidget("internal_image")
+    .Title("Изображение")
+    .TitleTemplate(
+    @<text>
+        <span><i class="glyphicon glyphicon-picture"></i> Изображение</span>
+    </text>)
+    .Wrap(wrapID)
+    .Mnemonic("Content_Image_Internal")
+    .Template("tpl_" + wrapID))
+
+<script id="tpl_@wrapID" type="text/template">
+    <p data-bind="html: model.Title"></p>
+    <img class="center-block" data-bind="content_img: {
+                                                    width: model.Width,
+                                                    height: model.Height,
+                                                    url:null,
+                                                    file: model.File,
+                                                    original: model.Original
+                                                }" />
+    <p data-bind="html: model.ImageSignature"></p>
+</script>
+

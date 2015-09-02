@@ -1,0 +1,54 @@
+﻿@using Base.BusinessProcesses.Services.Abstract
+@using Base.BusinessProcesses.Strategies
+@using WebUI.Controllers
+@model EditorViewModel
+
+
+@functions {
+    public class StrategyVm
+    {
+        public string Text { get; set; }
+        public string Name { get; set; }
+        public string Value { get; set; }
+    }
+}
+
+@{
+    var values = new List<StrategyVm>();
+
+    string name = "n_" + Guid.NewGuid().ToString("N");
+
+    var ctrl = ViewContext.Controller as BaseController;
+    if (ctrl != null)
+    {
+        var strategyService = ctrl.GetService<IWorkflowStrategyService>();
+        if (strategyService != null)
+        {
+            values.AddRange(strategyService.GetStrategies<IStakeholdersSelectionStrategy>()
+                .Select(v => new StrategyVm
+                {
+                    Text = v.UserFriendlyName,
+                    Name = v.Identifier,
+                    Value = v.Identifier,
+                }));
+        }
+    }
+}
+
+@(Html.Kendo().DropDownList()
+    .Name(name)
+        .HtmlAttributes(Html.CreateHtmlAttributes(Model, new { style = "width: 100%;" }))
+    .DataTextField("Text")
+    .DataValueField("Value")
+    .OptionLabel("Стратегия по-умолчанию")
+    .Template(String.Format("<span data-val='#=data.Name#'>#=data.Text#</span>"))
+        .BindTo(values)
+)
+
+<script>
+    $(function () {
+        $("#@name").closest("form").on("onSave", function (e, form) {
+            form.setPr("@(Model.PropertyName)", $("#@name").data("kendoDropDownList").value());
+        });
+    });
+</script>

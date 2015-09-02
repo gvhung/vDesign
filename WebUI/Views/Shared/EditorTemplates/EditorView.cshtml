@@ -1,0 +1,44 @@
+﻿@model EditorViewModel
+
+@{
+    string formID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    string editorName = "~/Views/Shared/EditorTemplates/Common/Editor.cshtml";
+}
+
+<div class="common-form k-edit-form-container">
+    <form id="@formID" class="common-form">
+        @Html.Partial(editorName, Model)
+        <hr/>
+    </form>
+</div>
+<script>
+    (function () {
+        var $form = $('#@formID');
+        var form;
+        var $customeditorWnd = $form.closest('[data-role=customeditorWnd]');
+
+        var viewModel = kendo.observable({
+            model: {},
+            save: function () {
+                $form.trigger("onSave", form);
+
+                $customeditorWnd.trigger('onSave', form.getModel());
+            },
+            cancel: function () {
+
+                $customeditorWnd.trigger('onCancel');
+            }
+        });
+
+        form = $('#@formID').pbaForm({
+            model: viewModel,
+            wrap: "k-edit-form-container",
+            buttons: [
+                { title: "Сохранить", click: "save", icon: "k-update", cssClass: "btn-primary" },
+                { title: "Отменить", click: "cancel", icon: "k-update", cssClass: "btn-default" }
+            ],
+            nameModel: "model", attrBind: true, validate: true
+        }).bind();
+    })();
+</script>

@@ -1,0 +1,133 @@
+﻿ <!-- DISPLAY -->
+@{
+    string spreadGUID = Guid.NewGuid().ToString("N");
+}
+
+<!-- SpreadJS CSS and script -->
+<link href="~/Scripts/SpreadJS/jquery.wijmo.css" rel="stylesheet" />
+<link href="~/Scripts/SpreadJS/jquery.wijmo.wijspread.css" rel="stylesheet" />
+<link href="~/Scripts/SpreadJS/pba.wijspread.css" rel="stylesheet" />
+<script src="~/Scripts/SpreadJS/pba.wijspread.js"></script>
+
+<div id="@spreadGUID" class="wijspread"></div>
+
+<script>
+    (function () {
+        var guid = "@spreadGUID";
+        var $form = $('#' + guid).closest('form');
+        var $tab = $('a[href="#' + $('#' + guid).closest('.tab-pane').attr('id') + '"]');
+        var $tabPane = $('#' + guid).closest('.tab-pane.container');
+        var spreadInitialized = false;
+
+        var spread;
+
+        //function selectTab
+        function initSpread(opts) {
+
+            var $wijspread = $('.wijspread');
+            if ($wijspread.length > 1) {
+
+                // destroy and remove all previous wijspreads - it's not needed to have multiple of them
+                for (var i = 0; i < $wijspread.length - 1; i++) {
+                    $wijspread.eq(i).data('pbaSpread').destroy();
+                    $wijspread.eq(i).remove();
+                }
+
+                $wijspread = $wijspread.last();
+            }
+
+            spread = $wijspread.pbaSpread({
+                positionBox: false,
+                formulaBox: false,
+                kendo: {
+                    calendar: false,
+                    contextMenu: false,
+                    borderDialog: false
+                },
+                wijspreadJsUrl: '/Scripts/SpreadJS/jquery.wijmo.wijspread.js'
+            });
+
+            var fullsizedParent = spread.closest('.tab-content.common-tab');
+            var height;
+
+            if (opts && opts.useInterval) {
+
+                var intervalId = setInterval(function () {
+
+                    height = fullsizedParent.height();
+                    if (height > 0) {
+
+                        spread.height(height).update();
+
+                        if (opts.json) {
+                            spread.fromJSON(opts.json);
+                        }
+
+                        clearInterval(intervalId);
+
+                        // ПОВЕСИТЬ spread.update() на РЕСАЙЗ ОКНА ЗДЕСЬ !!!
+                        //
+                        $form.off('onResize').on('onResize', function () {
+                            height = fullsizedParent.height();
+                            spread.height(height).update();
+                        });
+                    }
+                }, 150);
+            } else {
+
+                height = fullsizedParent.height();
+                spread.height(height).update();
+
+                if (opts.json) spread.fromJSON(opts.json);
+
+                // ПОВЕСИТЬ spread.update() на РЕСАЙЗ ОКНА ЗДЕСЬ !!!
+                //
+                $form.off('onResize').on('onResize', function () {
+                    height = fullsizedParent.height();
+                    spread.height(height).update();
+                });
+            }
+        }
+
+        var json = null;
+
+        // triggers every time, when tab "Редактор" opens (by user click on tab)
+        $tab.on('shown.bs.tab', function () {
+
+            if (!spreadInitialized) {
+                
+                initSpread({
+                    useInterval: false,
+                    json: json
+                });
+                
+                spreadInitialized = true;
+            }
+        });
+
+        // triggers every time, when document opens
+        $form.on('onEditDocument', function (e, form) {
+
+            if (!!(json = form.getPr('Value'))) json = JSON.parse(json);
+
+            if (spreadInitialized) {
+                spread.destroy();
+                spreadInitialized = false;
+            }
+
+            if ($tabPane.hasClass('active')) {
+
+                initSpread({
+                    useInterval: true,
+                    json: json
+                });
+                json = null;
+                spreadInitialized = true;
+            }
+        });
+
+        $form.on('onSave', function (e, form) {
+            form.setPr('Value', JSON.stringify(spread.toJSON()));
+        });
+    })();
+</script>

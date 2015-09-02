@@ -1,0 +1,12 @@
+@model EditorViewModel
+
+@{
+    string name = "n_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html.Kendo().CurrencyTextBox().Name(name).Format("c")
+          .HtmlAttributes(Html.CreateHtmlAttributes(Model, new { style = "width:100%; max-width: 200px;" }))
+      .Min(0)
+)
+
+

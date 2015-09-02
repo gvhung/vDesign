@@ -1,0 +1,27 @@
+﻿@using System.Text
+@model DashboardWidgetBuilder.Widget
+
+<div id="@Model.Mnemonic" class="dashboard-widget">
+    <h3 class="header"><span><i class="@Model.Icon"></i> @Model.Title</span></h3>
+    @{
+        bool renderClass = true;
+        
+        var attrs = new StringBuilder();
+        foreach (var pair in HtmlHelper.AnonymousObjectToHtmlAttributes(Model.HtmlAttributes))
+        {
+            if (pair.Key == "class")
+            {
+                renderClass = false;
+                attrs.AppendFormat(@"{0}=""{1} content""", pair.Key, pair.Value);
+            }
+            else
+            {
+                attrs.AppendFormat(@"{0}=""{1}""", pair.Key, pair.Value);
+            }
+        }
+    }
+
+    <div @(renderClass ? "class=content" : "") @MvcHtmlString.Create(attrs.ToString())>
+        @Html.Raw(Model.Html)
+    </div>
+</div>

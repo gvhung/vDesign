@@ -1,0 +1,178 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD  XHTML+RDFa  1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" version="XHTML+RDFa 1.0" dir="ltr" xmlns:dc="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:og="http://ogp.me/ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:sioct="http://rdfs.org/sioc/types#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rss="http://purl.org/rss/1.0/" lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Открытые данные - Список НПА</title>
+    <link href="../../Content/css/bootstrap/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <img src="../logo.png" alt="" height="48" width="48" style="float: left" />
+                <h4 class="navbar-text">Открытые данные</h4>
+            </div>
+            <div id="navbar" class="navbar-static-top">
+                <ul class="nav navbar-nav">
+                    <li><a href="/">На главную</a></li>
+                    <li><a href="/opendata/index.html">Реестр данных</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div about="/opendata/7710349494-npalist" typeof="foaf:Document" class="opendata-wrap">
+            <div rel="dc:conformsTo" resource="http://opendata.gosmonitor.ru/standard/3.0"></div>
+
+            <h3>
+                Паспорт открытых данных
+                <span class="small well pull-right">
+                    <a href="meta.xml">xml</a>&nbsp;|&nbsp;<a href="meta.xsd">xsd</a>
+                </span>
+            </h3>
+            <table about="/opendata/7710349494-npalist" typeof="foaf:Document" class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Характеристика</th>
+                        <th>Значение характеристики</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Идентификационный номер</td>
+                        <td property="dc:identifier">7710349494-npalist</td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>Наименование набора данных</td>
+                        <td property="dc:title">Список нормативных правовых актов</td>
+                    </tr>
+
+                    <tr>
+                        <td>3</td>
+                        <td>Описание набора данных</td>
+                        <td property="dc:description">...</td>
+                    </tr>
+
+                    <tr>
+                        <td>4</td>
+                        <td>Владелец набора данных</td>
+                        <td property="dc:owner">Минэкономразвития России</td>
+                    </tr>
+
+                    <tr>
+                        <td>5</td>
+                        <td>Ответственное лицо</td>
+                        <td>...</td>
+                    </tr>
+
+                    <tr>
+                        <td>6</td>
+                        <td>Телефон ответственного лица</td>
+                        <td>+7 (495) 650-86-39</td>
+                    </tr>
+
+                    <tr>
+                        <td>7</td>
+                        <td>Адрес электронной почты ответственного лица</td>
+                        <td>mineconom@economy.gov.ru</td>
+                    </tr>
+
+                    <tr>
+                        <td>8</td>
+                        <td>Гиперсылка (URL) на набор</td>
+                        <td><a href="/api/npalist">http://regulation.pba.su/api/npalist</a></td>
+                    </tr>
+
+                    <tr>
+                        <td>9</td>
+                        <td>Формат данных</td>
+                        <td>API (XML)</td>
+                    </tr>
+
+                    <tr>
+                        <td>10</td>
+                        <td>Описание структуры набора данных</td>
+                        <td><a href="/opendata/7710349494-npalist/data.xsd">http://regulation.pba.su/opendata/7710349494-npalist/data.xsd</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <div>
+            <h3>Параметры запроса к API</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Тип</th>
+                        <th>Описание</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>id</td>
+                        <td>integer</td>
+                        <td>Отправка в ответе только одного проекта с указанным идентификатором. Альтернативный формат запроса: /api/npalist/{id} (<a href="/api/npalist/5386">пример</a>)</td>
+                    </tr>
+
+                    <tr>
+                        <td>limit</td>
+                        <td>integer</td>
+                        <td>Постраничный вывод - число элементов (<a href="/api/npalist?limit=50">пример</a>)</td>
+                    </tr>
+
+                    <tr>
+                        <td>offset</td>
+                        <td>integer</td>
+                        <td>Постраничный вывод - сдвиг (<a href="/api/npalist?limit=50&offset=80">пример</a>)</td>
+                    </tr>
+
+                    <tr>
+                        <td>fields</td>
+                        <td>string</td>
+                        <td>Отправка в ответе только запрошенных атрибутов элементов данных. Нужные атрибуты перечисляются через запятую (<a href="/api/npalist?limit=50&fields=title,projectId">пример</a>)</td>
+                    </tr>
+
+                    <tr>
+                        <td>search</td>
+                        <td>string</td>
+                        <td>Полнотекстовый поиск по данным (<a href="/api/npalist?limit=50&search=полет">пример</a>)</td>
+                    </tr>
+
+                    <tr>
+                        <td>sort</td>
+                        <td>string</td>
+                        <td>Для вывода списка НПА в обратном порядке передать "desc". Все остальные значения игнорируются (<a href="/api/npalist?limit=50&sort=desc">пример</a>)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <style>
+        .opendata-wrap {
+            margin-top: 80px;
+        }
+
+        .well {
+            padding: 8px;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .opendata-wrap {
+                margin-top: 180px;
+            }
+        }
+    </style>
+</body>
+</html>

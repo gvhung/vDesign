@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>Content_Layout</mnemonic>
+    <title>Контент - Разметка</title>
+    <entity>WebUI.Models.ContentWidgets.LayoutVm, WebUI</entity>
+    <detailview title="Разметка" hideToolbar="true" width="500" height="300"></detailview>
+  </item>
+  <item>
+    <mnemonic>Content_TextArea</mnemonic>
+    <title>Контент - Текст</title>
+    <entity>WebUI.Models.ContentWidgets.TextAreaVm, WebUI</entity>
+    <detailview title="Текст" hideToolbar="true" width="900" height="600"></detailview>
+  </item>
+  <item>
+    <mnemonic>Content_Image_Internal</mnemonic>
+    <title>Контент - Внутреннее изображение</title>
+    <entity>WebUI.Models.ContentWidgets.InternalImageVm, WebUI</entity>
+    <detailview title="Изображение" hideToolbar="true" width="900" height="600">
+      <editors>
+        <editor propertyName="File" mnemonic="FileStorageItemImage" />
+      </editors>
+    </detailview>
+  </item>
+  <item>
+    <mnemonic>Content_Image_External</mnemonic>
+    <title>Контент - Внешнее изображение</title>
+    <entity>WebUI.Models.ContentWidgets.ExternalImageVm, WebUI</entity>
+    <detailview title="Изображение" hideToolbar="true" width="500" height="400"></detailview>
+  </item>
+
+  <item>
+    <mnemonic>Content_Video_Internal</mnemonic>
+    <title>Контент - Внутреннее видео</title>
+    <entity>WebUI.Models.ContentWidgets.InternalVideoVm, WebUI</entity>
+    <detailview title="Видео" hideToolbar="true" width="500" height="400"></detailview>
+  </item>
+  <item>
+    <mnemonic>Content_File_Internal</mnemonic>
+    <title>Контент - Файл</title>
+    <entity>WebUI.Models.ContentWidgets.InternalFileVm, WebUI</entity>
+    <detailview title="Видео" hideToolbar="true" width="500" height="400"></detailview>
+  </item>
+
+  <item>
+    <mnemonic>Content_Video_External</mnemonic>
+    <title>Контент - Внешнее видео</title>
+    <entity>WebUI.Models.ContentWidgets.ExternalVideoVm, WebUI</entity>
+    <detailview title="Видео" hideToolbar="true" width="500" height="400"></detailview>
+  </item>
+
+  <!--interactive-->
+  <item>
+    <mnemonic>TestWidget_Checkboxes</mnemonic>
+    <title>Виджет тес чекбокс</title>
+    <entity>WebUI.Models.ContentWidgets.TestWidget[WebUI.Models.ContentWidgets.CheckboxTestItem, WebUI], WebUI</entity>
+    <detailview title="Чекбокс" hideToolbar="true" width="900" height="700"></detailview>
+  </item>
+
+  <item>
+    <mnemonic>TestWidget_CheckboxTestItem</mnemonic>
+    <title>Виджет тес чекбокс</title>
+    <entity>WebUI.Models.ContentWidgets.CheckboxTestItem, WebUI</entity>
+    <detailview title="Чекбокс" hideToolbar="true" width="900" height="700"></detailview>
+  </item>
+</ViewModelConfig>

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <!-- *********************OpenID************************ -->
+  <item>
+    <mnemonic>ExtProfile</mnemonic>
+    <title>Профиль (расш.)</title>
+    <service>Base.OpenID.Service.Abstract.IExtProfileService, Base.OpenID</service>
+    <entity>Base.OpenID.Entities.ExtProfile, Base.OpenID</entity>
+    <listview></listview>
+    <detailview hideToolbar="true" name="Common/Profile">
+      <editors>
+        <column propertyName="Email" visible="false" />
+      </editors>
+    </detailview>
+    <lookupproperty>FullName</lookupproperty>
+    <icon>halfling halfling-user</icon>
+  </item>
+  <item>
+    <mnemonic>ExternalAccount</mnemonic>
+    <title>Внешние аккаунты</title>
+    <service>Base.OpenID.Service.Abstract.IExtAccountService, Base.OpenID</service>
+    <entity>Base.OpenID.Entities.ExtAccount, Base.OpenID</entity>
+    <lookupproperty>Type</lookupproperty>
+    <icon>halfling halfling-cog</icon>
+  </item>
+</ViewModelConfig>

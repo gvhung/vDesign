@@ -1,0 +1,23 @@
+@model EditorViewModel
+
+@{
+    string fieldID = "f_" + Guid.NewGuid().ToString("N");
+}
+
+<span class="glyphicon glyphicon-calendar">&nbsp;</span><span id="@fieldID"></span>
+
+<script>
+    $(function () {
+        var $f = $("#@fieldID");
+
+        $f.closest("form").on("onAfterBind", function(e, form) {
+            if (form.getPr("@Model.PropertyName")) {
+                var date = kendo.parseDate(form.getPr("@Model.PropertyName"), "@Framework.JsonNetResult.DATE_TIME_FORMATE");
+
+                $f.html(kendo.toString(date, "@Framework.JsonNetResult.MONTH_FORMATE"));
+            } else {
+                $f.html("");
+            }
+        });
+    });
+</script>

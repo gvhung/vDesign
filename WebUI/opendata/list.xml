@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<list>
+  <standardversion>http://opendata.gosmonitor.ru/standard/3.0</standardversion>
+  <meta>
+    <item>
+      <identifier>1</identifier>
+      <title>Список нормативных правовых актов</title>
+      <link>http://regulation.pba.su/opendata/7710349494-npalist/meta.xml</link>
+      <format>xml</format>
+    </item>
+  </meta>
+</list>

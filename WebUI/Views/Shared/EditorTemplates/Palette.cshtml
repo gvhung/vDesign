@@ -1,0 +1,40 @@
+﻿@model EditorViewModel
+    
+@{
+    string name = "n_" + Guid.NewGuid().ToString("N");
+
+    string htmlFieldName = Model.PropertyName;
+}
+
+
+@{Html.Kendo().ColorPicker()
+    .Name(name)
+    .Value("#357ebd")
+    //.Palette(ColorPickerPalette.WebSafe)
+    .Opacity(true)
+    .HtmlAttributes(new { accessKey = "h" })
+    .Buttons(false)
+    .Render();
+    }
+<script>
+    $(function () {
+        $("#@name").closest("form").on("onAfterBind", function (e, form) {
+            var color = form.getPr("@htmlFieldName");
+
+            var colorPalette = $("#@(name)").data("kendoColorPicker");
+
+            //console.log(colorPalette);
+
+            if (color) {
+                colorPalette.value(form.getPr("@htmlFieldName"));
+            } else {
+                colorPalette.value(null);
+            }
+
+        });
+
+        $("#@name").closest("form").on("onSave", function (e, form) {
+            form.setPr("@htmlFieldName", $("#@name").data("kendoColorPicker").value());
+        });
+    });
+</script>

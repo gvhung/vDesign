@@ -1,0 +1,13 @@
+﻿@using WebUI.Controllers
+
+@model StandartFormModel
+
+@{
+    Html.RenderPartial("~/Views/Shared/DisplayTemplates/Common/Form.cshtml", Model);
+}
+
+<script>
+    (function(){
+        window["@Model.DialogID"].setCurrentModel(@Html.RawBo(Model.Model, Model.Mnemonic));
+    })();
+</script>

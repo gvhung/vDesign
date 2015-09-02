@@ -1,0 +1,186 @@
+.iPhoneCheckContainer {
+    cursor: pointer;
+    overflow: hidden;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    height: 32px;
+}
+
+    .iPhoneCheckContainer input {
+        position: absolute;
+        top: 5px;
+        left: 30px;
+        filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+        opacity: 0;
+    }
+
+    .iPhoneCheckContainer label {
+        white-space: nowrap;
+        font-size: 17px;
+        line-height: 17px;
+        font-weight: bold;
+        font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+        cursor: pointer;
+        display: block;
+        height: 27px;
+        position: absolute;
+        width: auto;
+        top: 0;
+        padding-top: 5px;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    .iPhoneCheckContainer, .iPhoneCheckContainer label {
+        user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+    }
+
+.iPhoneCheckDisabled {
+    filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+    opacity: 0.5;
+}
+
+label.iPhoneCheckLabelOn {
+    color: white;
+    left: 0;
+    padding-top: 6px;
+    padding-left:5px;
+    /*background-color: #428bca;*/
+    background-color: #eaf4f9;
+
+}
+
+    label.iPhoneCheckLabelOn span {
+        padding-left: 8px;
+    }
+
+label.iPhoneCheckLabelOff {
+    color: #8b8b8b;
+    text-align: right;
+    right: 0;
+    background-color: #f7f7f9;
+
+}
+
+    label.iPhoneCheckLabelOff span {
+        padding-right: 6px;
+        margin-top:3px;
+    }
+
+.iPhoneCheckHandle {
+    display: block;
+    height: 32px;
+    width: 34px;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-left: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top:-1px;
+    margin-left: -1px;
+
+    background:#fff url(/Content/icons/icon-slider.png) center no-repeat;
+}
+
+.iPhoneCheckHandleRight {
+    height: 100%;
+    width: 100%;
+    padding-right: 3px;
+}
+
+.iPhoneCheckHandleCenter {
+    height: 100%;
+    width: 100%;
+}
+
+.iOSCheckContainer {
+    position: relative;
+    height: 27px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+    .iOSCheckContainer input {
+        position: absolute;
+        top: 5px;
+        left: 30px;
+        filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+        opacity: 0;
+    }
+
+    .iOSCheckContainer label {
+        white-space: nowrap;
+        font-size: 17px;
+        line-height: 17px;
+        font-weight: bold;
+        font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+        cursor: pointer;
+        display: block;
+        height: 27px;
+        position: absolute;
+        width: auto;
+        top: 0;
+        padding-top: 5px;
+        overflow: hidden;
+    }
+
+    .iOSCheckContainer, .iOSCheckContainer label {
+        user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+    }
+
+.iOSCheckDisabled {
+    filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+    opacity: 0.5;
+}
+
+label.iOSCheckLabelOn {
+    color: white;
+    left: 0;
+    padding-top: 5px;
+}
+
+    label.iOSCheckLabelOn span {
+        padding-left: 15px;
+    }
+
+label.iOSCheckLabelOff {
+    color: #8b8b8b;
+    text-align: right;
+    right: 0;
+}
+
+    label.iOSCheckLabelOff span {
+        padding-right: 8px;
+    }
+
+.iOSCheckHandle {
+    display: block;
+    height: 28px;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    padding-left: 3px;
+}
+
+.iOSCheckHandleRight {
+    height: 100%;
+    width: 100%;
+    padding-right: 3px;
+}
+
+.iOSCheckHandleCenter {
+    height: 100%;
+    width: 100%;
+}

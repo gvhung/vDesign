@@ -1,0 +1,199 @@
+﻿@using Base.Security
+@model StandartFormModel
+
+@{
+    const string path = "~/Views/Shared/EditorTemplates/Common/Editor.cshtml";
+
+    Dictionary<string, EditorViewModel> editors = new Dictionary<string, EditorViewModel>
+    {
+        {"LoginEmail", Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "LoginEmail")},
+        {"LastName",   Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "LastName")},
+        {"FirstName",  Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "FirstName")},
+        {"MiddleName", Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "MiddleName")},
+        {"Password",   Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "Password")},
+        {"Image",      Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "Image")},
+        {"UserType",   Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "UserType")},
+        {"Department", Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "Department")},
+        {"Post",       Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "Post")},
+        {"OfficePhone", Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "OfficePhone")},
+        {"PersonPhone", Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "PersonPhone")},
+        {"MailAddress", Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "MailAddress")},
+    };
+
+    EditorViewModel extAccounts = Model.CommonEditorViewModel.Editors.First(x => x.PropertyName == "AccountInfos");
+}
+
+<style>
+    .form-container h1 {
+        margin-left: 15px;
+    }
+    .profile-tab {
+        position: absolute;
+        top: -20px;
+        bottom: 60px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        left: -15px;
+        right: -15px;
+        border-bottom: 1px solid #ddd;
+    }
+    @@media (min-width: 768px) {
+        .profile-tab {
+            left: 0;
+            right: 0;
+        }
+        .form-container .info-block:not(:first-of-type) {
+            margin-top: 30px;
+        }
+    }
+    .d-label {
+        color: #000;
+        padding-top: 0 !important;
+    }
+    .expand-block {
+        margin-bottom: 3px;
+    }
+    .expand-block .expand-content {
+        display: none;
+    }
+    .expand-block .expand-control {
+        padding: 4px;
+    }
+    .expand-block .expand-control a {
+        text-decoration: none;
+    }
+    .expand-block .expand-icon {
+        margin-right: 5px;
+        
+        -webkit-transition: all 0.5s ease;
+        -moz-transition: all 0.5s ease;
+        -ms-transition: all 0.5s ease;
+        -o-transition: all 0.5s ease;
+        transition: all 0.5s ease;
+    }
+    .expand-block.up .expand-icon {
+        -webkit-transform: rotate(-180deg);
+        -moz-transform: rotate(-180deg);
+        -ms-transform: rotate(-180deg);
+        -o-transform: rotate(-180deg);
+        transform: rotate(-180deg);
+    }
+</style>
+
+<form class="form-horizontal common-form" role="form" id="profile-form">
+    <div class="profile-tab">
+        <div class="container form-container">
+            <h1>Профиль</h1>
+            <div class="row info-block personal-info">
+                <!-- left column -->
+                <div class="col-md-3 col-sm-5 col-xs-12">
+                    <div class="profile-img">
+                        @{ Html.RenderPartial(path, editors["Image"]); }
+                    </div>
+                </div>
+                <!-- edit form column -->
+                <div class="col-md-9 col-sm-7 col-xs-12">
+                    <h3>Персональные данные</h3>
+
+                    @RenderField(path, editors["LoginEmail"], true)
+                    @RenderField(path, editors["LastName"])
+                    @RenderField(path, editors["FirstName"])
+                    @RenderField(path, editors["MiddleName"])
+
+                    @RenderField(path, editors["Password"])
+
+                    <div class="form-group">
+                        <label class="col-md-2 control-label @(Model.SecurityUser.IsAdmin ? "d-label" : "")">@editors["UserType"].Title</label>
+                        <div class="col-md-6">
+                            @if (Model.SecurityUser.IsAdmin)
+                            {
+                                <text> Администратор </text>
+                            }
+                            else
+                            {
+                                Html.RenderPartial(path, editors["UserType"]);
+                            }
+                        </div>
+                    </div>
+
+                    <div class="expand-block">
+                        <div class="col-md-offset-2 expand-control">
+                            <a href="#" class="expand-link">
+                                <span class="halfling halfling-chevron-down expand-icon"></span>
+                                <span class="expand-label">Контактные данные</span>
+                            </a>
+                        </div>
+                        <div class="expand-content">
+                            @RenderField(path, editors["OfficePhone"])
+                            @RenderField(path, editors["PersonPhone"])
+                            @RenderField(path, editors["MailAddress"])
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row info-block developer-info" style="display: none;">
+                <div class="col-md-9 col-md-offset-3 col-sm-12">
+                    <h3>Данные разработчика</h3>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label d-label">@editors["Department"].Title</label>
+                        <div class="col-md-8 d-editor">
+                            @{ Html.RenderPartial(path, editors["Department"]); }
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">@editors["Post"].Title</label>
+                        <div class="col-md-8">
+                            @{ Html.RenderPartial(path, editors["Post"]); }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*@if (extAccounts != null && !Model.SecurityUser.IsAdmin)
+            {
+                <div class="row info-block external-accounts">
+                    <div class="col-md-8 col-md-offset-3 col-sm-12">
+                        <h3>Внешние аккаунты</h3>
+                        <div class="form-group">
+                            @{ Html.RenderPartial(path, extAccounts); }
+                        </div>
+                    </div>
+                </div>
+            }*@
+        </div>
+    </div>
+</form>
+
+<script>
+    $(function() {
+        var $form = $("#profile-form");
+
+        $form.on("onAfterBind", function(e, form) {
+            $form.find(".profile-img img").addClass("img-thumbnail");
+
+            $form.find(".expand-link").on("click", function(e) {
+                var $target = $(e.target);
+                var $block = $target.closest(".expand-block");
+                $block.toggleClass("up");
+                $block.find(".expand-content").slideToggle();
+            });
+
+            var userType = $form.data("pbaForm").getPr("UserType");
+            if (userType === @UserType.Developer.GetValue()) {
+                $(".developer-info").show();
+            } else {
+                $(".developer-info").hide();
+            }
+        });
+    });
+</script>
+
+@helper RenderField(string path, EditorViewModel editor, bool readOnly = false)
+{
+    <div class="form-group">
+        <label class="col-md-2 control-label @(readOnly ? "d-label" : "")">@editor.Title</label>
+        <div class="col-md-8 d-editor">
+            @{ Html.RenderPartial(path, editor); }
+        </div>
+    </div>
+}

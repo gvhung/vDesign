@@ -1,0 +1,806 @@
+﻿@import "_variables";
+
+@import "helpers/_helpers";
+
+html,
+body {
+    font-size: @font-size-base;
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+input.k-textbox {
+    box-shadow: none;
+    border-radius: 0;
+
+    &:hover,
+    &:focus {
+        box-shadow: none;
+    }
+
+    &::-webkit-input-placeholder {
+        opacity: 1;
+    }
+    &::-moz-placeholder {
+        opacity: 1;
+    }
+    &:-moz-placeholder {
+        opacity: 1;
+    }
+    &:-ms-input-placeholder {
+        opacity: 1;
+    }
+}
+
+.k-multiselect.k-header,
+.k-multiselect.k-header.k-state-focused {
+    box-shadow: none;
+}
+
+input.k-input {
+    &::-webkit-input-placeholder {
+        opacity: 1;
+    }
+    &::-moz-placeholder {
+        opacity: 1;
+    }
+    &:-moz-placeholder {
+        opacity: 1;
+    }
+    &:-ms-input-placeholder {
+        opacity: 1;
+    }
+}
+
+.k-group {
+    box-shadow: none;
+}
+
+.enum-NpaStage {
+    line-height: 1;
+    font-style: normal;
+}
+
+#modal {
+    background-image: none;
+}
+
+.k-loading-image {
+    background: url(/Content/Images/special-ajax-loader.gif) center no-repeat;
+}
+
+img {
+    filter: gray; /* IE6-9 */
+    filter: grayscale(1); /* Firefox 35+ */
+    -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+}
+
+// Styles
+
+@styleIterations: 3;
+
+.defineStyle(@var) {
+  @c1: 's@{var}c1';
+  @c2: 's@{var}c2';
+  @c3: 's@{var}c3';
+}
+
+.style-loop (@index) when (@index > 0) {
+    .defineStyle(@index);
+
+    .special-style-@{index} {
+        background: @@c1;
+        color: @@c2;
+        font-size: 1.375em;
+
+        a {
+            color: @@c2;
+        }
+
+        input.k-input {
+            color: @@c2;
+
+            &::-webkit-input-placeholder {
+                color: @@c2;
+            }
+
+            &::-moz-placeholder {
+                color: @@c2;
+            }
+
+            &:-moz-placeholder {
+                color: @@c2;
+            }
+
+            &:-ms-input-placeholder {
+                color: @@c2;
+            }
+        }
+
+        input.k-textbox {
+            background: @@c1;
+            color: @@c2;
+            border-color: @@c2;
+
+            &::-webkit-input-placeholder {
+                color: @@c2;
+            }
+
+            &::-moz-placeholder {
+                color: @@c2;
+            }
+
+            &:-moz-placeholder {
+                color: @@c2;
+            }
+
+            &:-ms-input-placeholder {
+                color: @@c2;
+            }
+        }
+
+        .k-multiselect.k-header {
+            border-radius: 0;
+            border-color: @@c2;
+        }
+
+        .k-multiselect-wrap {
+            background: @@c1;
+
+            > ul {
+                > .k-button {
+                    border-radius: 0;
+                    background: @@c2;
+                    color: @@c1;
+                    border: none;
+
+                    > .k-delete {
+                        display: inline-block;
+                        font-size: 14px;
+                        overflow: auto;
+                        width: 16px;
+                        height: auto;
+                        line-height: 1;
+                        background: none;
+                        opacity: 1;
+                        color: @@c2;
+
+                        &:before {
+                            position: absolute;
+                            display: block;
+                            content: "x";
+                            color: @@c1;
+                            width: 16px;
+                            text-align: center;
+                        }
+                    }
+                }
+            }
+        }
+
+        .k-group {
+            border-color: @@c2;
+            background: @@c1;
+            color: @@c2;
+        }
+
+        .k-list > .k-state-hover {
+            background: @@c2;
+            color: @@c1;
+            border-color: @@c2;
+        }
+
+        .k-icon {
+            opacity: 1;
+        }
+
+        .k-picker-wrap {
+            border-radius: 0;
+            border-color: @@c2;
+            box-shadow: none;
+
+            .k-input {
+                background: @@c1;
+            }
+
+            .k-select {
+                border: none;
+            }
+
+            .k-select when (@index = 2) {
+                background: @@c2;
+            }
+
+            .k-select when not (@index = 2) {
+                background: @@c1;
+            }
+        }
+
+        .btn {
+            border-radius: 0;
+        }
+
+        .btn-default,
+        .btn-default.disabled {
+            opacity: 1;
+            color: @@c2;
+            background: @@c1;
+            border-color: @@c2;
+            box-shadow: none;
+        }
+
+        .btn-primary,
+        .btn-primary.disabled,
+        .btn-success,
+        .btn-success.disabled,
+        .btn-danger,
+        .btn-danger.disabled,
+        .btn-warning,
+        .btn-warning.disabled,
+        .btn-info,
+        .btn-info.disabled {
+            opacity: 1;
+            color: @@c1;
+            background: @@c2;
+            border-color: @@c2;
+            box-shadow: none;
+        }
+
+        .alert-info,
+        .alert-warning {
+            color: @@c2;
+            border-color: @@c2;
+            border-radius: 0;
+            background: @@c1;
+        }
+
+        .modal-processing {
+            .processing-body {
+                .processing-question,
+                .processing-answer {
+                    border-color: @@c2;
+                }
+            }
+        }
+
+        textarea,
+        textarea.k-textbox {
+            background: @@c1;
+            border: 1px solid @@c2;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .common-tab {
+            border-color: @@c2;
+        }
+
+        .k-dropdown {
+            border-color: @@c2;
+
+            .k-dropdown-wrap {
+                background: @@c1;
+                border-color: @@c2;
+
+                &.k-state-hover,
+                &.k-state-active,
+                &.k-state-focused {
+                    box-shadow: none;
+                }
+
+                .k-input {
+                    color: @@c2;
+                }
+                .k-select when (@index = 2) {
+                    background: @@c2;
+                }
+            }
+        }
+
+        .k-widget {
+            border-color: @@c2;
+            background: @@c1;
+            color: @@c2;
+            border-radius: 0;
+        }
+
+        .d-label {
+            color: @@c2;
+
+            > span {
+                color: @@c2 !important;
+            }
+        }
+
+        .dashboard-widget {
+            .k-listview {
+                .tile {
+                    -moz-animation: none;
+                    -o-animation: none;
+                    -webkit-animation: none;
+                    animation: none;
+                    border-color: @@c2;
+                    background: @@c1;
+                    box-shadow: none;
+                    height: auto;
+
+                    .npa-stats,
+                    .info-row {
+                        background: @@c1;
+                        color: @@c2;
+                    }
+
+                    .npa-stats {
+                        border-bottom: 1px solid @@c2;
+                    }
+
+                    .info-row {
+                        border-top: 1px solid @@c2;
+
+                        &:after {
+                            display: none;
+                        }
+                    }
+
+                    .progress-wrap {
+                        border-top: 1px solid @@c2;
+
+                        > .npa-progress {
+                            border-radius: 0;
+                            background: @@c1;
+
+                            > .progress-bar {
+                                background-image: none;
+                                background: @@c2;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .k-pager-wrap {
+            .k-link {
+                border-color: @@c1;
+                color: @@c2;
+                opacity: 1;
+            }
+
+            > .k-pager-nav {
+                display: none;
+            }
+
+            .k-state-selected {
+                background: @@c2;
+                color: @@c1;
+                border-color: @@c1;
+            }
+        }
+
+        .k-pager-info {
+            color: @@c2;
+        }
+
+        .k-window {
+            border-width: 1px;
+
+            .k-header {
+                background: @@c1;
+                color: @@c2;
+                border-color: @@c2;
+            }
+
+            .k-window-content {
+                background: @@c1;
+
+                &.wnd-loading-content {
+                    background: url(/Content/Images/special-ajax-loader.gif) center no-repeat;
+                }
+            }
+
+            .blazon {
+                background: none;
+            }
+        }
+
+        .k-toolbar {
+            .k-button-group {
+                .k-button {
+                    background: @@c1;
+                    border-radius: 0;
+                    border-color: @@c2;
+
+                    &.k-state-disabled {
+                        display: none;
+                    }
+
+                    .k-sprite.btntoolbar {
+                        color: @@c2;
+                        height: auto;
+                    }
+                }
+            }
+        }
+
+        .k-edit-form-container {
+            width: auto;
+        }
+
+        .k-window-actions {
+            .k-window-action {
+                opacity: 1;
+                border-radius: 0;
+
+                + .k-window-action {
+                    margin-left: 5px;
+                }
+            }
+
+            .k-window-action when (@index = 2) {
+                border-color: @@c1;
+                background: @@c1;
+
+                &:hover,
+                &:focus {
+                    background: @@c2;
+                }
+            }
+
+            .k-window-action when not (@index = 2) {
+                border-color: @@c2;
+                background: @@c2;
+
+                &:hover,
+                &:focus {
+                    background: @@c1;
+                }
+            }
+        }
+
+        .h-tl-col-1,
+        .h-tl-col-2,
+        .h-tl-col-3,
+        .h-tl-col-4,
+        .h-tl-col-5,
+        .h-tl-col-6 {
+            width: 100%;
+            display: block;
+        }
+
+        .h-line {
+            background: @@c2;
+
+            &::after {
+                visibility: hidden;
+            }
+
+            .t-icon {
+                color: @@c2 !important;
+
+                &::after {
+                    background: @@c1;
+                }
+
+                &::before {
+                    color: @@c2 !important;
+                }
+            }
+        }
+
+        .h-tl {
+            .card-wrap-title {
+                color: @@c2;
+            }
+
+            .card-wrap {
+                -moz-animation: none;
+                -o-animation: none;
+                -webkit-animation: none;
+                animation: none;
+
+                .stage-status {
+                    -moz-animation: none;
+                    -o-animation: none;
+                    -webkit-animation: none;
+                    animation: none;
+
+                    color: @@c2;
+                }
+            }
+
+            .card {
+                -moz-animation: none;
+                -o-animation: none;
+                -webkit-animation: none;
+                animation: none;
+
+                &::before {
+                    display: none;
+                }
+
+                background: @@c1;
+                color: @@c2;
+                border-color: @@c2;
+                box-shadow: none;
+                border-radius: 0;
+                border: 1px solid @@c2;
+
+                .info-block {
+                    background: @@c1;
+                    border-color: @@c2;
+                }
+                .info-block__line-end {
+                    background: none;
+                }
+
+                .btns-group {
+                    .glyphicon {
+                        color: @@c2 !important;
+                    }
+                }
+
+                .file-link {
+                    .file-icon {
+                        float: left;
+                        margin: 0 10px;
+                    }
+                }
+
+                .progress {
+                    background: @@c1;
+                    border-bottom: 1px solid @@c2;
+
+                    .progress-bar-striped {
+                        background-image: none;
+                        background: @@c2;
+                    }
+                }
+
+                .h-divider {
+                    span {
+                        color: @@c1;
+                        background: @@c2;
+                    }
+                }
+            }
+
+            .h-divider::before {
+                background: @@c2;
+            }
+
+            .current-stage .card {
+                border-top: 5px solid @@c2;
+                border-bottom: 5px solid @@c2;
+            }
+
+            .v-line {
+                -moz-animation: none;
+                -o-animation: none;
+                -webkit-animation: none;
+                animation: none;
+
+                background: @@c2;
+
+                .t-icon {
+                    color: @@c2 !important;
+                    background: @@c1;
+
+                    &::before {
+                        color: @@c2 !important;
+                    }
+                }
+
+                &::after {
+                    border-top-color: @@c2;
+                }
+            }
+        }
+
+        .header-link,
+        .header-link:hover,
+        .header-link:focus {
+            color: @@c2;
+        }
+
+        .k-tabstrip {
+            .k-content {
+                &.k-state-active {
+                    color: @@c2;
+                }
+            }
+        }
+
+        .answer {
+           .answer-icon {
+                color: @@c2 !important;
+           }
+           .answer-footer {
+               .status {
+                   color: @@c2 !important;
+               }
+           }
+           .answer-body {
+               .answer-message {
+                   border-color: @@c2 !important;
+               }
+           }
+           .btn-action {
+               width: auto;
+           }
+        } 
+
+        .enum-NpaAnswerStatus {
+            &::before {
+                color: @@c2 !important;
+            }
+        }
+
+        .k-list {
+            .k-item {
+                &.k-state-selected,
+                &.k-state-focused,
+                &.k-state-hover {
+                    color: @@c1;
+                    background: @@c2;
+
+                    .enum-NpaAnswerStatus {
+                        &::before {
+                            color: @@c1 !important;
+                        }
+                    }
+                }
+            }
+        }
+
+        .panel-title {
+            font-size: inherit;
+        }
+
+        .panel {
+            &.panel-default {
+                border-color: @@c2;
+                border-radius: 0;
+            }
+            .panel-heading {
+                background: @@c1;
+                border-radius: 0;
+
+                .badge {
+                    color: @@c1;
+                    background: @@c2 !important;
+                    font-size: inherit;
+                }
+            }
+
+            .panel-collapse {
+                .list-group {
+                    border-color: @@c2;
+                    .list-group-item,
+                    .list-group-item:last-child {
+                        background: @@c1;
+                        border-radius: 0;
+                    }
+                }
+            }
+        }
+
+        .answers-modal {
+            .tabs-wrapper {
+                border-bottom: 1px solid @@c2;
+                margin-bottom: 15px;
+            }
+        }
+
+        .k-content {
+            color: @@c2;
+
+            &.k-state-active {
+                background: @@c1;
+                border-color: @@c2;
+            }
+        }
+
+        #modal {
+            .enum-DegreeRegulatoryImpact {
+                &::before {
+                    color: @@c2;
+                }
+            }
+
+            dd:not(:last-child) {
+                border-bottom: 1px solid @@c2;
+            }
+        }
+
+        .pagination {
+            > li {
+                > a {
+                    border-radius: 0;
+                    color: @@c2;
+                    background: @@c1;
+                    border-color: @@c2;
+                }
+
+                &.active {
+                    > a {
+                        color: @@c1;
+                        background: @@c2;
+                        border-color: @@c2;
+                    }
+                }
+            }
+        }
+
+        .c-row-item {
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid @@c2;
+
+        }
+
+        .text-muted {
+            color: @@c2;
+        }
+    }
+
+    .style-loop(@index - 1);
+}
+
+.style-loop(@styleIterations);
+
+// Font size
+
+@fontIterations: 3;
+
+.defineFont(@var) {
+  @fs: 'fs@{var}';
+}
+
+.font-loop (@index) when (@index > 0) {
+    .defineFont(@index);
+
+    body {
+        &.special-size-@{index} {
+            font-size: @@fs;
+
+            .btn {
+                font-size: @@fs;
+            }
+
+            .dashboard-widget {
+                .k-listview {
+                    .tile {
+                        font-size: @@fs;
+                    }
+                }
+            }
+    
+            .k-toolbar {
+                    .k-button-group {
+                        .k-button {
+                            .k-sprite.btntoolbar {
+                                font-size: @@fs;
+                            }
+                        }
+                    }
+            }
+
+            .h-tl {
+                .card {
+                    font-size: @@fs;
+
+                    .info-block {
+                        font-size: @@fs;
+                    }
+                }
+            }
+        }
+    }
+
+    .font-loop(@index - 1);
+}
+
+.font-loop(@fontIterations);
+
+// Bloks
+
+@import "blocks/_blocks";

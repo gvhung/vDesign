@@ -1,0 +1,53 @@
+﻿@model WebUI.Models.BusinessProcess.WithCustomEditorVm
+
+@{
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID" data-role="wraplayout">
+    <div class="form-group">
+        <button data-role="customeditor" type="button" class="btn btn-info btn-block">Редактировать</button>
+    </div>
+    @RenderBody()
+    <hr />
+    <div class="pull-right">
+        <button data-role="close" class="btn btn-default">Отмена</button>
+        <button data-role="apply" class="btn btn-success">Применить</button>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var wrap = $("#@wrapID");
+
+        wrap.find('[data-role=customeditor]').click(function () {
+            var kendoWindow = $("<div data-role='customEditorWnd' />")
+                .on('onSave', function (e, viewModel) {
+                    $("#@wrapID").trigger('onSetValueFromCutomEditor', viewModel.getPr('@Model.Property'));
+                    $(this).data("kendoWindow").close();
+                })
+                .on('onCancel', function () {
+                    $(this).data("kendoWindow").close();
+                })
+                .kendoWindow({
+                    width: 600,
+                    content: "@Url.Action("GetEditorViewModel", "Standart")" + "?mnemonic=@Model.Config.Mnemonic&member=@Model.Property",
+                    height: 400,
+                    maxHeight: 900,
+                    title: "Инициализатор свойства",
+                    actions: ["Maximize", "Close"],
+                    modal: true,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                });
+
+            var wnd = kendoWindow.data("kendoWindow");
+            wnd.center().open();
+        });
+
+        wrap.find('[data-role=close]').click(function () {
+            $(this).closest('[data-role=window]').data('kendoWindow').close();
+        });
+    });
+</script>

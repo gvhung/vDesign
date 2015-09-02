@@ -1,0 +1,51 @@
+﻿@model EditorViewModel
+
+@{
+    EditorViewModel eViewModel = Model;
+
+    string htmlFieldName = eViewModel.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    Type prType = eViewModel.EditorType;
+
+    Type enumType;
+
+    if (prType.IsEnum)
+    {
+        enumType = prType;
+    }
+    else
+    {
+        //NOTE: Nullable<Enum>
+        enumType = prType.GetGenericArguments()[0];
+    }
+
+
+    string values = Newtonsoft.Json.JsonConvert.SerializeObject(Enum.GetValues(enumType).Cast<Enum>()
+                .Select(v => new
+                {
+                    Value = v.GetValue(),
+                    Name = v.ToString(),
+                    Text = v.GetDescription()
+                }));
+}
+
+<div id="@wrapID">
+    <div class="pull-left" style="margin-top: 6px;">
+        <span id="@htmlFieldName"></span>
+    </div>
+</div>
+
+<script>
+    application.initEnumValues("@enumType.FullName", @Html.Raw(values));
+
+    $(function () {
+        var $f = $("#@wrapID").find("#@htmlFieldName");
+
+        $f.closest("form").on("onAfterBind", function(e, form) {
+            $f.attr("class", "enum-@enumType.Name");
+            $f.attr("data-val", application.getEnumName("@enumType.FullName", form.getPr("@htmlFieldName")));
+            $f.html(application.getEnumText("@enumType.FullName", form.getPr("@htmlFieldName")));
+        });
+    });
+</script>

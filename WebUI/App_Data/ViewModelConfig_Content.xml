@@ -1,0 +1,417 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <!-- *********************basic content************************ -->
+  <item>
+    <mnemonic>ContentItem</mnemonic>
+    <title>Контент</title>
+    <service>Base.Content.Service.Abstract.IContentItemService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentItem, Base.Content</entity>
+    <listview showPreview="true">
+      <hiddenActions>
+        <action id="AllCategorizedItems" />
+        <action id="Settings" />
+      </hiddenActions>
+      <dataSource>
+        <!-- NOTE: спец. фильр, чтобы не отображать записи для категорий у которых не задана мнемоника  -->
+        <systemfilter value="it.ID = 0" />
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+    </listview>
+    <icon>halfling halfling-list-alt</icon>
+  </item>
+  <item>
+    <mnemonic>ContentCategory</mnemonic>
+    <title>Контент - Категории</title>
+    <service>Base.Content.Service.Abstract.IContentCategoryService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentCategory, Base.Content</entity>
+    <detailview title="Категория" />
+    <icon>glyphicon glyphicon-sampler</icon>
+  </item>
+  
+  <item>
+    <mnemonic>ContentSubscriber</mnemonic>
+    <title>Контент - Категории - Подписчики</title>
+    <service>Base.Content.Service.Abstract.IContentSubscriberService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentSubscriber, Base.Content</entity>
+    <detailview title="Подписчик" />
+    <listview>
+      <condappearance>
+        <add condition="IsAuthorizedUser == true" bg="\\#428BCA" />
+        <add condition="IsAuthorizedUser == false" bg="\\#CCCCCC" />
+      </condappearance>
+    </listview>
+    <icon>glyphicon glyphicon-envelope</icon>
+  </item>
+  
+  <item>
+    <mnemonic>Article</mnemonic>
+    <title>Контент - Публикации</title>
+    <service>Base.Content.Service.Abstract.IContentItemService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentItem, Base.Content</entity>
+    <listview>
+      <dataSource>
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <columns>
+        <column propertyName="Date" hidden="true" />
+        <column propertyName="Src" hidden="true" />
+        <column propertyName="Value" hidden="true" />
+      </columns>
+    </listview>
+    <detailview title="Публикация" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="Article" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="Date" visible="false" isRequired="false" />
+        <editor propertyName="Src" visible="false" isRequired="false" />
+        <column propertyName="Value" visible="false" />
+      </editors>
+    </detailview>
+    <icon></icon>
+  </item>
+  
+  <!--<item>
+    <mnemonic>Person</mnemonic>
+    <title>Контент - Персоны</title>
+    <service>Base.Content.Service.Abstract.IContentItemService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentItem, Base.Content</entity>
+    <listview>
+      <dataSource>
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <columns>
+        <column propertyName="Title" title="ФИО" />
+        <column propertyName="Value" title="Должность" hidden="false" />
+        <column propertyName="Date" hidden="true" />
+        <column propertyName="Src" hidden="true" />
+      </columns>
+    </listview>
+    <detailview title="Персона" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="Person" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="Title" title="ФИО" />
+        <editor propertyName="Value" title="Должность" visible="true" />
+        <editor propertyName="Description" title="Высказывание" />
+        <editor propertyName="Date" visible="false" />
+        <editor propertyName="Src" visible="false" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-user</icon>
+  </item>
+  <item>
+    <mnemonic>News</mnemonic>
+    <title>Контент - Новости</title>
+    <service>Base.Content.Service.Abstract.IContentItemService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentItem, Base.Content</entity>
+    <listview>
+      <dataSource>
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <columns>
+        <column propertyName="Src" hidden="true" />
+        <column propertyName="Value" hidden="true" />
+      </columns>
+    </listview>
+    <detailview title="Новость" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="News" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="Top" title="Показывать в ленте" />
+        <editor propertyName="Src" visible="false" />
+        <editor propertyName="Value" visible="false" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-wifi</icon>
+  </item>
+  <item>
+    <mnemonic>EventArticle</mnemonic>
+    <title>Контент - События</title>
+    <service>Base.Content.Service.Abstract.IContentItemService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentItem, Base.Content</entity>
+    <listview>
+      <dataSource>
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <columns>
+        <column propertyName="Src" hidden="true" />
+        <column propertyName="Value" hidden="true" />
+      </columns>
+    </listview>
+    <detailview title="Событие" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="EventArticle" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="Src" visible="false" />
+        <column propertyName="Value" visible="false" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-calendar</icon>
+  </item>
+  <item>
+    <mnemonic>Video</mnemonic>
+    <title>Контент - Видео</title>
+    <service>Base.Content.Service.Abstract.IContentItemService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentItem, Base.Content</entity>
+    <listview>
+      <dataSource>
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <columns>
+        <column propertyName="ImagePreview" hidden="true" />
+        <column propertyName="Date" hidden="true" />
+        <column propertyName="Src" hidden="true" />
+        <column propertyName="Value" hidden="true" />
+      </columns>
+    </listview>
+    <detailview title="Видео" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="Video" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="ImagePreview" visible="false" />
+        <editor propertyName="Date" visible="false" />
+        <editor propertyName="Content" visible="false" />
+        <editor propertyName="Src" title="Ссылка на видео" />
+        <column propertyName="Value" visible="false" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-facetime-video</icon>
+  </item>
+  <item>
+    <mnemonic>ContentDoc</mnemonic>
+    <title>Контент - Документы</title>
+    <service>Base.Content.Service.Abstract.IContentItemService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentItem, Base.Content</entity>
+    <listview>
+      <dataSource>
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <columns>
+        <column propertyName="ImagePreview" hidden="true" />
+        <column propertyName="Date" hidden="false" />
+        <column propertyName="Src" hidden="true" />
+        <column propertyName="Value" hidden="true" />
+      </columns>
+    </listview>
+    <detailview title="Документ" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="ContentDoc" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="ImagePreview" visible="false" />
+        <editor propertyName="Date" visible="true" />
+        <editor propertyName="Content" visible="true" />
+        <editor propertyName="Src" visible="false" />
+        <column propertyName="Value" visible="false" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-file</icon>
+  </item>
+  <item>
+    <mnemonic>NpaUserScenario</mnemonic>
+    <title>Контент - Пользовательские сценарии</title>
+    <service>Base.Content.Service.Abstract.IContentItemService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentItem, Base.Content</entity>
+    <listview>
+      <dataSource>
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <columns>
+        <column propertyName="Date" hidden="true" />
+        <column propertyName="Content" hidden="true"/>
+        <column propertyName="Src" hidden="true" />
+        <column propertyName="Value" hidden="true" />
+        <column propertyName="Tags" hidden="true" />
+        <column propertyName="Top" hidden="true"/>
+      </columns>
+    </listview>
+    <detailview title="Пользовательский сценарий" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="Video" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="Date" visible="false" />
+        <editor propertyName="Src" title="Системное поле" />
+        <editor propertyName="Value" visible="false" />
+        <editor propertyName="Tags" visible="false" />
+        <editor propertyName="Top" visible="false"/>
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-facetime-video</icon>
+  </item>-->
+  
+  <item>
+    <mnemonic>Tag</mnemonic>
+    <title>Контент - Тэги</title>
+    <service>Base.Content.Service.Abstract.ITagService, Base.Content</service>
+    <entity>Base.Content.Entities.Tag, Base.Content</entity>
+    <detailview title="Тэг" />
+    <icon>glyphicon glyphicon-tags</icon>
+  </item>
+  <item>
+    <mnemonic>TagCategory</mnemonic>
+    <title>Контент - Тэги - Категории</title>
+    <service>Base.Content.Service.Abstract.ITagCategoryService, Base.Content</service>
+    <entity>Base.Content.Entities.TagCategory, Base.Content</entity>
+    <detailview title="Категория тэгов" isMaximaze="true" />
+    <icon>glyphicon glyphicon-sampler</icon>
+  </item>
+
+  <!--<item base="News">
+    <readonly>true</readonly>
+    <title>Новости для раб. стола</title>
+    <mnemonic>DashboardNews</mnemonic>
+    <listview>
+      <dataSource>
+        <systemfilter value="it.Top == true" />
+      </dataSource>
+    </listview>
+    <detailview title="Новость" isMaximaze="true">
+      <toolbars></toolbars>
+      <editors>
+        <editor propertyName="ImagePreview" visible="false" />
+        <editor propertyName="Title" visible="false" />
+        <editor propertyName="Description" visible="false" />
+        <editor propertyName="Value" visible="false" />
+        <editor propertyName="Top" visible="false" />
+        <editor propertyName="Date" visible="false" />
+        <editor propertyName="Src" visible="false" />
+        <editor propertyName="ContentItemStatus" visible="false" />
+        <editor propertyName="Created" visible="false" />
+        <editor propertyName="Tags" visible="false" />
+
+        <editor propertyName="Content" />
+      </editors>
+    </detailview>
+  </item>-->
+
+  <!-- *********************learning content************************ -->
+  <!--<item>
+    <mnemonic>CourseCategory</mnemonic>
+    <title>Учебные курсы</title>
+    <service>Base.Content.Service.Abstract.ICourseCategoryService, Base.Content</service>
+    <entity>Base.Content.Entities.CourseCategory, Base.Content</entity>
+    <listview title="Учебные курсы/уроки" />
+    <detailview title="Учебный курс/урок" />
+    <lookupproperty>Title</lookupproperty>
+    <icon>glyphicon glyphicon-book_open</icon>
+  </item>
+  <item>
+    <mnemonic>Exercise</mnemonic>
+    <title>Учебные курсы - Задания</title>
+    <service>Base.Content.Service.Abstract.IExerciseService, Base.Content</service>
+    <entity>Base.Content.Entities.Exercise, Base.Content</entity>
+    <listview title="Учебные задания" />
+    <detailview title="Учебное задание" isMaximaze="true" />
+    <icon>glyphicon glyphicon-pen</icon>
+  </item>
+  <item>
+    <mnemonic>CourseCategoryReadOnly</mnemonic>
+    <readonly>true</readonly>
+    <title>Учебные курсы</title>
+    <service>Base.Content.Service.Abstract.ICourseCategoryService, Base.Content</service>
+    <entity>Base.Content.Entities.CourseCategory, Base.Content</entity>
+    <listview title="Учебные курсы/уроки" />
+    <detailview title="Учебный курс/урок readonly" />
+    <lookupproperty>Title</lookupproperty>
+    <icon>glyphicon glyphicon-book_open</icon>
+  </item>
+  <item>
+    <mnemonic>JournalEntry</mnemonic>
+    <readonly>true</readonly>
+    <title>Учебные курсы - Статистика по обучению</title>
+    <service>Base.Content.Service.Abstract.IJournalEntryService, Base.Content</service>
+    <entity>Base.Content.Entities.JournalEntry, Base.Content</entity>
+    <listview title="Статистика по обучению" MnemonicCategory="CourseCategoryReadOnly" />
+    <detailview title="Запись" />
+    <icon>glyphicon glyphicon-blog</icon>
+  </item>
+  <item>
+    <mnemonic>ExerciseResult</mnemonic>
+    <title>Учебные курсы - Журнал прогресса - Результаты</title>
+    <service>Base.Content.Service.Abstract.IExerciseResultService, Base.Content</service>
+    <entity>Base.Content.Entities.ExerciseResult, Base.Content</entity>
+    <listview title="Результаты выполнения учебных заданий" />
+    <detailview title="Результат выполнения учебного задания" />
+    <icon>glyphicon glyphicon-ok</icon>
+  </item>-->
+
+  <!-- *********************FAQ content************************ -->
+  <!--<item>
+    <mnemonic>QuestionContentCategory</mnemonic>
+    <readonly>true</readonly>
+    <title>Контент - Категории</title>
+    <service>Base.Content.Service.Abstract.IQuestionContentCategoryService, Base.Content</service>
+    <listview title="Категории" extendedCategory="false"></listview>
+    <entity>Base.Content.Entities.ContentCategory, Base.Content</entity>
+    <detailview title="Категория" />
+    <icon>glyphicon glyphicon-sampler</icon>
+  </item>
+  <item>
+    <mnemonic>Question</mnemonic>
+    <title>ЧАВО - Вопросы</title>
+    <service>Base.Content.Service.Abstract.IQuestionService, Base.Content</service>
+    <entity>Base.Content.Entities.Question, Base.Content</entity>
+    <listview title="Вопросы" MnemonicCategory="QuestionContentCategory">
+      <condappearance>
+        <add condition="IsSolved == true" bg="\\#5cb85c" />
+        <add condition="IsSolved == false" bg="\\#d9534f" />
+      </condappearance>
+    </listview>
+    <detailview title="Вопрос" />
+    <icon>halfling halfling-question-sign</icon>
+  </item>
+  <item>
+    <mnemonic>Answer</mnemonic>
+    <title>ЧАВО - Ответы</title>
+    <service>Base.Content.Service.Abstract.IAnswerService, Base.Content</service>
+    <entity>Base.Content.Entities.Answer, Base.Content</entity>
+    <listview title="Ответы" MnemonicCategory="QuestionContentCategory" />
+    <detailview title="Ответ" />
+    <lookupproperty>Value</lookupproperty>
+    <icon>halfling halfling-ok-sign</icon>
+  </item>-->
+  
+</ViewModelConfig>

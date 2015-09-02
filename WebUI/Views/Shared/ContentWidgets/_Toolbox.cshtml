@@ -1,0 +1,42 @@
+﻿@model EditorViewModel
+
+@{
+    string toolBoxID = "tb_" + Guid.NewGuid().ToString("N");
+}
+
+
+@(Html.Kendo().PanelBar().Name(toolBoxID).Items(panelBar =>
+{
+    panelBar.Add().Text("Разметка").Expanded(false).Content(
+        @<text>
+            <div style="display:none">
+                @Html.Partial("ContentWidgets/Layouts/Layout1")
+            </div>
+            @Html.Partial("ContentWidgets/Layouts/Layout2-10")
+            @Html.Partial("ContentWidgets/Layouts/Layout4-8")
+            @Html.Partial("ContentWidgets/Layouts/Layout2")
+            @Html.Partial("ContentWidgets/Layouts/Layout8-4")
+            @Html.Partial("ContentWidgets/Layouts/Layout10-2")
+            @Html.Partial("ContentWidgets/Layouts/Layout3")
+            @Html.Partial("ContentWidgets/Layouts/Layout4")
+            @Html.Partial("ContentWidgets/Layouts/Layout6")
+        </text>);
+
+    panelBar.Add().Text("Виджеты").Expanded(true).Content(
+        @<text>
+            @Html.Partial("ContentWidgets/TextArea")
+            @Html.Partial("ContentWidgets/InternalFile")
+            @*@Html.Partial("ContentWidgets/ExternalImage")*@
+            @Html.Partial("ContentWidgets/InternalImage")
+            @*@Html.Partial("ContentWidgets/InternalVideo")*@
+            @Html.Partial("ContentWidgets/ExternalVideo")
+        </text>);
+
+    @*
+    panelBar.Add().Text("Тестирование").Expanded(false).Content(
+        @<text>
+            @Html.Partial("ContentWidgets/Test_Checkboxes")
+        </text>);
+    *@
+}
+                                                                                                                                                                                                                                                                                                                                                                                        ))

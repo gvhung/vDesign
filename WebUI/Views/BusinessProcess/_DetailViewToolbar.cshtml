@@ -1,0 +1,35 @@
+﻿@using Base.BusinessProcesses.Entities
+@using Base.BusinessProcesses.Services.Concrete
+@using Framework.Maybe
+@using WebUI.Models.BusinessProcess
+@model WorkflowToolbarVm
+
+@{
+    var aggrTooltip = String.IsNullOrEmpty(Model.LastComment)
+        ? "История согласования"
+        : String.Format("Последний комментарий: {0}", Model.LastComment);
+}
+
+
+<button id="agreement-map" title="@aggrTooltip" type="button" class="btn btn-primary">
+    <span class="halfling halfling-glyph-calendar"></span>
+    <span class="hidden-xs" style="padding-left: 3px;">История</span>
+</button>
+
+
+
+<script>
+    $("#agreement-map").tooltip({
+        placement: 'bottom',
+        container: 'body'
+    });
+</script>
+<style>
+    .popover {
+        z-index: 99999999;
+    }
+</style>
+
+
+@Html.Partial("_ActionButtons", Model.Stages)
+

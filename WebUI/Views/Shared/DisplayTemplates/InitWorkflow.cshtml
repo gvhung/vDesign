@@ -1,0 +1,51 @@
+﻿@model EditorViewModel
+
+@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID">
+    <div class="container">
+        <a href="#" id="wf_@wrapID" class="btn btn-primary">Дорожная карта</a>
+    </div>
+    <div id="timeline_@(wrapID)"></div>
+</div>
+
+<script>
+    (function () {
+        var timeline = $('#timeline_@(wrapID)');
+  
+        var timelieXHR;
+        var refreshTimeline;
+        var objID;
+
+        $("#wf_@wrapID").click(function () {
+            if (objID) {
+                pbaAPI.openViewModelEx("BPWorkflow_ClosedType", {
+                    wid: "@wrapID",
+                    title: "Дорожная карта",
+                    isMaximaze: true,
+                    readonly: true,
+                    id: objID
+                });
+            }
+        });
+
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            timelieXHR && timelieXHR.abort();
+            refreshTimeline = null;
+            timeline.html('<div class="wnd-loading-content" style="height:20px;"></div>');
+
+            objID = form.getPr("ID");
+            var wfID = form.getPr("WorkflowID");
+
+            if (objID && wfID) {
+                timelieXHR = $.get("/BusinessProcess/Timeline?objectID=" + objID + "&objectType=" + "@Model.ParentViewModelConfig.TypeEntity.FullName" + "&workflowId=" + wfID, null, function (html) {
+                    timeline.html(html);
+                });
+            } else {
+                timeline.html("");
+            }
+        });
+    })();
+</script>

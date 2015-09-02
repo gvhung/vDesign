@@ -1,0 +1,14 @@
+﻿@model BaseViewModel
+@{
+    ViewBag.Title = "Главная";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section bodyClass
+{
+    welcome-page 
+}
+
+@{ Html.RenderAction("GetDashboard", "Dashboard"); }
+<script src="/Scripts/underscore-min.js"></script>
+<link href="~/Content/css/counter-widget.css" rel="stylesheet" />

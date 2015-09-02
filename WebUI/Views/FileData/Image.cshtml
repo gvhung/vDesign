@@ -1,0 +1,3 @@
+﻿@model Base.FileStorage.FileStorageItem
+
+<img data-type="image" data-fileid="@Model.File.FileID" style='width:450px;height:600px;' src="@Url.Action("GetImage", "Files", new { area = "", id = Model.File.FileID, width = 450, height = 600, defImage = "", type = "frame" })">

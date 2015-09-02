@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>Notification</mnemonic>
+    <title>Уведомления</title>
+    <service>Base.Notification.Service.Abstract.INotificationService, Base.Notification</service>
+    <entity>Base.Notification.Entities.Notification, Base.Notification</entity>
+    <listview title="Уведомления" AutoRefreshInterval="10000">
+      <dataSource>
+        <systemfilter value="int32(it.Status)=0 and it.UserID=@CurrentUserID" />
+        <sorts>
+          <sort descriptor="Date" order="desc" />
+        </sorts>
+      </dataSource>
+    </listview>
+    <detailview title="Уведомление"></detailview>
+    <icon>halfling halfling-info-sign</icon>
+  </item>
+  <item>
+    <mnemonic>Notification_Settings</mnemonic>
+    <title>Уведомления - Настройки</title>
+    <entity>Base.Notification.Entities.Setting, Base.Notification</entity>
+    <detailview title="Настройки"></detailview>
+  </item>
+</ViewModelConfig>

@@ -1,0 +1,331 @@
+﻿@model StandartScheduler
+
+@{
+    string url = "_Scheduler";
+    string nameToolbar = "toolbar_" + Guid.NewGuid().ToString("N");
+
+    if (Model.HasListView)
+    {
+        url = Model.ViewModelConfig.ListView.Name;
+    }
+
+    Type typeEntity = Model.ViewModelConfig.TypeEntity;
+
+    bool isCategorizedItem = typeEntity.GetInterfaces().Contains(typeof(ICategorizedItem));
+
+    Type typeCategory = null;
+
+    bool isExtendedCategory = false;
+
+    if (isCategorizedItem)
+    {
+        typeCategory = Model.ViewModelConfig.TypeEntity.GetProperties().FirstOrDefault(pr => pr.PropertyType.GetInterfaces().Contains(typeof(ITreeNode))).PropertyType;
+
+        isExtendedCategory = typeof(IExtendedCategory).IsAssignableFrom(typeCategory);
+    }
+
+
+    bool actionCreate = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Create);
+    bool actionEdit = true;
+    bool actionDelete = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Delete);
+    bool actionChangeCategory = isCategorizedItem && !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Write);
+    bool actionAllCategorizedItems = isCategorizedItem;
+    bool actionSettings = true;
+
+
+    List<Base.UI.Action> hiddenActions = Model.ViewModelConfig.ListView.HiddenActions;
+
+    if (hiddenActions != null && hiddenActions.Count() > 0)
+    {
+        if (actionCreate) { actionCreate = !hiddenActions.Any(m => m.ID == "Create"); }
+
+        if (actionDelete) { actionDelete = !hiddenActions.Any(m => m.ID == "Delete"); }
+
+        if (actionChangeCategory) { actionChangeCategory = !hiddenActions.Any(m => m.ID == "ChangeCategory"); }
+
+        if (actionAllCategorizedItems) { actionAllCategorizedItems = !hiddenActions.Any(m => m.ID == "AllCategorizedItems"); }
+
+        if (actionSettings) { actionSettings = !hiddenActions.Any(m => m.ID == "Settings"); }
+    }
+}
+
+<script>
+    window["@Model.WidgetID"] = new WrapScheduler("@Model.WidgetID", "Scheduler");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+        var scheduler = window["@Model.WidgetID"];
+
+        @*//--------scheduler--------//*@
+        composite.registerWidget(scheduler);
+
+        scheduler.selectEvent = null;
+        scheduler.selectStart = null;
+        scheduler.selectEnd = null;
+
+        scheduler.mnemonic = function () {
+            return scheduler["categoryItemMnemonic"] || "@Model.ViewModelConfig.Mnemonic";
+        };
+
+        scheduler.onNeighbourWidgetChanged = function (e) {
+            if (e.sender.desc == "TreeView") {
+                if (e.event == "select") {
+                    var id = null;
+                    var categoryItemMnemonic = null;
+
+                    if (e.params.dataItem) {
+                        id = e.params.dataItem.id;
+                        categoryItemMnemonic = e.params.dataItem.CategoryItemMnemonic;
+                    }
+
+                    scheduler["nodeID"] = id;
+
+                    scheduler["categoryItemMnemonic"] = categoryItemMnemonic;
+
+                    scheduler.setUrlParametr("categoryID", id || 0);
+
+                    scheduler.bind();
+                }
+            } else if (e.sender.desc == "DialogSplitter") {
+                if (e.event == "resize") {
+                    this.resize(e.params.height - 60);
+                }
+            } else if (e.sender.desc == "ToolbarListView" || e.sender.desc == "ContextMenuListView") {
+                if (e.event == "click") {
+                    switch (e.params.action) {
+                        case "add":
+                            scheduler.add();
+                            break;
+                        case "edit":
+                            scheduler.edit();
+                            break;
+                        case "detail":
+                            scheduler.detail();
+                            break;
+                        case "delete":
+                            scheduler.widget().removeEvent(scheduler.selectEvent);
+                            break;
+                    }
+                }
+            }
+        };
+
+        //BEGIN - EVENTS
+        scheduler.onDataBound = function (e) {
+            composite.onWidgetChanged(
+              {
+                  sender: scheduler,
+                  event: "onDataBound"
+              });
+
+            scheduler.element().find("[role=gridcell]").on("dblclick", function () {
+                scheduler.dblClick({ sender: $(this) });
+            });
+
+            scheduler.element().find(".k-event").each(function () {
+                var $event = $(this);
+
+                var color = scheduler.occurrenceByUid($event.attr("data-uid")).Color;
+
+                if (color) {
+                    $event.css({ "border-color": color, "background-color": color });
+                }
+            });
+
+            scheduler.composite.onWidgetChanged(
+            {
+                sender: scheduler,
+                event: "select",
+                params: { dataItem: scheduler.selectEvent }
+            });
+        };
+
+        scheduler.onChange = function (e) {
+            var start = e.start; //selection start date
+            var end = e.end; //selection end date
+            var slots = e.slots; //list of selected slots
+            var events = e.events; //list of selected Scheduler events
+
+            scheduler.selectStart = start;
+            scheduler.selectEnd = end;
+
+            scheduler.selectEvent = null;
+
+            if (events.length) {
+                scheduler.selectEvent = events[0];
+            }
+
+            scheduler.composite.onWidgetChanged(
+            {
+                sender: scheduler,
+                event: "select",
+                params: { dataItem: scheduler.selectEvent }
+            });
+        };
+
+        scheduler.dblClick = function (e) {
+            var $cell = e.sender;
+
+            var event = scheduler.occurrenceByUid($cell.data("uid"));
+
+            if (event) {
+                scheduler.selectEvent = event;
+
+                scheduler.edit();
+            } else {
+                scheduler.selectEvent = null;
+
+                @if(actionCreate)
+                {
+                     @: scheduler.add();
+                                }
+            }
+        };
+        //END - EVENTS
+
+        scheduler.bind = function () {
+            scheduler.dataSourceRead();
+        };
+
+        scheduler.add = function () {
+            pbaAPI.openViewModelEx(scheduler.mnemonic(),
+                    {
+                        wid: "@Model.WidgetID",
+                        initNewEntity: function (model) {
+                            model.Start = scheduler.selectStart;
+                            model.End = scheduler.selectEnd;
+                        },
+                        beforeSave: function (e) {
+                            @if (isCategorizedItem)
+                            {
+                                @: e.pbaForm.setPr("CategoryID", grid["nodeID"]);
+                                                        }
+                        },
+                        callback: function (e) {
+                            if (e.type == "save" || e.type == "apply") {
+                                scheduler.bind();
+                            }
+                        }
+                    });
+        };
+
+        scheduler.edit = function () {
+            var id = scheduler.selectEvent.ID;
+
+            //NOTE: если периодичное
+            if (scheduler.selectEvent.recurrenceRule || scheduler.selectEvent.recurrenceId) {
+
+                if (scheduler.selectEvent.recurrenceId) {
+                    id = scheduler.selectEvent.recurrenceId;
+                }
+
+                scheduler.openRecurringDialog({
+                    current: function () {
+                        $.get(application.url.GetStandart("CreateOnGroundsOf"),
+                            {
+                                baseMnemonic: scheduler.mnemonic(),
+                                destMnemonic: scheduler.mnemonic(),
+                                id: id
+                            },
+                            function (e) {
+                                var ground = e.model;
+
+                                var entity = $.extend({}, ground);
+
+                                entity.ID = 0;
+                                entity.RecurrenceRule = null;
+                                entity.RecurrenceException = null;
+                                entity.Start = scheduler.selectEvent.start;
+                                entity.End = scheduler.selectEvent.end;
+
+                                ground.ID = id;
+                                ground.RecurrenceException = (ground.RecurrenceException || "") + entity.Start.toISOString() + ";";
+
+                                pbaAPI.openViewModelEx(scheduler.mnemonic(),
+                                    {
+                                        wid: "@Model.WidgetID",
+                                        entity: entity,
+                                        toSave: true,
+                                        callback: function (e) {
+                                            if (e.type == "save" || e.type == "apply") {
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: application.url.GetStandart("Save"),
+                                                    data: JSON.stringify({ mnemonic: "@Model.Mnemonic", model: ground }),
+                                                    contentType: "application/json; charset=utf-8",
+                                                    success: function (res) {
+                                                        if (res.error != 0) {
+                                                            pbaAPI.errorMsg(res.message);
+                                                        }
+
+                                                        scheduler.bind();
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                            }
+                        );
+
+
+                    },
+                    series: function () {
+                        scheduler.selectEvent = { ID: id };
+                        scheduler.edit();
+                    }
+                });
+
+                return;
+            }
+
+            pbaAPI.openViewModelEx(scheduler.mnemonic(),
+                {
+                    wid: "@Model.WidgetID",
+                    id: id,
+                    callback: function (e) {
+                        if (e.type == "save" || e.type == "apply") {
+                            scheduler.bind();
+                        }
+                    }
+                });
+        };
+    })();
+</script>
+
+<div id="list-view">
+    @{Html.RenderPartial("_ToolbarListView", Model);}
+
+    <div class="widget-body">
+        @{Html.RenderPartial(url, Model);}
+
+        @* из-за привязки к listview, contextmenu необходимо рендерить после него *@
+        @{Html.RenderPartial("_ContextMenuListView", Model);}
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var scheduler = window["@Model.WidgetID"];
+    });
+</script>
+
+@if (!isExtendedCategory)
+{
+    <script>
+        $(function () {
+
+            //NOTE: фоновая подгрузка вьюшки
+            setTimeout(function () {
+
+                @if (Model.IsPermission(Base.Security.TypePermission.Write) && !Model.IsReadOnly)
+            {
+                @: pbaAPI.initViewModel("@Model.ViewModelConfig.Mnemonic", { wid: "@Model.WidgetID", title: "@Model.ViewModelConfig.DetailView.Title" });
+                                                                                                                                                                                                                                }
+            else
+            {
+                @: pbaAPI.initViewModel("@Model.ViewModelConfig.Mnemonic", { wid: "detail_@Model.WidgetID", title: "@Model.ViewModelConfig.DetailView.Title", isReadOnly: true });
+                                                                                                                                                                                                                                }
+            }, 400);
+        });
+    </script>
+}

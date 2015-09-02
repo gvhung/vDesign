@@ -1,0 +1,118 @@
+﻿@using Base.BusinessProcesses.Entities
+@using Newtonsoft.Json
+@using WebUI.Models.BusinessProcess
+@model IEnumerable<EditorVm>
+
+@{
+    Layout = "EditorLayout.cshtml";
+
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+
+    var operators = new[]
+    {
+        new EditorVm("+", "+"),
+    };
+
+    var json = JsonConvert.SerializeObject(operators.Concat(Model));
+}
+
+<div id="@wrapID">
+    <div class="form-group">
+        <input readonly="readonly" data-tags type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <input type="text" class="form-control">
+            <span class="input-group-btn">
+                <button data-role="addstr" class="btn btn-default" type="button">Добавить текст</button>
+            </span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="btn-group">
+            @foreach (var item in operators)
+            {
+                <button data-type="@((int)MacroType.Operator)" data-member="@item.Member" type="button" class="btn btn-default">@item.Name</button>
+            }
+        </div>
+    </div>
+    <div class="list-group">
+        @foreach (var item in Model)
+        {
+            <a href="#" data-type="@((int)MacroType.InitObject)" data-member="@item.Member" class="list-group-item">@item.Name</a>
+        }
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var wrap = $('#@wrapID');
+        var parentWrapID = wrap.closest("[data-wrapid]").data('wrapid');
+        var data = window[parentWrapID];
+
+
+        var values = @Html.Raw(json);
+
+        var cities = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('Name'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: values
+        });
+        cities.initialize();
+
+        var elt = wrap.find('input[data-tags]');
+        elt.tagsinput({
+            allowDuplicates: true,
+            itemValue: 'Member',
+            itemText: 'Name',
+            typeaheadjs: {
+                name: 'cities',
+                displayKey: 'Name',
+                source: cities.ttAdapter()
+            },
+            freeInput: true
+        });
+
+        var member = wrap.closest("[data-member]").data('member');
+
+        if (data.viewModel[member] && data.viewModel[member].Value) {
+            $.each($.parseJSON(data.viewModel[member].Value), function(i, elem) {
+                var obj = {
+                    MacroType: elem.MacroType,
+                    Value: elem.Value,
+                };
+
+                var name = elem.Value;
+
+                if (elem.MacroType == "@((int)MacroType.InitObject)") {
+                    name = $.grep(values, function(el) {
+                        return el.Member == elem.Value;
+                    })[0].Name;
+                }
+                elt.tagsinput('add', { Member: obj, Name:name });
+            });
+        }
+
+        wrap.on('click', '[data-role=addstr]', function() {
+            var input = $(this).parent().siblings('input');
+            var value = input.val();
+            elt.tagsinput('add', { "Member": {
+                MacroType: "@((int)MacroType.String)",
+                Value: value
+            }, Name: value });
+            input.val("");
+        });
+
+        wrap.on('click', '[data-member]', function () {
+            elt.tagsinput('add', { "Member": {
+                MacroType: $(this).data('type'),
+                Value: $(this).data('member')
+            }, Name: $(this).html() });
+        });
+
+        wrap.closest('[data-role=wraplayout]').find('[data-role=apply]').click(function() {
+            window[parentWrapID].viewModel.set(member + '.Value', JSON.stringify($.map(elt.tagsinput('items'), function(elem) { return elem.Member; })));
+            $(this).closest('[data-role=window]').data('kendoWindow').close();
+        });
+    });
+</script>

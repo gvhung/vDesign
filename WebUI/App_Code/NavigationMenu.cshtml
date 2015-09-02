@@ -1,0 +1,83 @@
+﻿@using Base.UI
+@using System.Linq
+@using System.Collections.Generic;
+@using WebUI.Models
+@using System.Web.Mvc
+@using System.Web.Mvc.Html
+@using System.Web.WebPages;
+
+@helper RenderMenu(WebViewPage page, Menu menu)
+{
+    <ul class="nav navbar-nav">
+        @foreach (MenuItem item in menu.Items)
+        {
+            if (item.Items.Count(x => x.Title != "-") > 0)
+            {
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        @if (!String.IsNullOrEmpty(item.Icon))
+                        {
+                            <span class="m-icon @item.Icon"></span>
+                        }
+                        @item.Title
+                        <b class="caret"></b>
+                    </a>
+                    @RenderMenuItem(page, item)
+                </li>
+            }
+            else
+            {
+                if (String.IsNullOrEmpty(item.URL) && !String.IsNullOrEmpty(item.Mnemonic))
+                {
+                    item.URL = page.Url.Action("Index", "Standart", new {mnemonic = item.Mnemonic});
+                }
+                
+                if (!String.IsNullOrEmpty(item.URL))
+                {
+                    <li>
+                        <a href="@item.URL"><span class="m-icon @item.Icon"></span>@item.Title</a>
+                    </li>
+                }
+            }
+        }
+    </ul>
+}
+
+@helper RenderMenuItem(WebViewPage page, MenuItem menuItem)
+{
+    <ul class="dropdown-menu">
+        @for (int i = 0; i < menuItem.Items.Count; i++)
+        {
+            MenuItem item = menuItem.Items[i];
+            
+            if (item.Title == "-")
+            {
+                <li class="divider"></li>
+            }
+            else
+            {
+                if (item.Items.Count > 0)
+                {
+                    <li class="dropdown-submenu">
+                        <a href="#"><span class="m-icon @item.Icon">&nbsp</span>@item.Title</a>
+                        @RenderMenuItem(page, item)
+                    </li>
+                }
+                else
+                {
+                    if (String.IsNullOrEmpty(item.URL) && !String.IsNullOrEmpty(item.Mnemonic))
+                    {
+                        item.URL = page.Url.Action("Index", "Standart", new {mnemonic = item.Mnemonic});
+                    }
+                    
+                    if (!String.IsNullOrEmpty(item.URL))
+                    {
+                        <li>
+                            <a href="@item.URL"><span class="m-icon @item.Icon"></span>@item.Title</a>
+                        </li>
+                    }
+                }
+            }
+        }
+    </ul>
+}

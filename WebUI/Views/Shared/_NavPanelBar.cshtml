@@ -1,0 +1,138 @@
+﻿@using Framework.EnumerableExtesions
+@using MenuItem = Base.UI.MenuItem
+
+@model BaseViewModel
+
+@{
+    var menu = Html.GetMenu();
+
+    string notificationID = Guid.NewGuid().ToString("N");
+}
+
+<div class="navbar-header">
+    <a href="#" id="menu-toggle" class="navbar-brand" style="height: 51px;"><span class="halfling halfling-chevron-right"></span></a>
+</div>
+<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+    <ol class="pull-left breadcrumb nav-breadcrumb">
+        @RenderBreadcrumbs(menu)
+    </ol>
+    <ul class="nav navbar-nav navbar-right">
+        <li class="notifications">
+            <a id="@notificationID" href="/Entities/Notification"><span class="bell glyphicon glyphicon-bell"></span><span class="badge"></span></a>
+        </li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <img class="img-circle" style="width: 20px; height: 20px;" src="/Files/GetImage?id=@Model.SecurityUser.ImageID&width=20&height=20&defImage=NoPhoto">
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+                <li class=""><a href="@Url.Action("GetViewModel", "Standart", new { mnemonic = "ExtProfile", typeDialog = TypeDialog.Frame, id = Model.SecurityUser.ID })"><span class="halfling halfling-user">&nbsp</span>Профиль</a></li>
+                <li class=""><a href="/Account/LogOff"><span class="halfling halfling-log-out">&nbsp;</span>Выход</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+
+<script src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
+<script src="~/signalr/hubs"></script>
+
+<script>
+    window["@notificationID"] = {
+        refresh: function () {
+            var $bell = $('#@notificationID').find('.bell');
+            var $badge = $('#@notificationID').find('.badge');
+
+            $.get(application.url.GetStandart("GetObjectCount"), { mnemonic: "Notification" }, function (data) {
+                if (data.count) {
+                    $bell.addClass('unread');
+                    $badge.html(data.count);
+                } else {
+                    $bell.removeClass('unread');
+                    $badge.html("");
+                }
+            });
+        }
+    };
+
+    window["@notificationID"].refresh();
+
+    $(function () {
+        $('nav').find('a[href="' + window.location.pathname + '"]').each(function () {
+            $(this).closest('li').addClass('disabled active-menu-item')
+                .parents('nav > ul li').addClass('parent-of-active');
+        });
+
+        $.connection.notificationHub.client.create = function (text) {
+            pbaAPI.infoMsg(text, 6000);
+
+            window["@notificationID"].refresh();
+        };
+
+        $.connection.notificationHub.client.update = function (id) {
+            window["@notificationID"].refresh();
+        };
+
+        $.connection.hub.start();
+
+    });
+</script>
+
+@helper RenderBreadcrumbs(Base.UI.Menu menu)
+{
+    <li class="active">
+        <span class="halfling halfling-home"></span>
+        <a href="/Dashboard">Рабочий стол</a>
+    </li>
+
+    var currentMenuItem = menu.Items.SelectRecursive(x => x.Items).FirstOrDefault(x => x.Item.URL == Request.RawUrl);
+
+    if (currentMenuItem != null && currentMenuItem.Item != null)
+    {
+        foreach (var menuItem in this.GetMenuItems(currentMenuItem.Item))
+        {
+            @RenderBredcrumbItem(menuItem)
+        }
+    }
+}
+
+@functions
+{
+    IEnumerable<MenuItem> GetMenuItems(MenuItem menuItem)
+    {
+        if (menuItem.Parent != null)
+            foreach (var item in GetMenuItems(menuItem.Parent))
+                yield return item;
+
+        yield return menuItem;
+    }
+}
+
+@helper RenderBredcrumbItem(MenuItem item)
+{
+    if (item.URL != null)
+    {
+        if (item.URL == Request.RawUrl)
+        {
+            <li class="active current-loc">
+                <span class="@item.Icon"></span>
+                @(string.IsNullOrEmpty(item.Title) ? "&nbsp;" : item.Title)
+            </li>
+        }
+        else
+        {
+            <li>
+                <a href="@item.URL">
+                    <span class="@item.Icon"></span>
+                    @(string.IsNullOrEmpty(item.Title) ? "&nbsp;" : item.Title)
+                </a>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="active">
+            <span class="@item.Icon"></span>
+            @(string.IsNullOrEmpty(item.Title) ? "&nbsp;" : item.Title)
+        </li>
+    }
+}

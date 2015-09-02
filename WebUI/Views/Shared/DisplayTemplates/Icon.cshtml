@@ -1,0 +1,7 @@
+﻿@model EditorViewModel
+
+@{
+    string fieldID = "f_" + Guid.NewGuid().ToString("N");
+}
+
+<span id="@fieldID" data-bind="attr: { class: @(Model.PropertyName).Value }, style: { color: @(Model.PropertyName).Color }"></span>

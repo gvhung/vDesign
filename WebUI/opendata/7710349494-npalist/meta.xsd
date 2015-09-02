@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+attributeFormDefault="unqualified" elementFormDefault="qualified">
+	<xs:element type="Meta" name="meta"/>
+	<xs:complexType name="Meta">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				Opendata metadata.
+			</xs:documentation>
+			<xs:documentation xml:lang="ru">
+				Паспорт набора открытых данных.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element type="xs:anyURI" name="standardversion">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Link to opendata standard version, which corresponds to current opendata meta.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Ссылка на версию методических рекомендаций, которой соответствует публикация этого паспорта набора открытых
+						данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="identifier">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Opendata identification number.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Идентификационный номер набора данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="title">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Opendata title.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Наименование набора данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="description">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Opendata description.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Описание набора данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="creator">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Opendata owner.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Владелец набора данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="created">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Date of first opendata publication in ISO 8601 format.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Дата первой публикации набора данных в формате ISO 8601.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="modified">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Date of last opendata changing in ISO 8601 format.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Дата последнего внесения изменений в формате ISO 8601.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="subject">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Keywords of the opendata content.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Ключевые слова, соответствующие содержанию набора данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="format">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Opendata format.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Формат данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="Data" name="data"/>
+			<xs:element type="Structure" name="structure"/>
+			<xs:element type="Publisher" name="publisher"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Data">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				Opendata versions.
+			</xs:documentation>
+			<xs:documentation xml:lang="ru">
+				Версии наборов открытых данных.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element type="DataVersion" name="dataversion"
+			maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DataVersion">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Opendata.</xs:documentation>
+			<xs:documentation xml:lang="ru">
+				Набор открытых данных.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element type="xs:anyURI" name="source">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Link to opendata file.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Ссылка на файл набора открытых данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="created">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Date of opendata creation in ISO 8601 format.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Дата создания набора открытых данных в формате ISO 8601.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="provenance">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Description of changes compared to the previous opendata version.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Описание изменений по сравнению с предыдущей версией набора открытых данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="valid">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Date on which opendata will be actual in ISO 8601 format.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Дата, до которой будет актуальным набор открытых данных в формате ISO 8601.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="structure">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Creation date of corresponding opendata structure in ISO 8601 format.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Дата создания соответсвующей структуры набора открытых данных в формате ISO 8601.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Structure">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				Opendata structure versions.
+			</xs:documentation>
+			<xs:documentation xml:lang="ru">
+				Версии структур наборов открытых данных.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element type="StructureVersion" name="structureversion"
+			maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StructureVersion">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				Opendata structure.
+			</xs:documentation>
+			<xs:documentation xml:lang="ru">
+				Структура набора открытых данных.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element type="xs:anyURI" name="source">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Link to opendata structure file.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Ссылка на файл структуры набора открытых данных.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="created">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Date of opendata structure creation in ISO 8601 format.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Дата создания структуры набора открытых данных в формате ISO 8601.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Publisher">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				Opendatapublisher.
+			</xs:documentation>
+			<xs:documentation xml:lang="ru">
+				Ответственное лицо.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element type="xs:string" name="name">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Opendata publisher name.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Имя ответственного лица.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="phone">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Opendata publisher phone number.
+					</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Телефон ответственного лица.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="mbox">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Opendata publisher email.</xs:documentation>
+					<xs:documentation xml:lang="ru">
+						Адрес электронной почты ответственного лица.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

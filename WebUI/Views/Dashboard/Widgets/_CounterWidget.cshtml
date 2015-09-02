@@ -1,0 +1,225 @@
+﻿@using Framework.EnumerableExtesions
+@model WebUI.Models.Dashboard.Widgets.CounterWidget
+@{
+    var items = Model.Items.AsSmartEnumerable();
+}
+
+<script>
+    (function (window) {
+        if (!window.CBPFWTabs) {
+            function extend(a, b) {
+                for (var key in b) {
+                    if (b.hasOwnProperty(key)) {
+                        a[key] = b[key];
+                    }
+                }
+                return a;
+            }
+
+            function CBPFWTabs(el, options) {
+                this.el = el;
+                this.options = extend({}, this.options);
+                extend(this.options, options);
+                this._init();
+            }
+
+            CBPFWTabs.prototype.options = {
+                start: 0
+            };
+
+            CBPFWTabs.prototype._init = function () {
+                this.tabs = [].slice.call(this.el.querySelectorAll('nav > ul > li.tab'));
+                this.items = [].slice.call(this.el.querySelectorAll('.content-wrap > section'));
+                this.current = -1;
+                this._show();
+                this._initEvents();
+            };
+
+            CBPFWTabs.prototype._initEvents = function () {
+                var self = this;
+                this.tabs.forEach(function (tab, idx) {
+                    $(tab).find('a.tab-action').click(function (ev) {
+                        ev.preventDefault();
+                        self._show(idx);
+                    });
+                });
+            };
+
+            CBPFWTabs.prototype._show = function (idx) {
+                if (this.current >= 0) {
+                    $(this.tabs[this.current]).removeClass('tab-current');
+                    $(this.items[this.current]).removeClass('content-current');
+                    //this.tabs[this.current].className = this.items[this.current].className = '';
+                }
+                this.current = idx != undefined ? idx : this.options.start >= 0 && this.options.start < this.items.length ? this.options.start : 0;
+                $(this.tabs[this.current]).addClass('tab-current');
+                $(this.items[this.current]).addClass('content-current');
+            };
+
+            window.CBPFWTabs = CBPFWTabs;
+        }
+    })(window);
+</script>
+
+<div id="@Model.WrapID" class="tabs tabs-style-iconbox">
+    <nav>
+        <ul>
+            @Html.Raw(Model.FirstElement)
+            @foreach (var entry in items)
+            {
+                <li class="@(entry.IsFirst ? "tab-current" : "need-load") tab" style="background: @entry.Value.Color;">
+                    <a data-mnemonic="@entry.Value.Mnemonic"
+                       href="#@entry.Value.ID"
+                       data-contentid="@entry.Value.ID"
+                       style="color: @entry.Value.Color; border-top-color: @entry.Value.Color"
+                       title="@entry.Value.Config.ListView.Title"
+                       class="tab-action">
+                        @if (!string.IsNullOrEmpty(Model.CountUrl))
+                        {
+                            <img class="npa-spinner animated" src="/Content/loaders/oval.svg" />
+                        }
+
+                        <p class="tab-icon @entry.Value.Config.Icon"></p>
+                        <p class="tab-title">@entry.Value.Config.ListView.Title</p>
+                        <i style="display: none;" class="npa-count badge animated bounceInDown"></i>
+                    </a>
+                    <a href="/entities/@entry.Value.Mnemonic" class="all-btn" style="background: @entry.Value.Color">все</a>
+                </li>
+            }
+        </ul>
+    </nav>
+    <div class="content-wrap">
+        @foreach (var entry in items)
+        {
+            <section id="@entry.Value.ID" class="non-loaded @(entry.IsFirst ? "tab-current" : "")">
+                
+            </section>
+        }
+    </div>
+    @Html.Raw(Model.ItemsTemplate)
+</div>
+
+<script>
+    (function () {
+        new CBPFWTabs(document.getElementById('@Model.WrapID'));
+        @Html.Raw(Model.AdditionalScript)
+
+        var wrap = $("#@Model.WrapID");
+
+        var mnemonics = [];
+        var tabElems = {};
+        var countsPromise = null;
+        var changed = {};
+
+
+        wrap.find('[data-mnemonic]').each(function () {
+            var $elem = $(this);
+            var mnemonic = $elem.attr('data-mnemonic');
+
+            mnemonics.push(mnemonic);
+            tabElems[mnemonic] = $elem;
+        });
+
+        wrap.on('click', '.need-load [data-mnemonic]', function () {
+            getAndRenderItems($(this));
+        });
+
+        wrap.on('click', '.tile a[data-id]', function (e) {
+            var $a = $(this);
+            var mnemonic = $a.attr('data-mnemonic');
+            pbaAPI.openViewModelEx(mnemonic, {
+                wid: "@Model.WrapID",
+                id: $a.attr('data-id'),
+                callback: function(ev) {
+                    if (ev.type === "save") {
+                        changed[ev.model.ID] = true;
+                        refresh();
+                    }
+                }
+            });
+        });
+
+        function refresh() {
+            getCounts();
+            wrap.find('li').addClass('need-load');
+            getAndRenderItems(wrap.find('li.tab-current [data-mnemonic]'));
+        }
+
+        wrap.closest('.dashboard-widget').on('refresh', refresh);
+        getAndRenderItems(wrap.find('li.tab-current [data-mnemonic]'));
+
+        @if (!string.IsNullOrEmpty(Model.CountUrl))
+        {
+            @: getCounts();
+                                                }
+
+        function getCounts() {
+            countsPromise && countsPromise.abort();
+
+            wrap.find('.npa-spinner').removeClass("bounceOut").addClass('bounceIn').show();
+            wrap.find('.npa-count').hide();
+            countsPromise = $.ajax({
+                type: "POST",
+                url: '@Model.CountUrl',
+                data: JSON.stringify(mnemonics),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.length) {
+                        for (var i = 0; i < data.length; i++) {
+                            (function (i) {
+                                setTimeout(function () {
+                                    var $tab = tabElems[data[i].mnemonic];
+                                    if ($tab) {
+                                        $tab.find('.npa-spinner').addClass("bounceOut").fadeOut(1000);
+                                        var $counter = $tab.find('.npa-count').html(data[i].count).show(500);
+                                        if (data[i].count) {
+                                            $counter.addClass('has-count');
+                                        }
+                                    }
+                                }, pbaAPI.getRandomInt(100, 1000));
+                            })(i);
+                        }
+                    }
+                }
+            });
+        }
+
+        function getAndRenderItems($a) {
+            $a.closest('li').removeClass('need-load');
+
+            var mnemonic = $a.attr('data-mnemonic');
+            var $content = $("#@Model.WrapID #" + $a.attr('data-contentid')).addClass('non-loaded');
+            $content.html('<img class="animated tab-content-spinner" src="/Content/loaders/puff.svg" />');
+            
+            $.get('@Model.ItemsUrl', {
+                mnemonic: mnemonic,
+                count: @(Model.MaxItemsCount ?? 10)
+                }, function (data) {
+                    if (data && data.length) {
+                        renderTabContent($content, data, mnemonic);
+                    } else {
+                        renderEmptyTabContent($content, data, mnemonic);
+                    }
+                });
+        }
+
+        function renderTabContent($content, data, mnemonic) {
+            $content.removeClass('non-loaded');
+            var html = _.template($("#@Model.WrapID #counter-widget-items-template").html(), {
+                items: data,
+                mnemonic: mnemonic,
+                isChanged: function(id) {
+                    return !!changed[id];
+                }
+            });
+
+            changed = {};
+            $content.html(html);
+        }
+
+        function renderEmptyTabContent($content) {
+            $content.removeClass('non-loaded')
+                .html('<div class="text-muted counter-nodata alert alert-info">Нет данных</div>');
+        }
+    })();
+</script>

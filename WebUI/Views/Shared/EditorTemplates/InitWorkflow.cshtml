@@ -1,0 +1,350 @@
+﻿@using Base.BusinessProcesses.Entities
+@using Framework.Maybe
+@model EditorViewModel
+
+@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    var canWrite = (ViewContext.Controller as WebUI.Controllers.IBaseController).IfNotNullReturn(x => x.SecurityUser).WithStruct(x => x.IsPermission<Workflow>(Base.Security.TypePermission.Write), false);
+}
+
+<div class="container" id="@wrapID">
+    <div class="row" id="step1_@(wrapID)">
+        <div class="col-sm-12">
+            <div class="panel-group" id="acc_@(wrapID)" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#acc_@(wrapID)" href="#c1_@(wrapID)" aria-expanded="true" aria-controls="collapseOne">
+                                Последние
+                            </a>
+                            <a id="updaterec_@(wrapID)" class="pull-right" href="#">
+                                <i class="halfling halfling-refresh"></i>
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="c1_@(wrapID)" class="panel-collapse collapse in" role="tabpanel">
+                        <ul id="recent_@(wrapID)" class="list-group"></ul>
+                    </div>
+                </div>
+                <div class="panel panel-info">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#acc_@(wrapID)" href="#c2_@(wrapID)" aria-expanded="true" aria-controls="collapseOne">
+                                Расширенный поиск
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="c2_@(wrapID)" class="panel-collapse collapse" role="tabpanel">
+                        <div class="panel-body">
+                            <a id="create_@(wrapID)" href="#" class="btn btn-primary pull-left" disabled="disabled">Сформировать</a>
+                            <div style="padding-left: 140px;">
+                                @Html.Partial("EditorTemplates/Common/BaseObjectOne", Model)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (canWrite)
+                {
+                    <div class="panel panel-warning">
+                        <div class="panel-heading" role="tab">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#acc_@(wrapID)" href="#c3_@(wrapID)" aria-expanded="true" aria-controls="collapseOne">
+                                    Создать новый
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="c3_@(wrapID)" class="panel-collapse collapse" role="tabpanel">
+                            <div class="panel-body">
+                                <a href="#" id="createNew_@(wrapID)" class="btn btn-success" style="width: 100%;">Новый бизнес-процесс</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div id="step2_@(wrapID)" class="alert alert-success" style="display: none;" role="alert">
+        <div class="pull-left">
+            <p>
+                Бизнес-процесс для данного объекта <b>сформирован</b>!
+            </p>
+            @if (canWrite)
+            {
+                <div>
+                    <label><input type="checkbox"> Создать шаблон</label>
+                </div>
+
+            }
+        </div>
+        <div class="pull-right">
+            <a href="#" id="chnew_@(wrapID)" class="btn btn-primary">Изменить бизнес-процесс</a>
+            <a href="#" id="delnew_@(wrapID)" class="btn btn-danger">Очистить бизнес-процесс</a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div id="ex_@(wrapID)">
+        <div class="pull-right">
+            <a href="#" id="chex_@(wrapID)" class="btn btn-primary">@(canWrite ? "Изменить" : "Дорожная карта")</a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="row">
+        <div id="currentStages_@(wrapID)"></div>        
+    </div>
+    <div class="row">
+        <div id="timeline_@(wrapID)"></div>
+    </div>
+
+</div>
+
+<script>
+    (function () {
+        var step1 = $('#step1_@(wrapID)');
+        var createWf = $('#create_@(wrapID)');
+
+        var needRefreshTemplates = true;
+
+        var step2 = $('#step2_@(wrapID)');
+
+        var changeEx = $('#chex_@(wrapID)');
+        var exWrap = $('#ex_@(wrapID)');
+
+        var changeNew = $('#chnew_@(wrapID)');
+        var delNew = $('#delnew_@(wrapID)');
+
+        var recent = $('#recent_@(wrapID)');
+
+        var wfDefaultID = null;
+        var wfDefault = null;
+        var $wrap = $('#@wrapID');
+        var createNew = $('#createNew_@(wrapID)');
+        var timeline = $('#timeline_@(wrapID)');
+
+        var update = $('#updaterec_@(wrapID)').click(refreshTemplates);
+
+        var wfID;
+
+        var timelieXHR = null;
+        var refreshTimeline = null;
+
+        var model = null;
+
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            model = form.getModel();
+
+            timelieXHR && timelieXHR.abort();
+            refreshTimeline = null;
+            timeline.html('<div class="wnd-loading-content" style="height:50px;"></div>');
+            step2.find('input[type=checkbox]').prop('checked', false);
+
+            wfID = form.getPr("WorkflowID");
+            wfDefault = form.getPr("InitWorkflow");
+
+            if (wfID) {
+                step1.hide();
+                step2.hide();
+                exWrap.show();
+            } else if (!wfDefault) {
+                step1.show();
+                step2.hide();
+                exWrap.hide();
+            } else if (wfDefault) {
+                step2.show();
+                step1.hide();
+                exWrap.hide();
+            }
+
+            createWf.attr('disabled', 'disabled');
+
+
+            // !!!!
+            //if (true || needRefreshTemplates) {
+            //    refreshTemplates().always(function () {
+            //        needRefreshTemplates = false;
+            //    });
+            //}
+
+            var objID = form.getPr("ID");
+
+            refreshTimeline = function () {
+                if (objID && wfID) {
+                    timelieXHR = $.get("/BusinessProcess/Timeline?objectID=" + objID + "&objectType=" + "@Model.ParentViewModelConfig.TypeEntity.FullName" + "&workflowID=" + wfID, null, function(html) {
+                        timeline.html(html);
+                    });
+                } else {
+                    timeline.html("");
+                }
+            }
+            refreshTimeline && refreshTimeline();
+        });
+
+        $("#@wrapID").closest("form").on("onSave", function (e, form) {
+            if (wfDefault) {
+                var newDef = step2.find('input[type=checkbox]').is(':checked');
+
+                wfDefault.CreateTemplate = newDef;
+                form.setPr("InitWorkflow", wfDefault);
+            };
+
+            needRefreshTemplates = true;
+        });
+
+        function refreshTemplates() {
+            recent.empty();
+
+            @*return $.ajax({
+                type: "POST",
+                url: "/BusinessProcess/WorkflowList",
+                data: JSON.stringify({
+                    mnemonic: "@Model.ParentViewModelConfig.Mnemonic",
+                    model: model
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.length) {
+                        for (var i = 0; i < data.length; i++) {
+                            var item = data[i];
+                            var date = item.CreatedDate && item.CreatedDate.split(' ') || ['', ''];
+
+                            recent.append('<a href="#" data-id=' + item.ID + ' class="list-group-item clearfix">' +
+                                '<span class="label label-info"><i class="glyphicon glyphicon-calendar">&nbsp;</i>' + date[0] + '</span>&nbsp;&nbsp;' +
+                                '<span style="font-weight: bold">' + item.Title + '</span>' +
+                                '<i class="glyphicon glyphicon-arrow-right"></i>' +
+                                '<span class="pull-right">' + pbaAPI.getUserStr(item.Creator, false, 20, 20) + '</span>' +
+                                '<p class="text-muted" style="margin: 10px 0 0 0;">' + item.Description + '</p>' +
+                                '</a>');
+                        }
+                    }
+
+                    recent.find('[data-id]').click(function () {
+                        wfDefaultID = $(this).attr('data-id');
+
+                        createWfImpl();
+                    });
+                }
+            });*@
+
+            @*return $.get('/BusinessProcess/WorkflowList', {
+                objectType: "@Model.ParentViewModelConfig.TypeEntity.FullName"
+            }, function (data) {
+
+            });*@
+        };
+
+        refreshTemplates();
+
+        createNew.click(function () {
+            pbaAPI.openViewModelEx("BPWorkflow_Init", {
+                wid: "@wrapID",
+                title: "Бизнес - процесс",
+                isMaximaze: true,
+                entity: {
+                    ObjectType: "@(Model.ParentViewModelConfig.TypeEntity.FullName)"
+                },
+                toSave: false,
+                callback: function (e) {
+                    if (e.type === "save") {
+                        wfDefault = e.model;
+                        step1.hide();
+                        step2.fadeIn();
+                    }
+                }
+            });
+        });
+
+        changeEx.click(function () {
+            pbaAPI.openViewModelEx("BPWorkflow_ClosedType", {
+                wid: "@wrapID",
+                title: "Бизнес - процесс",
+                isMaximaze: true,
+                id: wfID,
+                toSave: true,
+                callback: function () {
+                    refreshTimeline && refreshTimeline();
+
+                    //$('#@wrapID').closest('.dialog-vm').find('.custom-viewmodel-toolbars[data-role=toolbar]').trigger('onActionInvoke');
+                }
+            });
+        });
+
+        changeNew.click(function () {
+            pbaAPI.openViewModelEx("BPWorkflow_Init", {
+                wid: "@wrapID",
+                title: "Бизнес - процесс",
+                isMaximaze: true,
+                entity: wfDefault,
+                toSave: false,
+                callback: function (e) {
+                    //????
+                    wfDefault = e.model;
+                }
+            });
+        });
+
+        createWf.click(function () {
+            createWfImpl();
+        });
+
+        delNew.click(function () {
+            wfDefault = null;
+
+            step1.fadeIn();
+            step2.hide();
+
+            createWf.removeAttr('disabled');
+        });
+
+        $('#@wrapID').find('[data-editortemplate=BaseObjectOne]').on('changeValue', function (e, data) {
+            if (data.value) {
+                wfDefaultID = data.value.ID;
+            } else {
+                wfDefaultID = null;
+            }
+
+            createWfImpl();
+        });
+
+        function createWfImpl() {
+            var queryUrl = application.url.GetStandart('Get', {
+                mnemonic: 'BPWorkflow',
+                id: wfDefaultID
+            });
+
+            $.get(queryUrl, null, function (data) {
+                //if ("@(Model.ParentViewModelConfig.TypeEntity.FullName)" === data.model.ObjectType) {
+                wfDefault = data.model;
+                step1.hide();
+                step2.fadeIn();
+
+                pbaAPI.openViewModelEx("BPWorkflow_Init", {
+                    wid: "@wrapID",
+                    title: "Бизнес - процесс",
+                    isMaximaze: true,
+                    entity: wfDefault,
+                    toSave: false,
+                    callback: function (e) {
+                        if (e.type === "save") {
+                            wfDefault = e.model;
+                        }
+                    }
+                });
+                //} else {
+                //pbaAPI.errorMsg("Выбранный бизенс-процесс не подходит для данного объекта");
+                //}
+            });
+        }
+    })();
+</script>
+
+
+<style>
+    .panel > .list-group, .panel > .panel-collapse > .list-group {
+        margin-bottom: 0;
+    }
+
+        .panel > .list-group .list-group-item, .panel > .panel-collapse > .list-group .list-group-item {
+            border-width: 1px 0;
+            border-radius: 0;
+        }
+</style>

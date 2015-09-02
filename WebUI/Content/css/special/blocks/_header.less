@@ -1,0 +1,23 @@
+﻿@import "../_variables";
+
+.h-root-logo {
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+.special-style-1 {
+    .h-root-logo {
+        background: @s1c2;
+    }
+}
+
+@media (min-width: 768px) {
+    .h-root-logo {
+        float: left;
+        margin-bottom: 0;
+    }
+    .h-root-title,
+    .h-root-desc {
+        padding-left: 120px;
+    }
+}

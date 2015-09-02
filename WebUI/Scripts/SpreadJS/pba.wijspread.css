@@ -1,0 +1,380 @@
+﻿.pbawijspread_wrapper {
+    overflow: hidden;
+}
+
+    .pbawijspread_wrapper > .pbawijspread_inner {
+        width: 100%;
+        height: 100%;
+    }
+
+    .pbawijspread_wrapper > .pbawijspread_headerBar {
+        border: 1px solid gray;
+        padding: 2px;
+    }
+
+        .pbawijspread_wrapper > .pbawijspread_headerBar:after {
+            display: block;
+            visibility: hidden;
+            height: 0;
+            clear: both;
+            content: " ";
+        }
+
+        .pbawijspread_wrapper > .pbawijspread_headerBar > input.pbawijspread_positionBox {
+            float: left;
+            width: 100px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            margin: 0 2px 0 0;
+            box-sizing: border-box;
+        }
+
+        .pbawijspread_wrapper > .pbawijspread_headerBar > .pbawijspread_formulaBox {
+            height: 32px;
+            line-height: 32px;
+            padding: 0 3px;
+            border: 1px solid #808080;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+    .pbawijspread_wrapper > .pbawijspread_fileElement {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+.pbawijspread_kendoCalendar {
+    position: absolute;
+    z-index: 15024;
+    -moz-transform: scale(0);
+    -ms-transform: scale(0);
+    -o-transform: scale(0);
+    -webkit-transform: scale(0);
+    transform: scale(0);
+    -moz-transition: -moz-transform 350ms ease, opacity 150ms linear;
+    -o-transition: -o-transform 350ms ease, opacity 150ms linear;
+    -webkit-transition: -webkit-transform 350ms ease, opacity 150ms linear;
+    transition: transform 350ms ease, opacity 150ms linear;
+    opacity: 0;
+}
+
+.pbawijspread_kendoContextMenu .glyphicon,
+.pbawijspread_kendoContextMenu .halfling {
+    font-size: 12px !important;
+    margin-right: 10px;
+    position: relative;
+    top: 1px;
+}
+
+.pbawijspread_kendoCalendar.active {
+    visibility: visible;
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 2px 2px 15px rgba(0,0,0, 0.25);
+}
+
+/*#region BORDER DIALOG */
+
+.pbaspread-icon.bound {
+    width: 44px;
+    height: 35px;
+}
+
+    .pbaspread-icon.bound::before {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin-left: -5px;
+        background-image: url("/Scripts/SpreadJS/images/bound-icon.png");
+        content: " ";
+    }
+
+.pbawijspread_borderDialogWindow {
+    height: auto !important;
+}
+
+.pbawijspread_borderDialog {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 10px 0;
+}
+
+.pbawijspread_grid {
+    position: relative;
+    cursor: default;
+    box-sizing: border-box;
+}
+
+.pbawijspread_areas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20000;
+}
+
+    .pbawijspread_areas > .area {
+        position: absolute;
+        background-color: #AAA;
+        opacity: 0;
+        cursor: pointer;
+        -ms-transition: all 400ms ease;
+        -o-transition: all 400ms ease;
+        -moz-transition: all 400ms ease;
+        -webkit-transition: all 400ms ease;
+        transition: all 400ms ease;
+    }
+
+        /* positioning */
+        .pbawijspread_areas > .area.area_top,
+        .pbawijspread_areas > .area.area_bottom {
+            left: 6%;
+            width: 88%;
+            height: 6%;
+        }
+
+        .pbawijspread_areas > .area.area_left,
+        .pbawijspread_areas > .area.area_right {
+            top: 0;
+            height: 100%;
+            width: 6%;
+        }
+
+        .pbawijspread_areas > .area.area_left {
+            left: 0;
+        }
+
+        .pbawijspread_areas > .area.area_right {
+            right: 0;
+        }
+
+        .pbawijspread_areas > .area.area_top {
+            top: 0;
+        }
+
+        .pbawijspread_areas > .area.area_bottom {
+            bottom: 0;
+        }
+
+        /* center positioning */
+        .pbawijspread_areas > .area.area_center.area_center_middle {
+            left: 47%;
+            top: 47%;
+            width: 6%;
+            height: 6%;
+        }
+
+        .pbawijspread_areas > .area.area_center.area_center_top {
+            left: 47%;
+            top: 6%;
+            width: 6%;
+            height: 41%;
+        }
+
+        .pbawijspread_areas > .area.area_center.area_center_bottom {
+            left: 47%;
+            top: 53%;
+            width: 6%;
+            height: 41%;
+        }
+
+        .pbawijspread_areas > .area.area_center.area_center_left {
+            left: 6%;
+            top: 47%;
+            width: 41%;
+            height: 6%;
+        }
+
+        .pbawijspread_areas > .area.area_center.area_center_right {
+            left: 53%;
+            top: 47%;
+            width: 41%;
+            height: 6%;
+        }
+
+        /* non-script hovering */
+        .pbawijspread_areas > .area:hover {
+            opacity: .25;
+        }
+
+        .pbawijspread_areas > .area.area_center:hover {
+            opacity: 0;
+        }
+
+    /* script hovering */
+
+    /* center v/h */
+    .pbawijspread_areas.center_vertical_hover > .area.area_center.area_center_middle,
+    .pbawijspread_areas.center_vertical_hover > .area.area_center.area_center_top,
+    .pbawijspread_areas.center_vertical_hover > .area.area_center.area_center_bottom {
+        opacity: .25;
+    }
+
+    .pbawijspread_areas.center_horizontal_hover > .area.area_center.area_center_middle,
+    .pbawijspread_areas.center_horizontal_hover > .area.area_center.area_center_left,
+    .pbawijspread_areas.center_horizontal_hover > .area.area_center.area_center_right {
+        opacity: .25;
+    }
+
+    /* center both */
+    .pbawijspread_areas.center_all_hover > .area.area_center {
+        opacity: .25;
+    }
+
+    .pbawijspread_areas > .area.area_top:hover,
+    .pbawijspread_areas > .area.area_bottom:hover {
+        left: 3%;
+        width: 94%;
+    }
+
+    .pbawijspread_areas > .area.area_left:hover,
+    .pbawijspread_areas > .area.area_right:hover {
+        top: 3%;
+        height: 94%;
+    }
+
+    /* bound */
+    .pbawijspread_areas.bound_hover > .area.area_top,
+    .pbawijspread_areas.bound_hover > .area.area_bottom,
+    .pbawijspread_areas.bound_hover > .area.area_left,
+    .pbawijspread_areas.bound_hover > .area.area_right {
+        opacity: .25;
+    }
+
+    .pbawijspread_areas.bound_hover > .area.area_top,
+    .pbawijspread_areas.bound_hover > .area.area_bottom {
+        left: 6%;
+        width: 88%;
+    }
+
+    .pbawijspread_areas.bound_hover > .area.area_left,
+    .pbawijspread_areas.bound_hover > .area.area_right {
+        top: 0;
+        height: 100%;
+    }
+
+    /* all */
+    .pbawijspread_areas.all_hover > .area {
+        opacity: .25;
+    }
+
+    .pbawijspread_areas.all_hover.action_empty > .area {
+        opacity: .175;
+        background-color: red;
+    }
+
+    .pbawijspread_areas.all_hover > .area.area_top,
+    .pbawijspread_areas.all_hover > .area.area_bottom {
+        left: 6%;
+        width: 88%;
+    }
+
+    .pbawijspread_areas.all_hover > .area.area_left,
+    .pbawijspread_areas.all_hover > .area.area_right {
+        top: 0;
+        height: 100%;
+    }
+
+/* KENDO */
+.pbawijspread_borderDialog .pbawijspread_controls {
+    width: 100%;
+    padding: 5%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* DropDownList */
+
+.pbawijspread_controls > .pbawijspread_kendoDropDownList {
+    width: 100%;
+}
+
+.pbawijspread_selectionButtons {
+    text-align: center;
+    padding: 5%;
+}
+
+    .pbawijspread_selectionButtons > .btn.btn-default {
+        margin: 0 5px;
+    }
+
+.pbawijspread_controls > a > img {
+    margin: 1px 0 0 1px;
+}
+
+.kendoDashTypeElement {
+    margin: 5% 6%;
+    width: 88%;
+    height: 0;
+    line-height: 30%;
+    text-align: center;
+    border-bottom-width: 1px;
+    border-bottom-color: black;
+}
+
+    .kendoDashTypeElement.thin {
+        border-bottom-style: solid;
+    }
+
+    .kendoDashTypeElement.medium {
+        border-bottom-style: solid;
+        border-bottom-width: 2px;
+    }
+
+    .kendoDashTypeElement.thick {
+        border-bottom-style: solid;
+        border-bottom-width: 3px;
+    }
+
+    .kendoDashTypeElement.double {
+        border-bottom-style: double;
+        border-bottom-width: 3px;
+    }
+
+    .kendoDashTypeElement.dashed {
+        border-bottom-style: dashed;
+    }
+
+    .kendoDashTypeElement.mediumDashed {
+        border-bottom-style: dashed;
+        border-bottom-width: 2px;
+    }
+
+    .kendoDashTypeElement.dotted {
+        border-bottom-style: dotted;
+    }
+
+.pbawijspread_controls > .pbawijspread_kendoColorPalette {
+    margin: 5% 0;
+}
+
+    .pbawijspread_controls > .pbawijspread_kendoColorPalette td {
+        cursor: pointer;
+    }
+
+.pbawijspread_borderDialog > .pbawijspread_buttons {
+    padding: 5%;
+    text-align: center;
+}
+
+/*#endregion*/
+
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+
+    body .pbawijspread_print,
+    body .pbawijspread_print * {
+        visibility: visible !important;
+    }
+}

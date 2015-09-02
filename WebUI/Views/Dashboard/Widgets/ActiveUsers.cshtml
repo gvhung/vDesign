@@ -1,0 +1,36 @@
+﻿@using WebUI.Models.Dashboard.Widgets
+@{
+    string grid = Guid.NewGuid().ToString("N");
+}
+
+@Html.DashboardWidget().Content(
+    @<text>
+        @(Html.Kendo().Grid<ActiveUserItem>()
+            .Name(grid)
+            .Columns(columns =>
+            {
+                 columns.Bound(p => p.Login).Title("Пользователь");
+                 columns.Bound(p => p.CountRequest).Width(150).Title(("Количество запросов"));
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .Filterable()
+            .HtmlAttributes(new { style = "height:570px;" })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(50)
+                .Read(read => read.Action("ActiveUsers_Read", "Dashboard"))
+            )
+            .Pageable(p =>
+            {
+                p.Refresh(true).Messages(m => m.First("На первую")
+                    .Last("На последнию")
+                    .Previous("На предыдущую")
+                    .Next("На следующую")
+                    .Refresh("Обновить")
+                    .ItemsPerPage(""));
+            })
+        )
+    </text>
+)

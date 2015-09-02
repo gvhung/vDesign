@@ -1,0 +1,5 @@
+﻿@model WebUI.Models.BusinessProcess.TaskToolbarViewModel
+
+@Html.Partial("_TaskToolbar", Model)
+
+@Html.Action("Toolbar", "Task", new { taskID = Model.TaskID })

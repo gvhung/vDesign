@@ -1,0 +1,1308 @@
+﻿@model StandartGantt
+
+@{
+    string url = "_Gantt";
+
+    if (Model.HasListView)
+    {
+        url = Model.ViewModelConfig.ListView.Name;
+    }
+
+    Type typeEntity = Model.ViewModelConfig.TypeEntity;
+}
+
+<script>
+    window["@Model.WidgetID"] = new WrapGantt("@Model.WidgetID", "Scheduler");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+
+        var gantt = window["@Model.WidgetID"];
+
+        composite.registerWidget(gantt);
+
+        gantt.selectID = null;
+        gantt.showCritical = false;
+        gantt.autoAttach = true;
+        gantt.workdayDefault = true;
+        gantt.highlightOption = false;
+        gantt.highlightRow = true;
+        gantt.Expanded = false;
+        gantt.CheckedLinks = [];
+        gantt.orderedtasks = [];
+
+        //gantt.expands = null;
+        //gantt.refreshExpands = false;
+
+        gantt.dblClick = function (e) {
+            if (e.sender.attr("data-uid")) {
+                var item = gantt.getByUid(e.sender.attr("data-uid"));
+
+                if (item) {
+                    gantt.editRow(item.ID);
+                }
+            }
+        };
+
+        gantt.editRow = function (id) {
+            gantt.selectID = id;
+
+            pbaAPI.openViewModelEx("@Model.Mnemonic",
+                {
+                    wid: "@Model.WidgetID",
+                    id: id,
+                    callback: function (e) {
+                        //console.log(e);
+                        if (e.type == "save" || e.type == "apply") {
+                            gantt.bindmodel(e.model);
+                        }
+                    }
+                });
+        };
+
+        gantt.bind = function () {
+            gantt.dataSourceRead();
+        };
+
+        gantt.bindmodel = function (task) {
+            var gtask = gantt.getByID(task.ID);
+            //console.log(task);
+            if (gtask != null) {
+                gtask.title = task.Name;
+                gtask.start = kendo.parseDate(task.Period.Start, "dd.MM.yyyy HH:mm");
+                gtask.end = kendo.parseDate(task.Period.End, "dd.MM.yyyy HH:mm");
+                gtask.percentComplete = task.PercentComplete;
+                gtask.RowVersion = task.RowVersion;
+                gtask.Priority = task.Priority;
+                gtask.Highlight = task.Highlight;
+            }
+
+            if (gtask.parentId != null) {
+                //console.log("Update parent....");
+                gantt.updateParent(gtask.parentId, function () {
+                    gantt.widget().dataSource.sync();
+                    gantt.widget().refresh();
+                });
+            }
+            else {
+                gantt.widget().refresh();
+            }
+        };
+
+        gantt.updatePercent = function (id, callback) {
+            var gtask = gantt.getByID(id);
+            //console.log("Update percent: ", id, gtask);
+            var childrens = gantt.getChildrens(id);
+            if (childrens) {
+                var percent = 0;
+                for (var t in childrens)
+                    percent += childrens[t].percentComplete;
+                percent = percent / childrens.length;
+                gtask.percentComplete = percent;
+                gtask.dirty = true;
+                //gantt.saveTask(gtask);
+            }
+            if (gtask.parentId != null) {
+                gantt.updatePercent(gtask.parentId, callback);
+            } else if (callback) {
+                gantt.widget().dataSource.sync();
+                callback();
+            }
+        };
+
+        gantt.getChildrens = function (id) {
+            var data = gantt.data();
+            var childrens = [];
+            for (var i = 0; i < data.length; i++)
+                if (data[i].parentId == id) childrens.push(data[i]);
+            return childrens;
+        };
+
+        gantt.updateParent = function (id, callback) {
+            var parentTask = gantt.getByID(id);
+            var childrens = gantt.getChildrens(id);
+            if (childrens) {
+                var _start = childrens[0].start;
+                var _end = childrens[0].end;
+                var percent = 0;
+                for (var t in childrens) {
+                    _start = childrens[t].start < _start ? childrens[t].start : _start;
+                    _end = childrens[t].end > _end ? childrens[t].end : _end;
+                    percent += childrens[t].percentComplete;
+                }
+
+                percent = percent / childrens.length;
+
+                parentTask.start = _start;
+                parentTask.end = _end;
+                parentTask.percentComplete = percent;
+                parentTask.dirty = true;
+
+            }
+
+            if (parentTask.parentId != null)
+                gantt.updateParent(parentTask.parentId, callback);
+            else if (callback) {
+                //gantt.widget().dataSource.sync();
+                callback();
+            }
+        };
+
+        gantt.updateAllPercents = function() {
+            var data = gantt.data();
+            var parents = [];
+            for(var i = 0; i < data.length; i++) {
+                if(data[i].summary) {
+                    parents.push(data[i]);
+                }
+            }
+
+            var lastparents = [];
+
+            for(var item in parents) {
+                var key = true;
+                var childrens = gantt.getChildrens(parents[item].ID);
+
+                if(childrens) {
+                    for(var child in childrens) {
+                        if(childrens[child].summary) {
+                            key = false;
+                            break;
+                        }
+                    }
+
+                    if(key) {
+                        lastparents.push(parents[item]);
+                        gantt.updatePercent(parents[item].ID, function() {
+                            //gantt.widget().dataSource.sync();
+                            gantt.widget().refresh();
+                        });
+                    }
+                }
+
+                //pbaAPI.console("ID: {0}, Title: {1}", parents[i].ID, parents[i].title);
+                //console.log(parents[i]);
+            }
+
+            //console.log(lastparents);
+
+        };
+
+        //gantt.separateParents = function(allparents) {
+        //    for(var item in allparents) {
+        //        var childrens = gantt.getChildrens(allparents[item].ID);
+        //        if(childrens) {
+        //            for(var child in childrens) {
+
+        //            }
+        //        }
+        //    }
+        //};
+
+        //BEGIN - EVENTS
+        gantt.onNeighbourWidgetChanged = function (e) {
+            //console.log("resize ", e);
+            if (e.sender.desc == "DialogSplitter") {
+                if (e.event == "resize") {
+
+                    gantt.resize(e.params.height - $("#@(Model.WidgetID)_Gantt_toolbar").outerHeight());
+                }
+            } else if (e.sender.desc == "Composite") {
+                if (e.event == "destroy") {
+                    gantt.destroy();
+                }
+            }
+        };
+
+        gantt.clearSummaries = function () {
+            var data = gantt.data();
+            for (var i = 0; i < data.length; i++) {
+                data[i].summary = false;
+            }
+        };
+
+        //gantt.getExpand = function (id) {
+        //    if (gantt.expands != null && gantt.expands) {
+        //        for (var i = 0; i < gantt.expands.length; i++) {
+        //            if (gantt.expands[i].id == id)
+        //                return gantt.expands[i];
+        //        }
+        //    }
+        //    return null;
+        //};
+
+        gantt.onDataBinding = function (e) {
+            gantt.clearSummaries();
+
+            var data = gantt.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].parentId != null) {
+                    var parent = gantt.getByID(data[i].parentId);
+                    if(parent)
+                        parent.summary = true;
+                }
+
+                data[i].dirty = false;
+            }
+        };
+
+        gantt.onDataBound = function (e) {
+            //console.log("Data bound");
+
+            var data = gantt.data();
+            if(!$("[data-role='ganttlist'] table[role='grid'] thead tr th[role='gridpriority']").length) {
+                $("[data-role='ganttlist'] table colgroup").append("<col width='10px'>");
+                $("[data-role='ganttlist'] table thead tr").append("<th class='k-header' role='gridpriority'></th>");
+                $("[data-role='ganttlist'] table tbody tr").append("<td role='gridpriority'></td>");
+            }
+            else {
+                $("[data-role='ganttlist'] table[role='treegrid'] tbody tr").each(function() {
+                    var $row = $(this);
+                    !$row.find("td[role='gridpriority']").length && $row.append("<td role='gridpriority'></td>");
+                });
+            }
+
+
+            if(data) {
+                $("[data-role='ganttlist'] table[role='treegrid'] tbody tr").each(function() {
+                    var $row = $(this);
+                    var gtask = gantt.getByUid($row.attr("data-uid"));
+                    var priority = "";
+                    switch (gtask.Priority) {
+                        case 2:
+                            priority = "priority-low";
+                            break;
+                        case 1:
+                            priority = "priority-mid";
+                            break;
+                        case 0:
+                            priority = "priority-high";
+                            break;
+                        default:
+                    }
+                    
+                    if(gtask.percentComplete == 1)
+                        priority = "task-complete";
+
+                    $row.find("td[role='gridpriority']").attr("class", priority);
+                    //console.log($row.index());
+                });
+            }
+
+            gantt.element().find("[role='gridcell']").on("dblclick", function (e) {
+                var editors = gantt.element().find(".k-edit-cell").length;
+                if (editors > 0) return false;
+            });
+
+            if (gantt.selectID != null) {
+                var item = gantt.getByID(gantt.selectID);
+
+                if (item) {
+                    var $row = gantt.element().find("tr[data-uid='" + item.uid + "']");
+
+
+                    if ($row.length > 0) {
+                        gantt.select($row);
+                    }
+                }
+            }
+            else if (data.length) {
+                var $row = gantt.element().find("tr[data-uid]:eq(0)");
+                if ($row.length > 0) {
+                    gantt.select($row);
+                    var first = gantt.getByUid($row.attr("data-uid"));
+                    gantt.selectID = first.ID;
+                }
+            }
+
+            if (gantt.showCritical)
+                gantt.createCritical();
+            else
+                gantt.clearCritical();
+
+            if (gantt.highlightOption)
+                gantt.onHighlight();
+            else
+                gantt.offHighlight();
+
+            if(gantt.highlightRow)
+                gantt.onUserHighlight();
+            else
+                gantt.offUserHighlight();
+
+            //gantt.element().find('.k-task').popover({
+            //    animation: true,
+            //    content: '<div class="btn-group-vertical">' +
+            //        '<a data-type="edittask" role="button" class="btn btn-default" style="width: 150px">Изменить задачу</a>' +
+            //        '<a data-type="daletetask" role="button" class="btn btn-default" style="width: 150px">Удалить задачу</a>' +
+            //        '<a data-type="daletelink" role="button" class="btn btn-default" style="width: 150px">Удалить связь</a>' +
+            //        '</div>',
+            //    html: true,
+            //    placement: 'bottom',
+            //    title: '',
+            //    trigger: 'click focus'
+            //});
+            if(gantt.contextMenu == null) {
+                gantt.contextMenu = $("#contextmenu_@(Model.WidgetID)").kendoContextMenu({
+                    dataSource: [
+                        {
+                            text: "<span data-role='add-task'>Добавить напоминание</span>",
+                            encoded: false,
+                            spriteCssClass: 'halfling halfling-file'
+                        },
+                        {
+                            text: "<span data-role='edit-task'>Изменить напоминание</span>",
+                            encoded: false,
+                            spriteCssClass: 'halfling halfling-edit'
+                        },
+                        {
+                            text: "<span data-role='delete-task'>Удалить напоминание</span>",
+                            encoded: false,
+                            spriteCssClass: 'halfling halfling-remove'
+                        },
+                        { cssClass: "k-separator", text: "-" },
+                        {
+                            text: "<span data-role='delete-dependency'>Удалить связь</span>",
+                            encoded: false,
+                            spriteCssClass: 'halfling halfling-remove-sign'
+                        },
+                        { cssClass: "k-separator", text: "-" },
+                        {
+                            text: "<span data-role='set-percent' data-val='25'>Готовность 25%</span>",
+                            encoded: false,
+                            spriteCssClass: 'halfling halfling-circle-arrow-right'
+                        },
+                        {
+                            text: "<span data-role='set-percent' data-val='50'>Готовность 50%</span>",
+                            encoded: false,
+                            spriteCssClass: 'halfling halfling-circle-arrow-right'
+                        },
+                        {
+                            text: "<span data-role='set-percent' data-val='75'>Готовность 75%</span>",
+                            encoded: false,
+                            spriteCssClass: 'halfling halfling-circle-arrow-right'
+                        },
+                        {
+                            text: "<span data-role='set-percent' data-val='100'>Готовность 100%</span>",
+                            encoded: false,
+                            spriteCssClass: 'halfling halfling-circle-arrow-right'
+                        },
+                        { cssClass: "k-separator", text: "-" },
+                        {
+                            text: "<span data-role='set-color' data-val=''>Убрать подсветку</span>",
+                            encoded: false,
+                            spriteCssClass: 'halfling halfling-eye-close'
+                        },
+                        {
+                            text: '<table class="k-palette k-reset kendo-gantt-context"><tbody><tr>' + 
+                                '<td style="width: 34px; height: 19px; background-color: rgb(111, 84, 153);" class="k-item" data-role="set-color" data-val="#6f5499"></td>' + 
+                                '<td style="width: 34px; height: 19px; background-color: rgb(92, 184, 92);" class="k-item" data-role="set-color" data-val="#5cb85c"></td>' + 
+                                '<td style="width: 34px; height: 19px; background-color: rgb(91, 192, 222);" class="k-item" data-role="set-color" data-val="#5bc0de"></td>' + 
+                                '<td style="width: 34px; height: 19px; background-color: rgb(240, 173, 78);" class="k-item" data-role="set-color" data-val="#f0ad4e"></td>' + 
+                                '<td style="width: 34px; height: 19px; background-color: rgb(217, 83, 79);" class="k-item" data-role="set-color" data-val="#d9534f"></td>' + 
+                                '</tr></tbody></table>',
+                            encoded: false,
+                            spriteCssClass: ''
+                        },
+                    ],
+
+                    orientation: "vertical",
+                    target: "table[role='treegrid']",
+                    filter: "tr[role='row']",
+                    animation: {
+                        open: { effects: "fadeIn" },
+                        duration: 500
+                    },
+                    open: function(e) {
+                        //console.log(e);
+                        gantt.select(e.target);
+                    },
+                    select: function(e) {
+                        var $menuitem = $(e.item)
+                        var data_role = $menuitem.attr("data-role") != undefined ? $menuitem.attr("data-role") : $menuitem.find("[data-role]").attr("data-role");
+                        var data_val = $menuitem.attr("data-val") != undefined ? $menuitem.attr("data-val") : $menuitem.find("[data-val]").attr("data-val");
+
+                        var $item = $(e.target)
+                        var item = gantt.getByUid($item.attr("data-uid"));
+
+                        //console.log(e);
+
+                        if($menuitem && item) {
+                            switch (data_role) {
+                                case "add-task":
+                                    //var widget = gantt.widget();
+                                    ////widget._createTask(kendo.observable({
+                                    //widget._createTask(kendo.observable({
+                                    //    dirty: true,
+                                    //    start: item.start,
+                                    //    end: item.end,
+                                    //    parentId: item.parentId,
+                                    //    summary: false,
+                                    //    title: "New task",
+                                    //    uid: kendo.guid()
+                                    //}), item.orderId + 1);
+                                    $('[data-action="insert-after"]:first').trigger('click');
+                                    break;
+                                case "edit-task":
+                                    gantt.editRow(item.ID);
+                                    break;
+                                case "delete-task":
+                                    gantt.widget().removeTask(item);
+                                    break;
+                                case "delete-dependency":
+                                    var dependensies = gantt.widget().dependencies.data();
+                                    for (var i = 0; i < dependensies.length; i++) {
+                                        if (dependensies[i].predecessorId == item.ID) {
+                                            gantt.widget().removeDependency(dependensies[i]);
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                case "set-percent":
+                                    item.percentComplete = parseFloat(data_val) / 100;
+                                    item.dirty = true;
+                                    if(item.parentId != null) {
+                                        gantt.updateParent(item.parentId, function() {
+                                            gantt.widget().dataSource.sync();
+                                            gantt.widget().refresh();
+                                        });
+                                    }
+                                    else {
+                                        gantt.widget().dataSource.sync();
+                                        gantt.widget().refresh();
+                                    }
+
+                                    //console.log(item);
+                                    break;
+                                case "set-color":
+                                    item.Highlight = data_val;
+                                    item.dirty = true;
+                                    gantt.widget().dataSource.sync();
+                                    break;
+                                default:
+                            }
+                            //console.log($chld.attr("data-role"));
+                        }
+
+                    }
+                });
+            }
+
+            //Edit button in Grid
+            gantt.element().find('tr[data-uid]').each(function () {
+                var $el = $(this);
+
+            //    if (!$el.find('td:eq(0) > a[data-role="delete-link"]').length) {
+            //        var $linkdelete = $('<a title="Удалить связи" class="k-task-btn" data-role="delete-link"><i class="halfling halfling-remove-sign"></i></a>');
+
+            //        $linkdelete.click(function () {
+            //            event.preventDefault();
+            //            var item = gantt.getByUid($el.attr("data-uid"));
+            //            if (item) {
+            //                var dependensies = gantt.widget().dependencies.data();
+            //                for (var i = 0; i < dependensies.length; i++) {
+            //                    if (dependensies[i].predecessorId == item.ID) {
+            //                        gantt.widget().removeDependency(dependensies[i]);
+            //                        break;
+            //                    }
+            //                }
+            //            };
+            //        });
+
+            //        $el.find('td:eq(0)').prepend($linkdelete);
+            //    }
+
+            //    if (!$el.find('td:eq(0) > a[data-role="delete-task"]').length) {
+            //        var $btndelete = $('<a title="Удалить задачу" class="k-task-btn" data-role="delete-task"><i class="halfling halfling-remove"></i></a>');
+
+            //        $btndelete.click(function () {
+            //            event.preventDefault();
+            //            var item = gantt.getByUid($el.attr("data-uid"));
+            //            if (item) {
+            //                gantt.widget().removeTask(item);
+            //            };
+            //        });
+
+            //        $el.find('td:eq(0)').prepend($btndelete);
+            //    }
+
+                if (!$el.find('td:eq(0) > a[data-role="edit-task"]').length) {
+                    var $btnedit = $('<a title="Изменить задачу" class="k-task-btn" data-role="edit-task"><i class="halfling halfling-pencil"></i></a>');
+
+                    $el.find('td:eq(0)').prepend($btnedit);
+
+                    $btnedit.click(function () {
+                        //event.preventDefault();
+                        var item = gantt.getByUid($el.attr("data-uid"));
+                        if (item) {
+                            gantt.editRow(item.ID);
+                        };
+                    });
+                }
+
+            });
+
+            //gantt.updateSelection();
+
+            gantt.widget()._progress(false);
+        };
+
+
+
+        gantt.onRemove = function (e) {
+            if (e.task) {
+                if (!confirm("Удалить задачу?")) {
+                    e.preventDefault();
+                }
+                if(e.task.parentId != null) {
+                    gantt.updateParent(e.task.parentId, function() {
+                        //gantt.widget().dataSource.sync();
+                        gantt.widget().refresh();
+                    });
+                }
+            } else {
+                if (!confirm("Удалить связь?")) {
+                    e.preventDefault();
+                }
+            }
+        };
+
+        gantt.onResize = function (e) {
+            if (e.task)
+                gantt.selectID = e.task.id;
+        };
+
+        gantt.onResizeEnd = function (e) {
+            gantt.CheckedLinks = [];
+            if (gantt.autoAttach)
+                gantt.moveAttached(e.task.id, (e.end - e.task.end));
+        };
+
+        gantt.onMove = function (e) {
+            if (e.task)
+                gantt.selectID = e.task.id;
+        };
+
+        gantt.onMoveStart = function(e) {
+            //console.log("Move start: ", e.task.start.toString(), e.task);
+        };
+
+        gantt.onMoveEnd = function (e) {
+            //console.log("Move end...");
+            gantt.CheckedLinks = [];
+            if (gantt.autoAttach)
+                gantt.moveAttached(e.task.id, (e.end - e.task.end));
+        };
+
+
+        gantt.moveAttached = function (id, duration) {
+            //console.log("Task ID: ", id, " Duration: ", duration);
+            var dependensies = gantt.widget().dependencies.data();
+            //console.log("Dependencies: ", dependensies);
+            if (dependensies) {
+                var predecessor = gantt.getByID(id);
+                for (var i = 0; i < dependensies.length; i++) {
+                    if (dependensies[i].predecessorId == id) {
+                        //console.log(gantt.CheckedLinks.indexOf(dependensies[i].predecessorId + "-" + dependensies[i].successorId));
+                        var successor = gantt.getByID(dependensies[i].successorId);
+                        //console.log("Pre: ", predecessor.title, ", Succ: ", successor.title);
+
+                        if (gantt.CheckedLinks.indexOf(dependensies[i].predecessorId + "-" + dependensies[i].successorId) == -1) {
+                            gantt.CheckedLinks.push(dependensies[i].predecessorId + "-" + dependensies[i].successorId);
+
+                            successor.start = new Date(successor.start.getTime() + duration);
+                            successor.end = new Date(successor.end.getTime() + duration);
+                            successor.dirty = true;
+
+                            if ((successor.parentId != null) && (predecessor.parentId != successor.parentId))
+                                gantt.updateParent(successor.parentId, function() {
+                                    gantt.widget().dataSource.sync();
+                                    gantt.widget().refresh();
+                                });
+                        }
+
+                        gantt.moveAttached(successor.id, duration);
+
+                        //console.log("Successor: ", gantt.getByID(dependensies[i].successorId));
+                    }
+                }
+            }
+
+            //gantt.widget().dataSource.sync();
+        };
+
+        gantt.onChange = function (e) {
+            //console.log("Change: ", this, e);
+
+            var selection = this.select();
+
+            if (selection.length > 0) {
+                var task = this.dataItem(selection);
+                //console.log("Selection...")
+                //gantt.updateSelection();
+
+                if (task) {
+                    gantt.selectID = task.id;
+                }
+            }
+
+            //console.log("Change event: ", this.dataItem(selection));
+        };
+
+        gantt.onEdit = function(e) {
+            
+        },
+
+        gantt.onSave = function (e) {
+            //gantt.refreshExpands = true;
+            //console.log("Save task:", e.task.title);
+            if(e.task) {
+                //console.log(e);
+                if(e.values.start && e.values.start > e.task.end)
+                    e.task.end = new Date(e.values.start.getTime() + (1000 * 60 * 60 * 24));
+                else if(e.values.end && e.values.end < e.task.start)
+                    e.task.start = new Date(e.values.end.getTime() - (1000 * 60 * 60 * 24));
+            }
+        };
+
+        gantt.onAdd = function (e) {
+            if(e.task) {
+                //console.log(e.task);
+                if(e.task.start.getHours() == 0) {
+                    var view = gantt.widget().view();
+                    switch (view.name) {
+                        case 'week':
+                            if(gantt.workdayDefault) {
+                                e.task.start = new Date(e.task.start.getTime() + (9 * 3600 * 1000));
+                                e.task.end = new Date(e.task.start.getTime() + (9 * 3600 * 1000));
+                            }
+                            break;
+                        default:
+
+                    }
+                }
+                //gantt.updateSelection();
+            }
+        };
+
+        gantt.getTasks = function () {
+            var data = new Array();
+
+            var tasks = gantt.data();
+
+            if (tasks) {
+                for (var i = 0; i < tasks.length; i++) {
+                    data.push(tasks[i]);
+                }
+            }
+
+            data = data.sort(function (a, b) {
+                return a.end.getTime() - b.end.getTime();
+            });
+
+            return data;
+        };
+
+        gantt.test = function () {
+            console.log('test');
+        };
+
+        gantt.editSelected = function() {
+            if(gantt.selectID != null)
+                gantt.editRow(gantt.selectID);
+        },
+
+        gantt.deleteSelected = function() {
+            if(gantt.selectID != null)
+                gantt.widget().removeTask(gantt.getByID(gantt.selectID));
+        },
+
+        gantt.removeDependensiesSelected = function() {
+            if(gantt.selectID != null) {
+                var dependensies = gantt.widget().dependencies.data();
+                for (var i = 0; i < dependensies.length; i++) {
+                    if (dependensies[i].predecessorId == gantt.selectID) {
+                        gantt.widget().removeDependency(dependensies[i]);
+                        break;
+                    }
+                }
+            }
+        },
+
+        gantt.openCloseTasks = function() {
+            var data = gantt.data();
+            for(var i = 0; i < data.length; i++) {
+                if(data[i].summary) {
+                    data[i].expanded = !gantt.Expanded;
+                }
+            }
+            gantt.Expanded = !gantt.Expanded;
+            gantt.widget().refresh();
+        },
+
+        //gantt.taskContext = function(uid, btntype) {
+        //    console.log(uid, btntype);
+        //};
+
+        //#region Critical path
+
+        gantt.activity = function (id, uid, title, start, end) {
+            this.id = id;
+            this.uid = uid;
+            this.title = title;
+            this.est = start.getTime();
+            this.lst = 0;
+            this.eet = end.getTime();
+            this.let = 0;
+
+            this.duration = this.eet - this.est;
+            this.seccessors = [];
+            this.predecessors = [];
+        };
+
+        gantt.activities = [];
+
+        gantt.getActivity = function (id) {
+            var activity = null;
+            if (gantt.activities) {
+                for (var i = 0; i < gantt.activities.length; i++) {
+                    if (gantt.activities[i].id == id) {
+                        activity = gantt.activities[i];
+                        break;
+                    }
+
+                }
+            }
+            return activity;
+        };
+
+        gantt.getDataFromView = function () {
+            var data = [];
+            var $rows = gantt.element().find("tr[data-uid]");
+            if ($rows.length > 0) {
+                $rows.each(function () {
+                    var $el = $(this);
+                    var task = gantt.getByUid($el.attr("data-uid"));
+                    data.push(task);
+                });
+            }
+            return data;
+        };
+
+        gantt.generateActivities = function (data) {
+            gantt.activities = [];
+
+            if (data.length) {
+                for (var i = 0; i < data.length; i++) {
+                    if (!data[i].summary && !data[i].isMilestone()) {
+                        var activity = new gantt.activity(data[i].ID, data[i].uid, data[i].title, data[i].start, data[i].end);
+                        gantt.activities.push(activity);
+                    }
+                }
+
+                for (var i = 0; i < gantt.activities.length; i++) {
+                    gantt.activities[i].seccessors = gantt.getSeccessors(gantt.activities[i].id);
+                    gantt.activities[i].predecessors = gantt.getPredecessors(gantt.activities[i].id);
+                }
+
+            }
+
+            return gantt.activities;
+        };
+
+        gantt.getSeccessors = function (id) {
+            var successors = [];
+            var dependensies = gantt.widget().dependencies.data();
+            if (dependensies) {
+                for (var i = 0; i < dependensies.length; i++) {
+                    if (dependensies[i].predecessorId == id) {
+                        var successor = gantt.getActivity(dependensies[i].successorId);
+                        if (successor != null)
+                            successors.push(successor);
+                    }
+                }
+            }
+            return successors;
+        };
+
+        gantt.getPredecessors = function (id) {
+            var predecessors = [];
+            var dependensies = gantt.widget().dependencies.data();
+            if (dependensies) {
+                for (var i = 0; i < dependensies.length; i++) {
+                    if (dependensies[i].successorId == id) {
+                        var predecessor = gantt.getActivity(dependensies[i].predecessorId);
+                        if (predecessor != null)
+                            predecessors.push(predecessor);
+                    }
+                }
+            }
+            return predecessors;
+        }
+
+        gantt.WalkListAback = function (activities) {
+            var total = activities.length;
+            if (total) {
+                activities[total - 1].let = activities[total - 1].eet;
+                activities[total - 1].lst = activities[total - 1].let - activities[total - 1].duration;
+
+                for (var i = total - 2; i >= 0; i--) {
+                    if (activities[i].seccessors) {
+                        for (var y = 0; y < activities[i].seccessors.length; y++) {
+                            if (activities[i].let == 0)
+                                activities[i].let = activities[i].seccessors[y].lst;
+                            else
+                                if (activities[i].let > activities[i].seccessors[y].lst)
+                                    activities[i].let = activities[i].seccessors[y].lst;
+                        }
+                    }
+                    activities[i].lst = activities[i].let - activities[i].duration;
+                }
+
+            }
+        };
+
+        gantt.createCritical = function () {
+
+            gantt.clearCritical();
+
+            var data = gantt.getTasks();
+
+            gantt.generateActivities(data);
+
+            gantt.WalkListAback(gantt.activities);
+
+            if (gantt.activities) {
+                for (var i = 0; i < gantt.activities.length; i++) {
+                    if ((gantt.activities[i].eet - gantt.activities[i].let == 0) && (gantt.activities[i].est - gantt.activities[i].lst == 0)) {
+                        var $row = gantt.element().find("div.k-task[data-uid='" + gantt.activities[i].uid + "']");
+                        //console.log("critical: ", gantt.activities[i]);
+                        if ($row)
+                            $row.addClass("critical");
+                    }
+                }
+            }
+        };
+
+        gantt.clearCritical = function () {
+            var $rows = gantt.element().find("div.k-task[data-uid]");
+            $rows.each(function () {
+                var $el = $(this);
+                $el.removeClass("critical");
+            });
+        };
+
+        //#endregion
+
+        //#region Highlight
+
+        gantt.onHighlight = function () {
+            var data = gantt.getDataFromView();
+            var today = new Date(Date.now());
+
+            gantt.refreshTimeLine(today);
+
+            if (data) {
+                var $timeline = gantt.element().find("[data-role=gantttimeline]:eq(0)");
+                for (var item in data) {
+                    if (!data[item].isMilestone()) {
+                        var duration = (data[item].end.getTime() - data[item].start.getTime());
+
+                        var completed = duration * data[item].percentComplete;
+
+                        var $task = $timeline.find("[data-uid=" + data[item].uid + "]:eq(0)");
+
+                        $task.removeClass('warrning_task failed_task complete_task');
+
+                        if (data[item].percentComplete == 1) { //завершен
+                            $task.addClass('complete_task');
+                        }
+                        else if ((data[item].end.getTime() < today.getTime()) && data[item].percentComplete < 1) { //просрочен
+                            $task.addClass('failed_task');
+                        }
+                        else if ((data[item].start.getTime() + completed) < today.getTime()) { //не укладывается в график
+                            $task.addClass('warrning_task');
+                        }
+                    }
+                }
+            }
+
+
+        };
+
+        gantt.offHighlight = function () {
+            var $timeline = gantt.element().find("[data-role=gantttimeline]:eq(0)");
+            $timeline.find("[data-uid]").removeClass('warrning_task failed_task complete_task');
+            gantt.clearTimeline();
+        };
+
+        gantt.clearTimeline = function () {
+            var $timeline = gantt.element().find("[data-role=gantttimeline]:eq(0)");
+            $timeline.find('.today_line').remove();
+        };
+
+        gantt.refreshTimeLine = function(today) {
+            gantt.clearTimeline();
+
+            if(gantt.highlightOption) {
+                var view = gantt.widget().view();
+                var $timeline = gantt.element().find("[data-role=gantttimeline]:eq(0)");
+                var $content = $timeline.find('.k-grid-content');
+                var $tables = $content.find('.k-gantt-tables');
+                var $header = $timeline.find('.k-grid-header-wrap > table:eq(0)');
+
+                var coef = $header.width() / (view.end.getTime() - view.start.getTime());
+                var daypos = coef * (today.getTime() - view.start.getTime());
+
+                if ($content.find('.k-gantt-rows').width() > daypos) {
+                    $tables.append('<div class="today_line" style="left: ' + daypos + 'px"><p>' + kendo.toString(today, "dd.MM.yyyy HH:mm") + '</p></div>');
+                }
+
+                setTimeout(function() {
+                    var today = new Date(Date.now());
+                    pbaAPI.console("Timeline refreshing on {0}", today);
+                    gantt.refreshTimeLine(today);
+                }, 1000 * 60);
+            }
+        };
+
+        //#endregion
+
+        //#region Modal
+
+        gantt.openModal = function (params) {
+
+            var wid = "w_@(Model.WidgetID)_modal";
+            var $w = $("#" + wid);
+
+            if (!$w.length) $("body").append("<div id='" + wid + "' class='w-custom-toolbar view-model-window wnd-loading-content'></div>"), $w = $("#" + wid);
+
+            var $wnd = $w.kendoWindow({
+                title: params.window.title,
+                resizable: false,
+                open: function (e) {
+                    var $content = e.sender.element;
+
+                    $.ajax({
+                        url: params.source.url,
+                        data: params.source.data,
+                        type: params.source.type,
+                        success: function (data) {
+                            $content.removeClass("wnd-loading-content");
+
+                            if (data) {
+                                $content.html(data.View);
+                            } else {
+                                $content.html('<p style="text-align: center; margin:10px; color:#ddd">Данных нет</p>');
+                            }
+                        }
+                    });
+                },
+                modal: true,
+                visible: false
+            }).data("kendoWindow");
+
+            $wnd.restore();
+
+            $wnd.setOptions({
+                width: params.window.width,
+                height: params.window.height,
+            });
+
+            if(params.window.maximize)
+                $wnd.maximize();
+
+            $wnd.center();
+            $wnd.open();
+
+        };
+
+
+        //#endregion
+
+
+        gantt.onUserHighlight = function() {
+            //console.log(gantt.element().find("table[role='treegrid'] tbody tr"));
+            gantt.element().find("table[role='treegrid'] tbody tr").each(function() {
+                var $row = $(this);
+                var task = gantt.getByUid($row.attr("data-uid"));
+                if(task && task.Highlight && task.Highlight != "") {
+                    $row.attr("style", "background-color: " + task.Highlight);
+                    $(".k-grid-content table.k-gantt-rows tbody tr:eq(" + $row.index() + ")").attr("style", "background-color: " + task.Highlight + "; opacity: 0.2;");
+                }
+                else {
+                    $row.removeAttr("style");
+                    $(".k-grid-content table.k-gantt-rows tbody tr:eq(" + $row.index() + ")").removeAttr("style");
+                }
+            });
+        };
+
+        gantt.offUserHighlight = function() {
+            gantt.element().find("table[role='treegrid'] tbody tr").each(function() {
+                var $row = $(this);
+                $row.removeAttr("style");
+                $(".k-grid-content table.k-gantt-rows tbody tr:eq(" + $row.index() + ")").removeAttr("style");
+            });
+        };
+
+        gantt.getTasksLikeView = function() {
+            var data = gantt.data();
+            var tasks = [];
+
+            if(data) {
+                for(var i = 0; i < data.length; i++) {
+                    if(data[i].parentId == null) {
+                        tasks.push(data[i]);
+                    }
+                }
+
+                tasks = tasks.sort(function(a,b) {
+                    return a.orderId - b.orderId;
+                });
+
+
+                if(tasks.length > 1)
+                    tasks = gantt.getSubtasks(tasks);
+            }
+
+            return tasks;
+        };
+
+        gantt.getSubtasks = function(tasks) {
+            var newtasks = [];
+            var exists = false;
+
+            if(tasks) {
+                for(var i = 0; i < tasks.length; i++) {
+                    newtasks.push(tasks[i]);
+                    if((tasks[i].summary) && ((i == tasks.length - 1) || (tasks[i + 1].parentId != tasks[i].ID))) {
+                        exists = true;
+                        var childrens = gantt.getChildrens(tasks[i].ID).sort(function(a,b) {
+                            return a.orderId - b.orderId;
+                        });
+                        for(var item in childrens) {
+                            newtasks.push(childrens[item]);
+                        };
+                    };
+                };
+            };
+
+            //console.log(newtasks);
+
+            if(exists)
+                return gantt.getSubtasks(newtasks);
+            else
+                return newtasks;
+        };
+
+
+
+
+        gantt.autoPositions = function() {
+
+            if(!confirm("Выровнять задачи автоматически?")) return false;
+
+            var data = gantt.getTasksLikeView();
+
+            var widget = gantt.widget();
+            widget._progress(true);
+
+            var tasks = [];
+
+            if(data) {
+                for(var i = 0; i < data.length; i++) {
+                    if(!data[i].summary) {
+                        tasks.push(data[i]);
+                    }
+                    pbaAPI.console("Array index #{0}, Order #ID{1}, Title: {2}, AllParents: {3}", i, data[i].orderId, data[i].title, data[i].AllParents);
+                }
+            }
+
+            if(tasks.length > 1) {
+                for(var i = 1; i < tasks.length; i++) {
+                    var duration = tasks[i].end - tasks[i].start;
+                    //console.log(duration);
+                    tasks[i].start = new Date(tasks[i - 1].end.getTime());
+                    tasks[i].end = new Date(tasks[i - 1].end.getTime() + duration);
+                    tasks[i].dirty = true;
+                }
+
+                for(var i = data.length - 1; i >= 0; i--) {
+                    if(data[i].summary) {
+                        var childrens = gantt.getChildrens(data[i].ID);
+
+                        data[i].start = childrens[0].start;
+                        data[i].end = childrens[0].end;
+
+                        for(var chld in childrens) {
+                            data[i].start = data[i].start < childrens[chld].start ? data[i].start : childrens[chld].start;
+                            data[i].end = data[i].end > childrens[chld].end ? data[i].end : childrens[chld].end;
+                        }
+
+                        data[i].dirty = true;
+                    }
+                }
+
+                gantt.widget().dataSource.sync();
+            }
+        };
+
+
+
+
+        gantt.loadResources = function() {
+            gantt.openModal({
+                window: {
+                    title: 'Ресурсы проекта',
+                    width: 400,
+                    height: 600,
+                    maximize: false
+                },
+                source: {
+                    url: '/Project/Gantt_ReadResources',
+                    data: { projectID: @(Model.ParentID), ViewName: 'ResourcesList' },
+                    type: 'GET'
+                }
+            });
+        };
+
+        gantt.loadResourcesReport = function() {
+            gantt.openModal({
+                window: {
+                    title: 'Отчет по занятости',
+                    width: 'auto',
+                    height: 'auto',
+                    maximize: true
+                },
+                source: {
+                    url: '/Project/Gantt_ReadResources',
+                    data: { projectID: @(Model.ParentID), ViewName: 'ResourcesReport' },
+                    type: 'GET'
+                }
+            });
+        };
+
+    })();
+</script>
+    @{
+        Html.Kendo().ToolBar().Name(Model.WidgetID + "_Gantt_toolbar").Items(item =>
+        {
+            item.Add().Type(CommandType.ButtonGroup).Buttons(btn =>
+            {
+                btn.Add().Text("Отменить").SpriteCssClass("btntoolbar halfling halfling-circle-arrow-left").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".test").Enable(false);
+                btn.Add().Text("Вернуть").SpriteCssClass("btntoolbar halfling halfling-circle-arrow-right").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".test").Enable(false);
+            });
+            item.Add().Type(CommandType.Separator);
+            item.Add().Type(CommandType.ButtonGroup).Buttons(btn =>
+            {
+                btn.Add().Text("Изменить напоминание").SpriteCssClass("btntoolbar halfling halfling-edit").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".editSelected");
+                btn.Add().Text("Удалить напоминание").SpriteCssClass("btntoolbar halfling halfling-remove").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".deleteSelected");
+                btn.Add().Text("Удалить связь").SpriteCssClass("btntoolbar halfling halfling-remove-sign").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".removeDependensiesSelected");
+                btn.Add().Text("Свернуть/Развернуть все").SpriteCssClass("btntoolbar halfling halfling-resize-small").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".openCloseTasks");
+            });
+            item.Add().Type(CommandType.Separator);
+            item.Add().Type(CommandType.ButtonGroup).Buttons(btn =>
+            {
+                btn.Add().Text("Ресурсы").SpriteCssClass("btntoolbar halfling halfling-list-alt").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".loadResources");
+                btn.Add().Text("Отчет по занятости").SpriteCssClass("btntoolbar halfling halfling-stats").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".loadResourcesReport");
+                //btn.Add().Text("Рассчитать").SpriteCssClass("btntoolbar halfling halfling-sort-by-attributes").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".test");
+            });
+            item.Add().Type(CommandType.Separator);
+            item.Add().Type(CommandType.ButtonGroup).Buttons(btn =>
+            {
+                btn.Add().Text("Пересчитать проценты исполнения").SpriteCssClass("btntoolbar halfling halfling-dashboard").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".updateAllPercents");
+                btn.Add().Text("Автоматическая расстановка задач").SpriteCssClass("btntoolbar halfling halfling-indent-left").ShowText(ShowIn.Overflow).Click(Model.WidgetID + ".autoPositions");
+            });
+            item.Add().Type(CommandType.Separator);
+            item.Add().Type(CommandType.ButtonGroup).Buttons(btn =>
+            {
+                btn.Add().Text("Авто расчет").SpriteCssClass("btntoolbar halfling halfling-transfer").Id(Model.WidgetID + ".autoToggle").ShowText(ShowIn.Overflow).Togglable(true).Selected(true);
+                btn.Add().Text("Рабочий день").SpriteCssClass("btntoolbar glyphicon glyphicon-table").Id(Model.WidgetID + ".workdayToggle").ShowText(ShowIn.Overflow).Togglable(true).Selected(true);
+                btn.Add().Text("Подсветка").SpriteCssClass("btntoolbar halfling halfling-flag").Id(Model.WidgetID + ".highlightToggle").ShowText(ShowIn.Overflow).Togglable(true);
+                btn.Add().Text("Пользовательсткая подсветка").SpriteCssClass("btntoolbar halfling halfling-eye-open").Id(Model.WidgetID + ".userhighlightToggle").ShowText(ShowIn.Overflow).Togglable(true).Selected(true);
+                btn.Add().Text("Критический путь").SpriteCssClass("btntoolbar halfling halfling-random").Id(Model.WidgetID + ".criticalToggle").ShowText(ShowIn.Overflow).Togglable(true);
+            });
+            item.Add().Type(CommandType.Separator);
+            //item.Add().Type(CommandType.ButtonGroup).Buttons(btn =>
+            //{
+                
+            //});
+        }).Render();
+    }
+    <div class="widget-body" style="height: 600px">
+        @{Html.RenderPartial(url, Model);}
+        <ul id="contextmenu_@(Model.WidgetID)" class="gantt-context"></ul>
+</div>
+
+<script>
+    $(function () {
+        var gantt = _g = window["@Model.WidgetID"];
+
+        
+
+        var $toolbar = $("#@(Model.WidgetID)_Gantt_toolbar").data("kendoToolBar");
+
+        //TEMP
+        for (var i = 0; i < $toolbar.options.items.length; i++)
+            if ($toolbar.options.items[i].type == 'buttonGroup')
+                for (var y = 0; y < $toolbar.options.items[i].buttons.length; y++)
+                    $toolbar.element.find('[data-uid="' + $toolbar.options.items[i].buttons[y].uid + '"]').attr("title", $toolbar.options.items[i].buttons[y].text);
+
+        $toolbar.bind("toggle", function (e) {
+            switch (e.target.attr("id")) {
+                case "@(Model.WidgetID).criticalToggle":
+                    gantt.showCritical = e.checked;
+                    if (e.checked)
+                        gantt.createCritical();
+                    else
+                        gantt.clearCritical();
+                    break;
+                case "@(Model.WidgetID).autoToggle":
+                    gantt.autoAttach = e.checked;
+                    break;
+                case "@(Model.WidgetID).workdayToggle":
+                    gantt.workdayDefault = e.checked;
+                    break;
+                case "@(Model.WidgetID).highlightToggle":
+                    gantt.highlightOption = e.checked;
+                    if (e.checked)
+                        gantt.onHighlight();
+                    else
+                        gantt.offHighlight();
+                    break;
+                case "@(Model.WidgetID).userhighlightToggle":
+                    gantt.highlightRow = e.checked;
+                    if (e.checked)
+                        gantt.onUserHighlight();
+                    else
+                        gantt.offUserHighlight();
+                    break;
+                default:
+            }
+        });
+
+        gantt.element().on("dblclick", ".k-task", function () {
+            gantt.dblClick({ sender: $(this) });
+        });
+
+        //gantt.element().on("shown.bs.popover", ".k-task", function (e) {
+        //    var $task = $(this);
+        //    $(this).parent().find('.popover a[role="button"]').click(function() {
+        //        var $btn = $(this);
+        //        gantt.taskContext($task.attr('data-uid'), $btn.attr('data-type'));
+        //        return false;
+        //    });
+        //});
+
+        //gantt.element().click(function() {
+        //    gantt.element().find('.k-task').each(function() {
+        //        $(this).popover('hide');
+        //    });
+        //});
+
+    });
+
+    
+</script>
+

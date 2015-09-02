@@ -1,0 +1,185 @@
+﻿.enum-DegreeRegulatoryImpact:before {
+    margin-right: 5px;
+    font-family: 'Glyphicons Halflings';
+    vertical-align: middle;
+}
+
+.enum-DegreeRegulatoryImpact[data-val='Undefined']:before {
+    content: "\E090";
+    color: #d9534f;
+}
+
+.enum-DegreeRegulatoryImpact[data-val='High']:before {
+    content: "\e113";
+    color: #d9534f;
+}
+
+.enum-DegreeRegulatoryImpact[data-val='Normal']:before {
+    content: "\e006";
+    color: #5cb85c;
+}
+
+.enum-DegreeRegulatoryImpact[data-val='Low']:before {
+    content: "\e114";
+    color: #5bc0de;
+}
+
+
+.enum-NpaAnswerStatus:before {
+    margin-right: 5px;
+    font-family: 'Glyphicons Halflings';
+    vertical-align: middle;
+}
+
+.enum-NpaAnswerStatus[data-val='Hidden']:before {
+    content: "\E083";
+    color: #6C9BB8;
+}
+
+.enum-NpaAnswerStatus[data-val='InProgress']:before {
+    content: "\E105";
+    color: #428bca;
+}
+
+.enum-NpaAnswerStatus[data-val='Confirm']:before {
+    content: "\e125";
+    color: #5cb85c;
+}
+
+.enum-NpaAnswerStatus[data-val='ConfirmPartially']:before {
+    content: "\e127";
+    color: #f0ad4e;
+}
+
+.enum-NpaAnswerStatus[data-val='NotConfirm']:before {
+    content: "\e126";
+    color: #d9534f;
+}
+
+.enum-NpaResolution:before {
+    margin-right: 5px;
+    font-family: 'Glyphicons Halflings';
+    vertical-align: middle;
+}
+
+.enum-NpaResolution[data-val='None']:before {
+    content: "\E090";
+    color: #d9534f;
+}
+
+.enum-NpaResolution[data-val='Confirm']:before {
+    content: "\e125";
+    color: #5cb85c;
+}
+
+.enum-NpaResolution[data-val='NotConfirm']:before {
+    content: "\e126";
+    color: #d9534f;
+}
+
+
+.enum-NpaStage:before {
+    margin-right: 5px;
+    font-family: 'Glyphicons Regular';
+    vertical-align: middle;
+}
+
+.enum-NpaStage[data-val='Undefined']:before {
+    content: "\E200";
+    color: #d9534f;
+}
+
+.enum-NpaStage[data-val='Notification']:before {
+    content: "\E196";
+    color: #5bc0de;
+}
+
+.enum-NpaStage[data-val='Text']:before {
+    content: "\E088";
+    color: #428bca;
+}
+
+.enum-NpaStage[data-val='Procedure']:before {
+    content: "\E043";
+    color: #f0ad4e;
+}
+
+.enum-NpaStage[data-val='Finalzation']:before {
+    content: "\E338";
+    color: #428bca;
+}
+
+.enum-NpaStage[data-val='Complete']:before {
+    content: "\E153";
+    color: #5cb85c;
+}
+
+.enum-NpaStatus:before {
+    margin-right: 5px;
+    font-family: 'Glyphicons Regular';
+    vertical-align: middle;
+}
+
+.enum-NpaStatus[data-val='Undefined']:before {
+    content: "\E236";
+    color: #428bca;
+}
+
+.enum-NpaStatus[data-val='PreDiscussion']:before {
+    content: "\E151";
+    color: #f0ad4e;
+}
+
+.enum-NpaStatus[data-val='Discussion']:before {
+    content: "\E245";
+    color: #5bc0de;
+}
+
+.enum-NpaStatus[data-val='EndDiscussion']:before {
+    content: "\E245";
+    color: #5cb85c;
+}
+
+.enum-NpaStatus[data-val='Complete']:before {
+    content: "\E338";
+    color: #5cb85c;
+}
+
+.enum-NpaStatus[data-val='Rejected']:before {
+    content: "\E345";
+    color: #d9534f;
+}
+
+.enum-ProcedureResult:before {
+    margin-right: 5px;
+    font-family: 'Glyphicons Halflings';
+    vertical-align: middle;
+}
+
+.enum-ProcedureResult[data-val='Undefined']:before {
+    content: "\E090";
+    color: transparent;
+}
+
+.enum-ProcedureResult[data-val='Positive']:before {
+    content: "\e125";
+    color: #5cb85c;
+}
+
+.enum-ProcedureResult[data-val='Negative']:before {
+    content: "\E126";
+    color: #d9534f;
+}
+
+.ico-npa-answer {
+    padding-right: 5px;
+}
+
+.ico-npa-answer-animated {
+    -webkit-animation: ring 3s 1s ease-in-out infinite;
+    -webkit-transform-origin: 50% 1px;
+    -moz-animation: ring 3s 1s ease-in-out infinite;
+    -moz-transform-origin: 50% 1px;
+    animation: ring 3s 1s ease-in-out infinite;
+    transform-origin: 50% 1px;
+}

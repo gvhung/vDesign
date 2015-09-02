@@ -1,0 +1,36 @@
+﻿@model List<GanttResourceViewModel>
+
+@using Framework.Maybe
+
+@{
+    string panelID = Guid.NewGuid().ToString();
+}
+
+<div class="panel-group tsk-info" id="@panelID">
+    @foreach (var item in Model)
+    {
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a title="@item.Employee.FullName" data-toggle="collapse" data-parent="#@panelID" href="#user-info-@(item.ID)" class="collapse-toggle collapsed">
+                        <img data-userid="@item.ID" class="img-circle many-perf" style="width: 32px; height: 32px; margin-right: 5px;" src="/Files/GetImage?id=@(item.With(x => x.Image).With(x => (Guid?)x.FileID))&width=32&height=32" alt="..." />
+                        @item.Employee.FullName
+                    </a>
+                    <span class="badge bg-primary pull-right" style="margin-top: 6px;">@item.TasksCount</span>
+                </h4>
+            </div>
+            <div id="user-info-@(item.ID)" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="thumbnail">
+                        <img data-userid="@item.ID" width="200" height="250" src="/Files/GetImage?id=@(item.With(x => x.Image).With(x => (Guid?)x.FileID))&width=200&height=250" alt="@item.Employee.FullName" />
+                    </div>
+                    <span class="label label-primary">
+                        <span class="badge pull-right">@item.TasksCount</span>
+                        Кол-во напоминаний
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+

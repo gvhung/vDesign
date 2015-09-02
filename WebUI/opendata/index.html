@@ -1,0 +1,74 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD  XHTML+RDFa  1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" version="XHTML+RDFa 1.0" dir="ltr" xmlns:dc="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Открытые данные</title>
+    <link href="../Content/css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <img src="logo.png" alt="" height="48" width="48" style="float: left"/>
+                <h4 class="navbar-text">Открытые данные</h4>
+            </div>
+            <div id="navbar" class="navbar-static-top">
+                <ul class="nav navbar-nav">
+                    <li><a href="/">На главную</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div about="/opendata" typeof="dc:Collection" class="opendata-wrap">
+            <div property="dc:conformsTo" resource="http://opendata.gosmonitor.ru/standard/3.0"></div>
+            <h3>
+                Реестр открытых данных
+                <span class="small well pull-right">
+                    <a href="list.xml">xml</a>&nbsp;|&nbsp;<a href="list.xsd">xsd</a>
+                </span>
+            </h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th width="30">
+                            <span class="title"> №</span>
+                            <span class="arrow">  </span>
+                        </th>
+                        <th>
+                            <span class="title">Название набора данных</span>
+                            <span class="arrow">  </span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr rel="dc:hasPart" resource="/opendata/7710349494-npalist">
+                        <td width="100">
+                            <span class="date">1</span>
+                        </td>
+                        <td typeof="foaf:Document" about="/opendata/7710349494-npalist" property="dc:title" content="Список НПА">
+                            <span class="title"><a href="/opendata/7710349494-npalist">Список нормативных правовых актов</a> </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <style>
+        .opendata-wrap {
+            margin-top: 80px;
+        }
+        .well {
+            padding: 8px;
+            margin: 0;
+        }
+        @media (max-width: 768px) {
+            .opendata-wrap {
+                margin-top: 120px;
+            }
+        }
+    </style>
+</body>
+</html>

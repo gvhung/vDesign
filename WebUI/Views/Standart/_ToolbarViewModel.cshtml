@@ -1,0 +1,252 @@
+﻿@model Dialog_WidgetViewModel
+
+@using Newtonsoft.Json
+@using Base.Security.ObjectAccess
+@using Base.LinkedObjects
+
+@{
+    Type typeEntity = Model.ViewModelConfig.TypeEntity;
+
+    string toolbarsClientObject = JsonConvert.SerializeObject(Model.ViewModelConfig.DetailView.Toolbars.OrderBy(x => x.SortOrder)
+        .Select(x => new
+        {
+            Title = x.Title,
+            Url = Url.Action(x.Action, x.Controller),
+            Params = x.Params,
+            x.ToolbarID
+        }));
+
+    string nameToolbar = "tlb_" + Guid.NewGuid().ToString("N");
+    string customToolbar = "tlb_" + Guid.NewGuid().ToString("N");
+
+    bool isAccessibleObject = !Model.IsReadOnly && typeof(IAccessibleObject).IsAssignableFrom(Model.ViewModelConfig.TypeEntity);
+    bool isLinkedObject = typeof(ILinkedObject).IsAssignableFrom(Model.ViewModelConfig.TypeEntity);
+}
+
+<script>
+    window["@nameToolbar"] = new WrapToolbar("@nameToolbar", "ToolbarViewModel");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+        var toolbar = window["@nameToolbar"];
+
+        composite.registerWidget(toolbar);
+
+        toolbar.toolbars = @Html.Raw(toolbarsClientObject);
+
+        toolbar.defparams = {
+            isReadOnly: false,
+            model: null,
+            prevID: null,
+            nextID: null,
+        };
+
+        toolbar.params = {};
+
+        toolbar.asyncBind = function(params){
+            this.params = $.extend(this.defparams, params);
+
+            var dfd = $.Deferred();
+
+            this.initAjaxToolbars(dfd);
+            this.enableToolbar(true);
+
+            return dfd.promise();
+        };
+
+        toolbar.enableToolbar = function(enable){
+            toolbar.enable("#prev", enable && toolbar.params.prevID);
+            toolbar.enable("#next", enable && toolbar.params.nextID);
+            toolbar.enable("#refresh", enable);
+        };
+
+        toolbar.initAjaxToolbars = function (dfd) {
+            var $ajaxToolbar = this.element().find("[data-role=toolbar]");
+
+            $ajaxToolbar.hide();
+            $ajaxToolbar.html("");
+
+            var dfds = [];
+
+            $.each(toolbar.toolbars, function(i, tbr) {
+
+                $ajaxToolbar.append($("<div>", {
+                    "class": "pull-left ajax-toolbar",
+                    "id": tbr.ToolbarID,
+                }));
+
+                var params = pbaAPI.replaceObjectPlaceholders(toolbar.params.model, tbr.Params);
+
+                params["mnemonic"] = "@Model.Mnemonic";
+
+                dfds.push($.ajax({
+                    url: tbr.Url,
+                    data: params,
+                    success: function(data) {
+                        $ajaxToolbar.find('#' + tbr.ToolbarID).html(data);
+                    }
+                }));
+            });
+
+            $.when.apply($, dfds).done(function() {
+                dfd.resolve();
+                $ajaxToolbar.fadeIn(300);
+            });
+        }
+
+        toolbar.action = function(action, params){
+            composite.onWidgetChanged(
+            {
+                sender: toolbar,
+                event: action,
+                params: params
+            });
+        };
+
+        //events
+        toolbar.onClick = function (e) {
+            var btnId = e.id.replace("_overflow", "");
+
+            toolbar.enableToolbar(false);
+
+            toolbar.action(btnId);
+        };
+    })();
+</script>
+
+@if (isAccessibleObject)
+{
+    <script>
+        (function () {
+            var toolbar = window["@nameToolbar"];
+
+            toolbar.accessSetup = function(){
+                var id = toolbar.params.model.ID;
+
+                if (!id || id == 0) {
+                    pbaAPI.infoMsg("Необходимо сохранить объект");
+                } else {
+                    $.get(application.url.GetStandart("GetAccessObject"), { id: id, mnemonic: "@Model.Mnemonic" }, function (data) {
+                        if (data) {
+                            if (data.model) {
+                                pbaAPI.openViewModelEx("ObjectAccessItem", {
+                                    title: "Доступ к объекту",
+                                    isMaximaze: true,
+                                    entity: data.model,
+                                    toSave: true,
+                                });
+                            } else if (data.error) {
+                                pbaAPI.errorMsg(data.error);
+                            }
+                        }
+                    });
+                }
+            };
+        })();
+    </script>
+}
+
+@if (isLinkedObject)
+{
+    <script>
+        (function () {
+            var toolbar = window["@nameToolbar"];
+
+            toolbar.openLincedObjects = function(){
+                var id = toolbar.params.model.ID;
+
+                if (!id || id == 0) {
+                    pbaAPI.infoMsg("Необходимо сохранить объект");
+                } else {
+                    pbaAPI.openViewModelEx("ListLinkedОbjects", {
+                        toSave: true,
+                        id: -1,
+                        customQueryGetParams: {
+                            id: id,
+                            mnemonic: "@Model.Mnemonic"
+                        }
+                    });
+                }
+            };
+        })();
+    </script>
+}
+
+
+@(Html.Kendo().ToolBar()
+    .Name(nameToolbar)
+    .Events(e => e.OverflowOpen(nameToolbar + ".onOverflowOpen"))
+    .Items(items =>
+    {
+        items.Add().Type(CommandType.ButtonGroup).Buttons(buttons =>
+        {
+            buttons.Add().Text("Предыдущая запись").HtmlAttributes(new { title = "Предыдущая запись" }).SpriteCssClass("btntoolbar halfling halfling-circle-arrow-left").Id("prev").ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            buttons.Add().Text("Следующая запись").HtmlAttributes(new { title = "Следующая запись" }).SpriteCssClass("btntoolbar halfling halfling-circle-arrow-right").Id("next").ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            buttons.Add().Text("Обновить").HtmlAttributes(new { title = "Обновить" }).SpriteCssClass("btntoolbar halfling halfling-refresh").Id("refresh").ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+
+            if (isLinkedObject)
+            {
+                buttons.Add().Text("Связанные объекты").HtmlAttributes(new { title = "Связанные объекты" }).SpriteCssClass("btntoolbar glyphicon glyphicon-link").Id("lincedObjects").ShowText(ShowIn.Overflow).Click(nameToolbar + ".openLincedObjects");
+            }
+        });
+
+        if (Model.ViewModelConfig.DetailView.Toolbars.Count > 0)
+        {
+            items.Add()
+                .Template(String.Format(@"<div id='{0}' class='custom-viewmodel-toolbars-container' data-role='toolbars'>
+                    <div class='custom-viewmodel-toolbars clearfix' data-role='toolbar'></div>
+                    </div>", customToolbar));
+        }
+
+        if (isAccessibleObject)
+        {
+            items.Add().Type(CommandType.Button).Text("Доступ к объекту").SpriteCssClass("btntoolbar glyphicon glyphicon-lock").Id("access").Overflow(ShowInOverflowPopup.Always).Click(nameToolbar + ".accessSetup");
+        }
+    })
+)
+
+<script>
+    $(function () {
+        var toolbar = window["@nameToolbar"];
+        var $toolbar = toolbar.element();
+
+        //NOTE: в данной версии toolbar-а возможно использовать иконки только из кендо-спрайтов
+        //TODO: убрать!!!
+        $toolbar.find(".k-sprite.glyphicon").removeClass("k-sprite");
+        toolbar.popupEl().find(".k-sprite.glyphicon").removeClass("k-sprite");
+
+        toolbar.enable("#prev", false);
+        toolbar.enable("#next", false);
+
+        var $customToolbar = $toolbar.find("[data-role=toolbar]");
+
+        // param - / function -> Deferred /
+        $customToolbar.on("onActionInvoke", function (e, param) {
+            if(param) {
+                if(param.save){
+                    toolbar.action("save", {
+                        callback: param.save
+                    });
+                }
+
+                if(param.loadingAndRefresh){
+                    toolbar.action("loadingAndRefresh", {
+                        callback: param.loadingAndRefresh
+                    });
+                }
+
+                if(param.loadingAndNext){
+                    toolbar.action("loadingAndNext", {
+                        callback: param.loadingAndNext
+                    });
+                }
+
+                if(param.addToChangedAndRefresh){
+                    toolbar.action("addToChangedAndRefresh");
+                }
+            }else {
+                toolbar.action("refresh");
+            }
+        });
+    });
+</script>

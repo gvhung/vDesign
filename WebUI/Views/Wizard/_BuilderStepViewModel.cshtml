@@ -1,0 +1,227 @@
+﻿@model StepViewModel
+
+@using Base.Wizard.UI
+@using Newtonsoft.Json
+
+@{
+    var typeEntity = Model.ViewModelConfig.TypeEntity;
+    var detailView = Model.HasDetailView ? Model.ViewModelConfig.DetailView.Name : "Wizard";
+    var firstStep = ((WizardDetailView)Model.ViewModelConfig.DetailView).FirstStep;
+
+    bool isAjaxForm = Model.Step.AjaxForm != null;
+}
+
+
+<script>
+    window["@Model.WidgetID"] = new WrapViewModel("@Model.WidgetID", "WizardViewModel", "@Model.Type");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+
+        var view = window["@Model.WidgetID"];
+
+        composite.registerWidget(view);
+
+        view.defparams = {
+            model: null,
+            parentForm: null,
+            isReadOnly: false,
+            toSave: false,
+            step: "@Model.StepName",
+            stepCount: @Model.StepCount,
+            //stepIndex: @Model.StepIndex
+        };
+
+        view.params = {};
+
+        view.asyncBind = function (params) {
+            this.params = $.extend(this.defparams, params);
+
+            if (!this.params.isReadOnly) {
+                $("#@Model.WidgetID").show();
+                @if(isAjaxForm)
+                {
+                    @: return view.getAjaxForm(this.params.model);
+                                                }
+                else
+                {
+                    @: return view.initViewModel();
+                                                }
+            } else {
+                var dfd = $.Deferred();
+
+                $("#@Model.WidgetID").hide();
+
+                dfd.resolve();
+
+                return dfd.promise();
+            }
+        };
+
+        view.initViewModel = function () {
+            var viewModel = kendo.observable({
+                model: this.params.model,
+                apply: function () {
+                    view.save("apply");
+                },
+                save: function () {
+                    view.save("save");
+                },
+                next: function() {
+
+                    composite.onWidgetChanged(
+                    {
+                        sender: view,
+                        event: "next",
+                        params: {}
+                    });
+
+                },
+                prev: function() {
+                    composite.onWidgetChanged(
+                    {
+                        sender: view,
+                        event: "prev",
+                        params: {}
+                    });
+                },
+                close: function () {
+                    composite.onWidgetChanged(
+                    {
+                        sender: view,
+                        event: "close",
+                        params: {}
+                    });
+                }
+            });
+
+            return view.initPbaForm(viewModel);
+        };
+
+        view.save = function (type) {
+            composite.onWidgetChanged(
+            {
+                sender: view,
+                event: type,
+                params: {}
+            });
+        };
+
+        //Change logic
+        view.initPbaForm = function (viewModel) {
+            var dfd = $.Deferred();
+
+            var $form = $("#@Model.WidgetID").find('form');
+
+            if (!$form.data("pbaForm")) {
+                var buttons = [];
+
+                if (view.isModal()) {
+
+                    if (view.params.step != "@firstStep") {
+                        buttons.push({
+                            title: "Назад",
+                            "click": "prev",
+                            icon: "k-i-arrow-w",
+                            cssClass: "btn-default"
+                        });
+                    }
+
+                    buttons.push({
+                        title: "Далее",
+                        "click": "next",
+                        icon: "k-i-arrow-e",
+                        cssClass: "btn-default"
+                    });
+
+                    buttons.push({
+                        title: "Отменить",
+                        "click": "close",
+                        icon: "k-cancel",
+                        cssClass: "btn-default"
+                    });
+
+                } else {
+                    //
+                }
+
+                $form.pbaForm({
+                    model: viewModel,
+                    wrap: "k-edit-form-container",
+                    footerBtnsClass: "wizard-footer-buttons",
+                    buttons: buttons,
+                    nameModel: "model",
+                    attrBind: true,
+                    validate: true
+                });
+
+                $form.data("pbaForm").parentForm = view.params.parentForm;
+
+                $form.data("pbaForm").bind();
+            } else {
+                $form.data("pbaForm").unbind();
+                $form.data("pbaForm").bind(viewModel);
+            }
+
+            // is IE - maximize window
+            if (document.body.parentNode.className.indexOf("k-ie") >= 0) {
+                var kendoWindow = $form.closest(".view-model-window").getKendoWindow();
+                if (kendoWindow) kendoWindow.maximize();
+            }
+
+            dfd.resolve();
+
+            return dfd.promise();
+        };
+    })();
+</script>
+
+<div id="@Model.WidgetID" style="display:none;">
+    @if (!isAjaxForm)
+    {
+        Html.RenderPartial(String.Format("~/Views/Shared/EditorTemplates/Common/{0}.cshtml", detailView), Model);
+    }
+</div>
+
+@if (isAjaxForm)
+{
+    var ajaxAction = Model.Step.AjaxForm;
+
+    var actionParams = JsonConvert.SerializeObject(ajaxAction.Params);
+
+    <script>
+        (function() {
+            var view = window["@Model.WidgetID"];
+            var actionParams = @Html.Raw(actionParams);
+
+            view.getAjaxForm = function(model, callback) {
+                var data = $.extend({}, model);
+
+                var params = pbaAPI.replaceObjectPlaceholders(data, actionParams);
+
+                var dfd = $.Deferred();
+
+                params["model"] = model;
+                params["mnemonic"] = "@Model.Mnemonic";
+
+                params["_dialogid"] = "@Model.DialogID";
+                params["_widgetid"] = "@Model.WidgetID";
+                params["_dialogtype"] = "@Model.Type";
+
+                return $.ajax({
+                    type: "POST",
+                    url: "@Url.Action(ajaxAction.Name, ajaxAction.Controller)",
+                    data: JSON.stringify(params),
+                    contentType: "application/json; charset=utf-8",
+                    success: function(res) {
+                        $("#@Model.WidgetID").html(res);
+
+                        view.initViewModel().done(function() {
+                            dfd.resolve();
+                        });
+                    }
+                });
+            };
+        })();
+    </script>
+}

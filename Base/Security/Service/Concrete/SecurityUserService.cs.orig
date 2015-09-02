@@ -1,0 +1,257 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Base.DAL;
+using Base.Service;
+using Base.Settings;
+using Framework.Wrappers;
+using Framework;
+using System.Linq;
+
+namespace Base.Security.Service
+{
+    public class SecurityUserService : UnitOfWorkService, ISecurityUserService
+    {
+        private readonly ISettingItemService _settingsService;
+        private readonly IUserCategoryService _userCategoryService;
+        private readonly ISessionWrapper _session;
+
+        public SecurityUserService(IUnitOfWork context, ISettingItemService settingsService, IUserCategoryService userCategoryService, ISessionWrapper session)
+            : base(context)
+        {
+            _settingsService = settingsService;
+            _userCategoryService = userCategoryService;
+            _session = session;
+        }
+
+        public bool ValidateUser(string login, string password, bool allowEmptyPassword = false)
+        {
+            if (String.IsNullOrEmpty(login) || (!allowEmptyPassword && String.IsNullOrEmpty(password))) return false;
+
+            User user = UnitOfWork.GetRepository<User>().Find(u => u.Login.ToUpper() == login.ToUpper());
+
+            if (user != null)
+            {
+                PasswordCryptographer passwordCryptographer = new PasswordCryptographer();
+                return passwordCryptographer.AreEqual(user.Password, password);
+            }
+
+            return false;
+        }
+
+        public SecurityUser GetSecurityUser(User user)
+        {
+            SecurityUser securityUser = null;
+
+            if (user == null)
+            {
+                this.SessionClear();
+                return null;
+            }
+
+            UserCategory company = user.UserCategory != null
+                ? _userCategoryService.GetCompany(Consts.SystemAdmin, user.UserCategory)
+                : null;
+
+            if (_session == null)
+            {
+                securityUser = new SecurityUser(user, company);
+            }
+            else
+            {
+                if (_session[Consts.KEY_SESSION] == null)
+                {
+                    _session[Consts.KEY_SESSION] = new SecurityUser(user, company);
+                }
+
+                securityUser = (SecurityUser)_session[Consts.KEY_SESSION];
+            }
+
+            if (securityUser != null)
+            {
+                if (securityUser.Login == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    if (securityUser.Login.ToUpper().Trim() != user.Login.ToUpper().Trim())
+                    {
+                        _session.Remove(Consts.KEY_SESSION);
+
+                        return GetSecurityUser(user);
+                    }
+                }
+            }
+
+            return securityUser;
+        }
+
+<<<<<<< HEAD
+        public SecurityUser GetSecurityUser(string login)
+        {
+
+            User user = GetUser(login);
+
+            return GetSecurityUser(user);
+        }
+
+        public User GetUser(string login, bool? hidden = false)
+        {
+            return
+                UnitOfWork.GetRepository<User>()
+                    .Find(u => (hidden == null || u.Hidden == hidden.Value) && u.Login.ToUpper() == login.ToUpper());
+=======
+        public User GetUser(string login, bool? hidden = false, bool includeAwaitConfirm = false)
+        {
+            return UnitOfWork.GetRepository<User>().Find(u => (hidden == null || u.Hidden == hidden.Value || includeAwaitConfirm) && u.Login.ToUpper() == login.ToUpper() &&
+                (!includeAwaitConfirm || u.ConfirmRequests.Any(r => !r.Used && r.Type == ConfirmType.NewUser && r.ValidUntil > DateTime.Now)));
+>>>>>>> 649d0cc96c29ee90ba2795cd46c2b5705e649a78
+        }
+
+        public User GetUser(int id)
+        {
+            return UnitOfWork.GetRepository<User>().Find(id);
+        }
+
+
+        public void ChangePassword(ISecurityUser securityUser, int id, string oldPass, string newPass)
+        {
+            _ChangePassword(securityUser, id, oldPass, newPass, true);
+        }
+
+        public void ChangePassword(ISecurityUser securityUser, int id, string newPass)
+        {
+            _ChangePassword(securityUser, id, null, newPass, false);
+        }
+
+        public bool IsValidPassword(string password, out string message, int minLen = 6, int maxRepeats = 2, bool checkKeyboard = true)
+        {
+            Base.Security.Config config = _settingsService.GetValue(Base.Security.Consts.KEY_CONFIG, null) as Base.Security.Config;
+
+            if (config != null)
+            {
+                minLen = config.MinLenPassword;
+                checkKeyboard = config.PasswordCheckKeyboard;
+            }
+
+            return PasswordValidator.Check(password, out message, minLen, maxRepeats, checkKeyboard);
+        }
+
+        private void _ChangePassword(ISecurityUser securityUser, int id, string oldPass, string newPass, bool verifyOldPass)
+        {
+            
+            User user = UnitOfWork.GetRepository<User>().Find(u => u.ID == id);
+
+            if (user == null)
+            {
+                throw new Exception("Пользователь не найден.");
+            }
+
+            if (!securityUser.IsAdmin && user.ID != securityUser.ID)
+            {
+                throw new Exception("Отказано в доступе.");
+            }
+
+            PasswordCryptographer passwordCryptographer = new PasswordCryptographer();
+
+            if (verifyOldPass && !String.IsNullOrEmpty(user.Password))
+            {
+                if (!passwordCryptographer.AreEqual(user.Password, oldPass))
+                {
+                    throw new Exception("Неверный текущий пароль.");
+                }
+            }
+            
+            string validationMessage = "";
+
+            if (newPass == null || !IsValidPassword(newPass, out validationMessage))
+            {
+                throw new Exception(validationMessage);
+            }
+
+            user.Password = passwordCryptographer.GenerateSaltedPassword(newPass);
+            user.ChangePasswordOnFirstLogon = false;
+            user.ChangePassword = DateTime.Today;
+            UnitOfWork.GetRepository<User>().Update(user);
+            UnitOfWork.SaveChanges();
+        }
+
+        public void ValidateLogin(User objsrc, User objdest)
+        {
+            Base.Security.Config config = _settingsService.GetValue(Base.Security.Consts.KEY_CONFIG, null) as Base.Security.Config;
+
+            int LOGIN_MIN_LEN = config != null ? config.MinLenLogin : 6;
+
+            if (objsrc.Login.Length < LOGIN_MIN_LEN)
+            {
+                throw new Exception(String.Format("Введите корректный логин (минимальная длина логина равна {0})", LOGIN_MIN_LEN));
+            }
+
+            User user = GetUser(objsrc.Login);
+            if (user != null && user.ID != objsrc.ID)
+            {
+                throw new Exception("Пользователь с таким логином уже существует.");
+            }
+        }
+
+        public void SessionClear()
+        {
+            if (_session != null)
+            {
+                _session.Remove(Consts.KEY_SESSION);
+            }
+        }
+
+        public User RegisterUser(User newUser, bool saveChanges = true)
+        {
+            if (this.GetUser(newUser.Login) != null)
+                throw new InvalidOperationException(String.Format("Пользователь с логином {0} уже имеется в системе", newUser.Login));
+
+            newUser.Password = new PasswordCryptographer().GenerateSaltedPassword(newUser.Password);
+
+            var roleRep = UnitOfWork.GetRepository<Role>();
+            var catRep = UnitOfWork.GetRepository<UserCategory>();
+
+            var externalRole = roleRep.Find(x => x.SystemRole == SystemRole.Base);
+            if (externalRole == null)
+                throw new InvalidOperationException("В системе отсутствует базовая роль.");
+
+            newUser.Roles = new Collection<Role> { externalRole };
+
+            string systemName = UserType.Base.ToString();
+            string name = UserType.Base.GetDescription();
+
+            var userCategory = catRep.Find(x => x.SystemName == systemName);
+            if (userCategory != null)
+            {
+                newUser.CategoryID = userCategory.ID;
+            }
+            else
+            {
+                newUser.UserCategory = new UserCategory { Name = name, SystemName = systemName };
+            }
+
+            this.UnitOfWork.GetRepository<User>().Create(newUser);
+
+            if (saveChanges)
+            {
+                this.UnitOfWork.SaveChanges();
+            }
+
+            return newUser;
+        }
+
+        #region ISecurityService
+        ISecurityUser ISecurityUserService.GetSecurityUser(string login)
+        {
+            return this.GetSecurityUser(login);
+        }
+        #endregion
+    }
+
+    public interface IGuestRoleProvider
+    {
+        ICollection<Role> GetRoles();
+    }
+}

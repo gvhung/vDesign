@@ -1,0 +1,486 @@
+﻿@model EditorViewModel
+
+@{
+    ViewModelConfig config = Model.ViewModelConfig;
+
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+
+    String.prototype.regexIndexOf = function (regex, startpos) {
+        var indexOf = this.substring(startpos || 0).search(regex);
+        return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
+    }
+
+    window['@wrapID'] = {};
+
+    (function () {
+        var wrap = window['@wrapID'];
+
+        wrap.parseExpression = function (expression) {
+
+            if (expression == null || expression == '') {
+                var gr = new Group();
+                gr.addCondition('');
+                return new WrapGroup(gr);
+            }
+
+            expression = '(' + replaceNear(expression) + ')';
+            var tokens = getTokenList(expression);
+            var model = createModel(tokens);
+
+            return new WrapGroup(model);
+        };
+
+        function createModel(tokens) {
+            var query = [];
+
+            while (tokens.length != 0) {
+                var token = tokens.shift();
+
+                if (token.type == 'val') {
+                    query.push(token.value);
+                    continue;
+                }
+
+                if (token.value == 'NOT') {
+                    var operand = query.pop();
+
+                    if (typeof operand === 'string') {
+                        var gr = new Group(null);
+                        gr.selectedNegativeOperator = 'NOT';
+                        gr.addCondition(operand);
+                        query.push(gr);
+                    }
+                    else {
+                        operand.selectedNegativeOperator = 'NOT';
+                        query.push(operand);
+                    }
+                }
+
+                if (token.value == 'AND' || token.value == 'OR') {
+                    var gr = new Group(null);
+                    gr.selectedLogicalOperator = token.value;
+
+                    var operands = [];
+                    operands.push(query.pop());
+
+                    do {
+                        operands.push(query.pop());
+                        if (tokens[0] != null && tokens[0].value == token.value) {
+                            tokens.shift();
+                        }
+                        else break;
+                    } while (query.length != 0)
+
+                    while (operands.length != 0) {
+                        var operand = operands.pop();
+                        if (typeof operand === 'string') {
+                            gr.addCondition(operand);
+                        }
+                        else {
+                            gr.addGroup(operand);
+                        }
+                    }
+                    query.push(gr);
+                }
+            }
+
+            var model = query.pop();
+            if (typeof model === typeof '') {
+                var val = model;
+                model = new Group(null);
+                model.addCondition(val);
+            }
+            return model;
+        }
+
+        function replaceNear(expression) {
+            return expression.replace(/near *\(\((.+?)\), *\d+?\)/ig, "$1").replace(/near *\((.+?)\)/ig, "$1").replace(/", *"/g, ' ');
+        };
+
+        function Token(value, type) {
+            var self = this;
+            self.value = value;
+            self.type = type;
+        };
+
+        function getTokenList(expression) {
+
+            var matches = expression.match(/\(|\)|AND|OR|NOT|"[^"]*"/ig);
+
+            var values = /"[^"]+"/ig;
+            var operations = /AND|OR|NOT/ig;
+            var brackets = /\(|\)/g;
+
+            var priority = ['NOT', 'AND', 'OR'];
+            var list = [];
+            var stack = [];
+
+            for (i = 0; i < matches.length; i++) {
+                var elem = matches[i];
+
+                if (elem.match(values) != null) {
+                    list.push(new Token(elem.replace(/"/g, ''), "val"));
+                    continue;
+                }
+
+                if (elem.match(brackets) != null) {
+                    if (elem == '(') { stack.push(elem); continue; }
+
+                    var operation = stack.pop();
+                    while (operation != '(') {
+                        list.push(new Token(operation, 'oper'));
+                        operation = stack.pop();
+                    }
+                    continue;
+                }
+
+                if (elem.match(operations) != null) {
+                    if (stack.length != 0) {
+                        while (priority.indexOf(elem) > priority.indexOf(stack[stack.length - 1])) {
+                            if (stack[stack.length - 1] == '(') break;
+                            list.push(new Token(stack.pop(), 'oper'));
+                        }
+                    }
+                    stack.push(elem);
+                }
+            }
+
+            while (stack.length != 0) {
+                list.push(new Token(stack.pop(), 'oper'));
+            }
+
+            return list;
+        };
+
+        function WrapGroup(gr) {
+            var self = this;
+
+            self.name = "WrapGroup";
+            self.group = gr;
+        };
+
+        function Group() {
+            var self = this;
+
+            self.children = [];
+
+            self.logicalOperators = [{ value: 'AND', text: 'И' }, { value: 'OR', text: 'ИЛИ' }];
+            self.selectedLogicalOperator = 'AND';
+
+            self.negativeOperators = [{ value: '', text: '' }, { value: 'NOT', text: 'НЕ' }];
+            self.selectedNegativeOperator = '';
+
+            self.visibleNot = function () {
+                if (this.parent().parent() !== undefined && this.parent().parent().indexOf(this) === 0) return false;
+                else return true;
+            };
+
+            self.displayOperators = function () {
+                return (this.get('selectedNegativeOperator') == 'NOT' ? 'НЕ ' : '') +
+                       (this.get('selectedLogicalOperator') == 'AND' ? 'И' : 'ИЛИ');
+            }
+
+            self.addCondition = function (value) {
+                self.children.push(new Condition(value));
+            };
+
+            self.addConditionVM = function () {
+                var children = this.get('children').push(new Condition());
+            };
+
+            self.addGroup = function (gr) {
+                if (gr == null || gr == undefined)
+                    self.children.push(new WrapGroup(new Group()));
+                else
+                    self.children.push(new WrapGroup(gr));
+            };
+
+            self.addGroupVM = function () {
+                var gr = new Group();
+                gr.addCondition();
+                var children = this.get('children').push(new WrapGroup(gr));
+            };
+
+            self.removeVM = function (e) {
+                if (this.parent().parent() === undefined) return;
+
+                var index = this.parent().parent().indexOf(this.parent());
+                if (index > -1) {
+                    this.parent().parent().splice(index, 1);
+                }
+            };
+
+            self.setAnd = function (e) {
+                this.set('selectedNegativeOperator', '');
+                this.set('selectedLogicalOperator', 'AND');
+            };
+
+            self.setOr = function (e) {
+                this.set('selectedNegativeOperator', '');
+                this.set('selectedLogicalOperator', 'OR');
+            };
+
+            self.setNotAnd = function (e) {
+                this.set('selectedNegativeOperator', 'NOT');
+                this.set('selectedLogicalOperator', 'AND');
+            };
+
+            self.setNotOr = function (e) {
+                this.set('selectedNegativeOperator', 'NOT');
+                this.set('selectedLogicalOperator', 'OR');
+            };
+
+            self.text = function () {
+                var result = '';
+                var op = '';
+
+                var children = this.get('children');
+
+                for (var i = 0; i < children.length; i++) {
+                    var child = children[i];
+
+                    if (child.name === "WrapGroup") {
+                        child = child.group;
+                    }
+
+                    result += op + child.text();
+                    op = ' ' + this.get('selectedLogicalOperator') + ' ';
+                }
+
+                if (this.parent().parent() !== undefined || this.get('selectedNegativeOperator') == 'NOT') {
+                    result = '(' + result + ')';
+
+                    if (this.get('selectedNegativeOperator') == 'NOT')
+                        result = 'NOT ' + result;
+                }
+                return result;
+            };
+        };
+
+        function Condition(value) {
+            var self = this;
+
+            self.templateName = 'condition-template';
+
+            self.value = value || '';
+
+            self.text = function () {
+                var res = '"' + this.get("value").replace(/'|\(|\)|"/g, '').replace(/ +(?= )/g, '').replace(/\*+(?=\*)/g, '').trim() + '"';
+
+                if (res.indexOf(' ') >= 0) {
+                    res = 'NEAR((' + res.split(' ').join('", "') + '),5)';
+                }
+                return res;
+            };
+
+            self.removeVM = function (e) {
+                if (this.parent() === undefined) return;
+
+                var index = this.parent().indexOf(this);
+                if (index > -1) {
+                    this.parent().splice(index, 1);
+                }
+            };
+        };
+    })();
+</script>
+
+
+<div id="@wrapID" class="k-state-default content-filter">
+
+</div>
+
+
+@* templates *@
+
+<script id="sql-builder-template" type="text/x-kendo-template">
+    <div class="container" id="builder-wrapper">
+        <h4>Фильтрация по содержанию закупки</h4>
+        <div class="alert alert-info">
+            <span id="expression-text" data-bind="text: group.text"></span>
+        </div>
+        <div class="alert alert-warning">
+            <div data-template="group-template" data-bind="source: group"></div>
+        </div>
+    </div>
+</script>
+
+<script id="child-template" type="text/x-kendo-template">
+    # if (name == 'WrapGroup') { #
+    <div data-template="group-template" data-bind="source: group"></div>
+    # } else { #
+    <div data-template="condition-template" data-bind="source: this"></div>
+    # } #
+</script>
+
+<script id="group-template" type="text/x-kendo-template">
+    <div class="group">
+        <div>
+            <ul data-role="menu" style="z-index:999">
+                <li>
+                    <span data-bind="html: displayOperators"></span>
+                    <ul>
+                        <li data-bind="click: setAnd">И</li>
+                        <li data-bind="click: setOr">ИЛИ</li>
+                        <li data-bind="click: setNotAnd, visible: visibleNot">НЕ И</li>
+                        <li data-bind="click: setNotOr, visible: visibleNot">НЕ ИЛИ</li>
+                        <li class="k-separator"></li>
+                        <li data-bind="click: addGroupVM">Добавить группу</li>
+                        <li data-bind="click: addConditionVM">Добавить условие</li>
+                        <li class="k-separator"></li>
+                        <li data-bind="click: removeVM">Удалить</li>
+                    </ul>
+                </li>
+            </ul>
+            <span data-bind="click: addConditionVM" class="halfling halfling-plus-sign plus-sign"></span>
+        </div>
+        <div class="group-conditions">
+            <div>
+                <div data-template="child-template" data-bind="source: children"></div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="condition-template" type="text/x-kendo-template">
+    <div class="condition">
+        <input class="k-textbox" type="text" data-bind="value: value" />
+        <button data-bind="click: removeVM"><span class="halfling halfling-minus-sign minus-sign"></span></button>
+    </div>
+</script>
+
+
+@* events *@
+
+<script>
+    $(function () {
+        var view;
+
+        $("#@wrapID").closest("form").on("onBeforeBind", function (e, form) {
+            $("#@wrapID").html('');
+        });
+
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+
+            $("#@wrapID").html($("#sql-builder-template").html());
+
+            var expression = form.getPr("@htmlFieldName");
+
+            var rootGroup = window['@wrapID'].parseExpression(expression);
+
+            view = kendo.observable(rootGroup);
+
+            kendo.bind($("#builder-wrapper"), view);
+        });
+
+        $("#@wrapID").closest("form").on("onSave", function (e, form) {
+
+            var expression = view.group.text();
+
+            if (expression.replace(/"|\(|\)|AND|OR|NOT|NEAR|,| "/ig, '').length > 0)
+                form.setPr("@htmlFieldName", expression);
+            else
+                form.setPr("@htmlFieldName", null);
+        });
+    });
+</script>
+
+@* styles *@
+<style scoped>
+    .content-filter h4 {
+        margin-left: 15px;
+        color: #31708f;
+    }
+
+    .content-filter button {
+        border: none;
+        background: none;
+        padding: 1px;
+    }
+
+    .content-filter .group {
+        margin-left: 0;
+        border-left: 1px dotted #bbb;
+        border-radius: 9px;
+        padding: 3px 0;
+    }
+
+    .content-filter .group-conditions {
+        margin-left: 30px;
+    }
+
+    .content-filter .condition, .content-filter .group {
+        margin-bottom: 5px;
+    }
+
+    .content-filter .minus-sign {
+        color: #d9534f;
+        cursor: pointer;
+    }
+
+        .content-filter .minus-sign:hover {
+            color: #d1120b;
+        }
+
+    .content-filter .plus-sign {
+        color: #5cb85c;
+        cursor: pointer;
+    }
+
+        .content-filter .plus-sign:hover {
+            color: #169616;
+        }
+
+    .content-filter .alert {
+        margin-bottom: 0;
+        border: none;
+        margin: 15px;
+    }
+
+    .content-filter .alert-warning {
+        padding-left: 30px;
+    }
+
+    .content-filter .container {
+        width: 1000px;
+    }
+
+    .content-filter input[type='text'] {
+        width: 350px;
+        height: 1.9em;
+        text-indent: .3em;
+    }
+
+    .content-filter .k-menu:after {
+        width: initial;
+        text-align: center;
+    }
+
+    .content-filter .k-menu, .content-filter .k-widget.k-menu-horizontal > .k-item {
+        border: none;
+    }
+
+    .content-filter .k-header.k-menu > .k-item {
+        margin-left: 4px;
+    }
+
+    .content-filter .k-widget > .k-item > .k-link {
+        color: #3276b1;
+        font-weight: bold;
+        padding: 0 6px 0 6px;
+        line-height: 1.1em;
+    }
+
+        .content-filter .k-widget > .k-item > .k-link > .k-icon {
+            display: none;
+        }
+
+    .content-filter .k-menu .k-menu-group .k-item > .k-link {
+        padding: 3px 8px 3px 8px;
+        font-size: 0.9em;
+    }
+</style>

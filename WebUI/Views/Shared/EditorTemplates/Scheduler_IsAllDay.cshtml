@@ -1,0 +1,31 @@
+﻿@model EditorViewModel
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string htmlFieldName = Model.PropertyName;
+}
+
+<div id="@wrapID">
+    @Html.CheckBox(Model)
+</div>
+
+<script>
+    $(function () {
+        var $wrap = $("#@wrapID");
+
+        $wrap.find("#@htmlFieldName").on("change", function () {
+            if ($(this).prop("checked")) {
+                var form = $wrap.closest("form").data("pbaForm");
+
+                var start = form.getPr("Start");
+
+                if (start) {
+                    form.setPr("Start", new Date(start.getFullYear(), start.getMonth(), start.getDate()));
+                    form.setPr("End", new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1));
+                }
+            } else {
+
+            }
+        });
+    });
+</script>

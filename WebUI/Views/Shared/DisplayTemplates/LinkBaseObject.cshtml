@@ -1,0 +1,32 @@
+﻿@model EditorViewModel
+
+@{
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID">
+    <span>&nbsp;</span><a href="javascript:void(0)" id="@htmlFieldName"></a>
+</div>
+
+<script>
+    $(function () {
+        var $f = $("#@wrapID").find("#@htmlFieldName");
+
+        $f.closest("form").on("onAfterBind", function (e, form) {
+            var obj = form.getPr("@htmlFieldName");
+
+            if (obj && obj.FullName) {
+                $f.html(application.viewModelConfigs.getConfig(obj.Mnemonic || obj.FullName).DetailView.Title).click(function () {
+                    pbaAPI.openViewModelEx(obj.Mnemonic || obj.FullName,
+                        {
+                            wid: "@wrapID",
+                            id: obj.ID,
+                        });
+                });
+            } else {
+                $f.html("").hide();
+            }
+        })
+    });
+</script>

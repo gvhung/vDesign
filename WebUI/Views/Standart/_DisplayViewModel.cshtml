@@ -1,0 +1,167 @@
+﻿@model StandartViewModel
+
+@using Newtonsoft.Json
+
+@{
+    Type typeEntity = Model.ViewModelConfig.TypeEntity;
+
+    string detailView = "Common/Form";
+
+    if (Model.HasDetailView)
+    {
+        detailView = Model.ViewModelConfig.DetailView.Name;
+    }
+
+    bool isAjaxForm = Model.ViewModelConfig.DetailView.AjaxForm != null;
+}
+
+<script>
+    window["@Model.WidgetID"] = new WrapViewModel("@Model.WidgetID", "DisplayViewModel", "@Model.Type");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+
+        var view = window["@Model.WidgetID"];
+
+        composite.registerWidget(view);
+
+        view.defparams = {
+            model: null,
+            parentForm: null,
+            isReadOnly: true,
+        };
+
+        view.params = {};
+
+        view.asyncBind = function (params) {
+            this.params = $.extend(this.defparams, params);
+
+            if (this.params.isReadOnly) {
+
+                $("#@Model.WidgetID").show();
+
+                @if(isAjaxForm)
+                {
+                    @: return view.getAjaxForm(this.params.model);
+                }
+                else
+                {
+                    @: return view.initViewModel();
+                }
+            } else {
+                var dfd = $.Deferred();
+
+                $("#@Model.WidgetID").hide();
+
+                dfd.resolve();
+                return dfd.promise();
+            }
+        };
+
+        view.initViewModel = function () {
+            var viewModel = kendo.observable({
+                model: composite.getCurrentModel(),
+                close: function () {
+                    composite.onWidgetChanged(
+                    {
+                        sender: view,
+                        event: "close",
+                        params: {}
+                    });
+                }
+            });
+
+            return view.initPbaForm(viewModel);
+        };
+
+        view.initPbaForm = function (viewModel) {
+            var dfd = $.Deferred();
+
+            var $form = $("#@Model.WidgetID").find("form");
+
+            if (!$form.data("pbaForm")) {
+                var buttons = [];
+
+                if (view.isModal()) {
+                    buttons = [
+                        {
+                            title: "Закрыть",
+                            "click": "close",
+                            icon: "k-cancel",
+                            cssClass: "btn-default"
+                        }
+                    ];
+                };
+
+                $form.pbaForm({
+                    model: viewModel,
+                    wrap: "k-edit-form-container",
+                    buttons: buttons,
+                    nameModel: "model",
+                    attrBind: true,
+                    validate: true
+                });
+
+                $form.data("pbaForm").parentForm = view.params.parentForm;
+
+                $form.data("pbaForm").bind();
+            } else {
+                $form.data("pbaForm").unbind();
+                $form.data("pbaForm").bind(viewModel);
+            }
+
+            dfd.resolve();
+
+            return dfd.promise();
+        };
+    })();
+</script>
+
+<div id="@Model.WidgetID" style="display:none;">
+    @if (!isAjaxForm)
+    {
+        Html.RenderPartial(String.Format("~/Views/Shared/DisplayTemplates/{0}.cshtml", detailView), Model);
+    }
+</div>
+
+@if (isAjaxForm)
+{
+    var ajaxAction = Model.ViewModelConfig.DetailView.AjaxForm;
+
+    var actionParams = JsonConvert.SerializeObject(ajaxAction.Params);
+
+    <script>
+        (function() {
+            var view = window["@Model.WidgetID"];
+            var actionParams = @Html.Raw(actionParams);
+
+            view.getAjaxForm = function(model, callback) {
+                var data = $.extend({}, model);
+
+                var params = pbaAPI.replaceObjectPlaceholders(data, actionParams);
+
+                var dfd = $.Deferred();
+
+                params["id"] = model.ID;
+                params["mnemonic"] = "@Model.Mnemonic";
+                params["readonly"] = true;
+
+                params["_dialogid"] = "@Model.DialogID";
+                params["_widgetid"] = "@Model.WidgetID";
+                params["_dialogtype"] = "@Model.Type";
+                params["_parentid"] = "@Model.ParentID";
+                params["_currentid"] = "@Model.CurrentID";
+
+                return $.get("@Url.Action(ajaxAction.Name, ajaxAction.Controller)", params, function(res) {
+                    $("#@Model.WidgetID").html(res);
+
+                    view.initViewModel().done(function() {
+                        dfd.resolve();
+                    });
+                });
+
+                return dfd.promise();
+            };
+        })();
+    </script>
+}

@@ -1,0 +1,25 @@
+﻿using System.Collections.Generic;
+<<<<<<< HEAD
+=======
+using System.Collections.ObjectModel;
+using System.Linq;
+>>>>>>> 25a3ab276347c70c9f5644662bed352f5012fde4
+using Base.BusinessProcesses.Entities;
+using Base.BusinessProcesses.Services.Abstract;
+using Base.DAL;
+using Base.Security;
+using Base.Security.Service.Abstract;
+using Base.Service;
+
+namespace Base.BusinessProcesses.Services.Concrete
+{
+    public class BranchingStepService : BaseObjectService<BranchingStep>, IBranchingStepService
+    {
+        public BranchingStepService(IUnitOfWork context, ISecurityService securityService) : base(context, securityService) { }
+
+        public override BranchingStep TCreateOnGroundsOf(ISecurityUser securityUser, BaseObject obj, bool saveChanges = true)
+        {
+            return new BranchingStep { Title = "Без названия", Outputs = new List<Branch>() };
+        }
+    }
+}

@@ -1,0 +1,27 @@
+﻿@using WebUI.Models.ContentWidgets
+@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html.ContentEditorWidget("external_image")
+    .Title("Изображение")
+    .TitleTemplate(
+    @<text>
+        <span><i class="glyphicon glyphicon-picture"></i> Изображение по ссылке</span>
+    </text>)
+    .Wrap(wrapID)
+    .Mnemonic("Content_Image_External")
+    .Template("tpl_" + wrapID))
+
+<script id="tpl_@wrapID" type="text/template">
+    <p data-bind="html: model.Title"></p>
+    <img width="100%" class="center-block" data-bind="content_img: {
+                                                                width: model.Width,
+                                                                height: model.Height,
+                                                                url: model.Url,
+                                                                file: null,
+                                                                custom: model.Custom
+                                                            }" />
+    <p data-bind="html: model.ImageSignature"></p>
+</script>
+

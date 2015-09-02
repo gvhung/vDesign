@@ -1,0 +1,240 @@
+﻿@model EditorViewModel
+
+
+@{
+    ViewModelConfig config = Model.ViewModelConfig;
+    string htmlFieldName = Model.PropertyName;
+
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string multiSelectID = "ms_" + Guid.NewGuid().ToString("N");
+    string wndDialog = "wnd_" + Guid.NewGuid().ToString("N");
+    string placeholder = "Выберите значение...";
+
+
+    string lookupProperty = config.LookupPropertyForUI;
+
+    string validationmsg = "v_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    window['@wrapID'] = {
+        getMultiselect: function() {
+            return $("#@wrapID").find("#@multiSelectID").data("kendoMultiSelect");
+        },
+        onAdditionalData: function () {
+            var multiSelect = $("#@multiSelectID").data("kendoMultiSelect");
+
+            var val = multiSelect.input.val();
+
+            if (val == "@placeholder") val = "";
+
+            var form = $("#@wrapID").closest("form").data("pbaForm");
+
+            var value = form.getPr("@htmlFieldName");
+
+            var ids;
+
+            if (value) {
+                ids = pbaAPI.getIDs(value).join(";");
+            }
+
+            return {
+                startswith: val,
+                mnemonic: "@config.Mnemonic",
+                ids: ids,
+            };
+        },
+        openDialog: function () {
+            pbaAPI.openModalDialog("@config.Mnemonic",
+                function(res) {
+                    var $form = $("#@wrapID").closest("form");
+                    var form = $form.data("pbaForm");
+                    var pr = "@htmlFieldName";
+
+                    var multiselect = window['@wrapID'].getMultiselect();
+
+                    if (!form.getPr(pr)) {
+                        form.setPr(pr, []);
+                    }
+
+                    var prdata = form.getPr(pr);
+
+                    var ids = pbaAPI.getIDs(prdata);
+
+                    for (var i = 0; i < res.length; i++) {
+                        if ($.inArray(res[i].ID, ids) === -1) {
+                            prdata.push(res[i]);
+                            multiselect.dataSource.pushCreate(res[i]);
+                        }
+                    }
+
+                    window['@wrapID'].synchValue(false);
+                },
+                {
+                    title: "ВЫБОР - @config.ListView.Title",
+                    multiselect: @Model.AllowMultiple.ToString().ToLower()
+                    })
+        },
+        synchValue: function (load) {
+            var form = $("#@wrapID").closest("form").data("pbaForm");
+
+            var multiselect = window['@wrapID'].getMultiselect();
+
+            multiselect.dataSource.filter({});
+
+            @if (Model.DeferredLoading)
+            {
+                <text>
+            var id = form.getPr("ID");
+
+            if (id != 0 && load) {
+                multiselect.value([]);
+
+                $.get(application.url.GetStandart("PropertyKendoUI_CollectionRead", { parentMnemonic: "@Model.ParentViewModelConfig.Mnemonic", mnemonic: "@config.Mnemonic", property: "@htmlFieldName", objectID: id }), function (res) {
+                    if (res.error == 0) {
+                        var pr = "@htmlFieldName";
+
+                        form.setPr("@htmlFieldName", res.collection);
+
+                        multiselect.value(pbaAPI.getIDs(res.collection));
+                    } else {
+                        pbaAPI.errorMsg(res.message);
+                    }
+                });
+            } else {
+                var pr = "@htmlFieldName";
+                var prdata = form.getPr(pr);
+
+                multiselect.value(pbaAPI.getIDs(prdata));
+            }
+            </text>
+            }
+            else{
+                <text>
+            var pr = "@htmlFieldName";
+            var prdata = form.getPr(pr);
+
+            multiselect.value(pbaAPI.getIDs(prdata));
+            </text>
+            }
+        },
+        clear: function () {
+            var e_form = $("#@wrapID").closest("form");
+            var form = e_form.data("pbaForm");
+
+            $("#@wrapID").find("#@multiSelectID").data("kendoMultiSelect").value([]);
+
+            form.setPr("@htmlFieldName", null);
+        },
+        onSelect: function (e) {
+            var e_form = $("#@wrapID").closest("form");
+            var form = e_form.data("pbaForm");
+            var pr = "@htmlFieldName";
+
+            var multiselect = $("#@wrapID").find("#@multiSelectID").data("kendoMultiSelect");
+
+            if (!form.getPr(pr)) {
+                form.setPr(pr, []);
+            }
+
+            var prdata = form.getPr(pr);
+
+            var uid = e.item.find(".data-item").attr("data-uid");
+
+            var obj = multiselect.dataSource.getByUid(uid);
+
+            prdata.push({ ID: obj.ID });
+        },
+        onChange: function (e) {
+            var e_form = $("#@wrapID").closest("form");
+            var form = e_form.data("pbaForm");
+            var pr = "@htmlFieldName";
+
+            if (!form.getPr(pr)) {
+                form.setPr(pr, []);
+            }
+
+            var prdata = form.getPr(pr);
+            var r_prdata = [];
+
+            var multiselect = $("#@wrapID").find("#@multiSelectID").data("kendoMultiSelect");
+
+            multiselect.tagList.find("span.data-item").each(function () {
+                r_prdata.push(parseInt($(this).attr("id")));
+            });
+
+            var deleteids = [];
+
+            for (var i = 0; i < prdata.length; i++) {
+                if (r_prdata.indexOf(prdata[i].ID) < 0) {
+                    deleteids.push(prdata[i].ID);
+                }
+            }
+
+            for (var i = 0; i < deleteids.length; i++) {
+                for (var j = 0; j < prdata.length; j++) {
+                    if (prdata[j].ID == deleteids[i]) {
+                        prdata.splice(j, 1);
+                    }
+                }
+            }
+        }
+    };
+</script>
+
+<div id="@wrapID" class="input-group">
+    <div class="form-control" style="height: auto; min-height: 32px; padding: 0">
+        @(Html.Kendo().MultiSelect()
+          .Name(multiSelectID)
+          .DataValueField("ID")
+          .DataTextField(lookupProperty)
+          .Filter("startswith")
+          .Placeholder(placeholder)
+          .AutoBind(false)
+          .Events(e => e.Select(wrapID + ".onSelect").Change(wrapID + ".onChange"))
+                  .ItemTemplate(String.Format("<span class='data-item' id='#= data.ID #' data-uid='#= uid #'>#= pbaAPI.htmlEncode(data.{0}) #</span>", lookupProperty))
+                  .TagTemplate(String.Format("<span class='data-item' id='#= data.ID #' data-uid='#= uid #'>#= pbaAPI.htmlEncode(data.{0}) #</span>", lookupProperty))
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Filter_Read", "Standart").Data(wrapID + ".onAdditionalData");
+              })
+              .ServerFiltering(true);
+          })
+        )
+    </div>
+    <span class="input-group-btn">
+        <button class="btn btn-default" type="button" onclick="window['@wrapID'].openDialog(); return false;" title="Выбрать"><span class="halfling halfling-align-justify"></span></button>
+        <button class="btn btn-default" type="button" onclick="window['@wrapID'].clear(); return false;" title="Очистить"><span class="halfling halfling-remove"></span></button>
+    </span>
+</div>
+
+<input id="@validationmsg" name="@validationmsg" type="hidden" @(Model.IsRequired ? "required" : "") validationmessage="Выберите значение" value="" />
+<span class="k-invalid-msg" data-for="@validationmsg"></span>
+
+<script>
+    $(function () {
+        var $form = $("#@wrapID").closest("form");
+
+        $form.on("onAfterBind", function(e, form) {
+            window['@wrapID'].synchValue(true);
+
+            var val = form.getPr("@htmlFieldName");
+
+            if (val && val.length > 0)
+                $("#@validationmsg").val("val");
+            else
+                $("#@validationmsg").val("");
+        });
+
+        $form.on("onSave", function (e, form) {
+            var val = form.getPr("@htmlFieldName");
+
+            if (val && val.length > 0)
+                $("#@validationmsg").val("val");
+            else
+                $("#@validationmsg").val("");
+        });
+    });
+</script>

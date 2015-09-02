@@ -1,0 +1,38 @@
+﻿using Base.Attributes;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Base.Notification.Entities
+{
+    [Serializable]
+    public class Config: BaseObject
+    {
+        [DetailView("Отправлять уведомления на почту")]
+        public bool EnableEmail { get; set; }
+
+        [DetailView("Адрес SMTP-сервера")]
+        [MaxLength(255)]
+        public string SmtpServerAddress { get; set; }
+
+        [DetailView("Порт SMTP-сервера")]
+        public int SmtpServerPort { get; set; }
+
+        [DetailView("Использовать SSL")]
+        public bool UseSsl { get; set; }
+
+        [DetailView("Логин")]
+        [MaxLength(255)]
+        public string AccountLogin { get; set; }
+
+        [DetailView("Пароль")]
+        [MaxLength(255)]
+        public string AccountPassword { get; set; }
+
+        [DetailView("Задержка перед отправкой (мин)")]
+        public int Delay { get; set; }
+    }
+}

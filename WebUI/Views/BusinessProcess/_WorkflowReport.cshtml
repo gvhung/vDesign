@@ -1,0 +1,10 @@
+﻿@model WebUI.Models.BusinessProcess.WorkflowReportVm
+
+@(Html.Kendo().Chart(Model.CountOfObjectsByStage)
+    .Name("CountOfObjectsByStage")
+    .Title(title => title
+    .Text("Количество объектов по этапам")
+    .Position(ChartTitlePosition.Bottom))
+    .Series(series => series.Pie(model => model.CountOfObjects, model => model.StepTitle, model => model.Color ))
+    .Tooltip(tooltip => tooltip.Template("${ category } - ${ value } объектов").Visible(true))
+) 

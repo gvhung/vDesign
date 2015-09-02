@@ -1,0 +1,20 @@
+﻿@model WebUI.Models.BusinessProcess.TerminatedTimeLineElementVm
+
+<div class="timeline-badge" style="background-color: @Model.Color"><i class="halfling halfling-star"></i></div>
+<div id="@Model.ID" class="timeline-panel terminated-timeline-element" style="border-color: @Model.Color">
+    @*@Html.Partial("_Progress", Model)*@
+    <div class="timeline-heading">
+        <h4 class="timeline-title">&nbsp;@Model.Title</h4>
+    </div>
+    <hr />
+    <div class="timeline-body">
+        <div class="alert alert-success" role="alert" style="text-align: center; margin-bottom: 0;">
+            Объект завершил свое движение по бизнес-процессу
+        </div>
+        @*@if (Model.CreatedObjects.Any())
+        {
+            <hr />
+            @Html.Partial("_CreatedObjectsVm", Model.CreatedObjects)
+        }*@
+    </div>
+</div>

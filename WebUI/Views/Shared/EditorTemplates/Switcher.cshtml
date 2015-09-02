@@ -1,0 +1,49 @@
+﻿@model EditorViewModel
+
+<link href="~/Content/css/bootstrap/bootstrap-switch.css" rel="stylesheet" />
+<style type="text/css">
+    .switcher-wrapper {
+        float: left;
+        margin: -1px 25px 0 0;
+        position: relative;
+    }
+</style>
+<script src="~/Scripts/bootstrap/bootstrap-switch.js"></script>
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string switcherID = "slider_" + Guid.NewGuid().ToString("N");
+    string htmlFieldName = Model.PropertyName;
+}
+
+<div id="@(wrapID)" class="switcher-wrapper">
+    <input type="checkbox" id="@(switcherID)" name="@(switcherID)">
+</div>
+
+
+
+
+
+<script>
+    $(function () {
+        $("#@(wrapID)").closest("form").on("onAfterBind", function (e, form) {
+            var _value = form.getPr('@(htmlFieldName)');
+            if (_value == null) {
+                _value = false;
+            }
+
+            $("#@(switcherID)").prop("checked", _value);
+
+            $("#@(switcherID)").bootstrapSwitch("destroy");
+            $("#@(switcherID)").bootstrapSwitch({
+                onText: 'вкл',
+                offText: 'выкл'
+            });
+        });
+
+        $("#@(wrapID)").closest("form").on("onSave", function (e, form) {
+            form.setPr('@(htmlFieldName)', $("#@(switcherID)").is(":checked"));
+        });
+
+    });
+</script>

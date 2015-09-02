@@ -1,0 +1,24 @@
+﻿@import "../_variables";
+
+.inline-block {
+    display: inline-block;
+    *display: inline;
+    vertical-align: middle;
+    *zoom: 1;
+}
+.inline-block-top {
+    display: inline-block;
+    *display: inline;
+    vertical-align: top;
+    *zoom: 1;
+}
+.row-inline {
+    font-size: 0;
+
+    > [class*="col-"] {
+        float: none;
+        font-size: @font-size-base;
+
+        .inline-block;
+    }
+}

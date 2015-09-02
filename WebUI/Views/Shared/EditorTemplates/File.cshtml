@@ -1,0 +1,242 @@
+﻿@using Framework.Maybe
+@using IronPython.Modules
+@model EditorViewModel
+
+@{
+    var htmlFieldName = Model.PropertyName;
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    var uploadID = "upload_" + Guid.NewGuid().ToString("N");
+    var selectFileID = "selectFile_" + Guid.NewGuid().ToString("N");
+    var validationmsg = "v_" + Guid.NewGuid().ToString("N");
+    var filePreviewWrapperID = "filePreview_" + Guid.NewGuid().ToString("N");
+
+    const string hideSelectMarker = "hideSelect";
+    const string hideUploadMarker = "hideUpload";
+
+    var allowExt = Model.EditorTemplateParams
+        .With(x => x.ToLower()
+            .Split(new[] {';', ' '}, StringSplitOptions.RemoveEmptyEntries)
+            .Where(z => z != hideSelectMarker.ToLower()
+                        && z != hideUploadMarker.ToLower()).ToArray());
+    
+    var allowExtJson = allowExt == null || allowExt.Length == 0 ? "" : Json.Encode(allowExt);
+    var acceptAttr = allowExt.With(x => x.Aggregate("", (y, z) => y + ",." + z).TrimStart(',')) ?? "";
+
+    bool hideSelect = false, hideUpload = false;
+    
+    if (Model.EditorTemplateParams != null)
+    {
+        hideSelect = Model.EditorTemplateParams.IndexOf(hideSelectMarker, StringComparison.CurrentCultureIgnoreCase) >= 0;
+        hideUpload = Model.EditorTemplateParams.IndexOf(hideUploadMarker, StringComparison.CurrentCultureIgnoreCase) >= 0;
+    }
+}
+
+<script>
+    window['@wrapID'] = {
+        getForm: function () {
+            var e_form = $("#@wrapID").closest("form");
+            return e_form.data("pbaForm");
+        },
+        onSuccess: function (e) {
+            if (e.response) {
+                var form = window['@wrapID'].getForm();
+
+                form.setPr("@htmlFieldName", e.response);
+                form.setPr("@(htmlFieldName).State", 1);
+
+                window['@wrapID'].syncValue(e.response);
+
+                //no download for new file
+                var $a = $("#@filePreviewWrapperID").find("a");
+                if ($a.find("span")) $a.replaceWith($a.children().attr("title", "Требуется сохранить изменения"));
+            }
+        },
+        onSelect: function () {
+            $(".k-upload-files").empty();
+        },
+        onSelectFile: function (e) {
+            pbaAPI.openModalDialog('FileStorageItem', function (items) {
+                if (!items || !items.length)
+                    return pbaAPI.errorMsg('Ошибка при выборе файла');
+
+                var file = items[0].File;
+
+                var form = window['@wrapID'].getForm();
+
+                form.setPr("@htmlFieldName", file);
+                form.setPr("@(htmlFieldName).State", 1);
+
+                window['@wrapID'].syncValue(file);
+
+                //no download for new file
+                var $a = $("#@filePreviewWrapperID").find("a");
+                if ($a.find("span")) $a.replaceWith($a.children().attr("title", "Требуется сохранить изменения"));
+            });
+        },
+        onUpload: function (e) {
+            var allowExtJson = '@(Html.Raw(allowExtJson))';
+            if (allowExtJson) {
+                var allowExt = JSON.parse(allowExtJson);
+
+                if (allowExt.indexOf(e.files[0].extension.slice(1).toLowerCase()) > -1) return;
+
+                alert("Недопустимый формат!\nВыберите файл с расширением: @String.Join(", ", allowExt ?? new string[0])");
+                e.preventDefault();
+            }
+        },
+        clear: function () {
+            var form = window['@wrapID'].getForm();
+
+            form.setPr("@htmlFieldName", null);
+
+            window['@wrapID'].syncValue(null);
+        },
+        syncValue: function (file) {
+            var $wrap = $("#@wrapID");
+            var $file = $wrap.find("#file-info");
+            var $previewWrapper = $("#@filePreviewWrapperID");
+            var fileType;
+
+            if (file) {
+                $previewWrapper.html(
+
+                    pbaAPI.getFilePreviewHtml(file)
+
+                );
+
+                fileType = pbaAPI.fileType(file.FileName);
+
+                if (fileType === 'image') {
+                    $file.find('.file-icon').parent().off().on('click', function (e) {
+                        e.preventDefault();
+                        pbaAPI.showImage(file.FileID, file.parent().Title || file.FileName);
+                    });
+                } else if (pbaAPI.extension(file.FileName) === 'docx') {
+                    $file.find('.file-icon').parent().off().on('click', function (e) {
+                        e.preventDefault();
+                        pbaAPI.showDoc(file.FileID);
+                    });
+                }
+
+                $file.find(".Name").html(file.FileName);
+                $file.find(".Size").html((file.Size / 1024).toFixed() + " Кбайт");
+                $file.find(".CreationDate").html(kendo.toString(kendo.parseDate(file.CreationDate), 'd'));
+                $file.find(".ChangeDate").html(kendo.toString(kendo.parseDate(file.ChangeDate), 'd'));
+
+                $file.find("#info").show();
+                $file.find("#file-info-text").hide();
+                $previewWrapper.show();
+
+                $("#@validationmsg").val(file.FileName);
+                $("#@(validationmsg)_validationMessage").hide();
+
+            } else {
+                $file.find(".file-icon").attr("class", "file-icon " + pbaAPI.extensionClass(""));
+                $file.find("#info").hide();
+                $file.find("#file-info-text").show();
+                $previewWrapper.hide();
+
+                $wrap.find(".k-upload-status").remove();
+                $wrap.find(".k-upload-files").remove();
+
+                $("#@validationmsg").val("");
+            }
+        }
+    };
+</script>
+
+
+<script>
+    $(function () {
+        var $form = $("#@wrapID").closest("form");
+
+        $form.on("onAfterBind", function (e, form) {
+            $(this).find(".k-upload-status").remove();
+            $(this).find(".k-upload-files").remove();
+
+            window['@wrapID'].syncValue(form.getPr('@(htmlFieldName)'));
+
+            @if (hideUpload)
+            {
+                @:$("#@string.Format("{0}-wrapper", uploadID)").hide();
+            }
+        });
+
+        $form.on("onChange", function (e, params) {
+            if (params.field === "@htmlFieldName") {
+                window['@wrapID'].syncValue(params.sender.getPr('@(htmlFieldName)'));
+            }
+        });
+    });
+</script>
+
+@*turn off load status/file name*@
+<style>
+    #@wrapID .k-upload-status,
+    #@wrapID .k-dropzone > em {
+        display: none;
+    }
+
+    #@wrapID .k-upload {
+        border-width: 0 !important;
+        background: 0 !important;
+    }
+</style>
+
+<div id="@wrapID">
+    <div id="file-info">
+        <div id="@filePreviewWrapperID" style="float:left;height:100px;color:#888">
+            <!-- pbaAPI.getFilePreviewHtml -->
+        </div>
+        <div id="info">
+            <div style="font-size: 12px; float: left; margin-right: 10px; ">
+                <div>
+                    <h4 class='Name'></h4>
+                </div>
+                <div>
+                    <span style="float:left;width: 102px;">Размер:</span><span class='Size'></span>
+                </div>
+                <div>
+                    <span style="float:left;width: 102px;">Дата создания:</span><span class='CreationDate'></span>
+                </div>
+                <div>
+                    <span style="float:left;width: 102px;">Дата изменения:</span><span class='ChangeDate'></span>
+                </div>
+            </div>
+
+            <button class="btn btn-default" type="button" onclick="@(wrapID).clear(); return false;" title="Очистить"><span class="halfling halfling-remove"></span></button>
+        </div>
+        <div id="file-info-text">
+            <small style="border: 1px solid #ccc; padding: .4em .8em;">Файл не выбран</small>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div>
+        <div id="@string.Format("{0}-wrapper", uploadID)" style="float: left; margin-left: -0.96em;">
+            @(Html.Kendo().Upload()
+                  .Name(uploadID)
+                                  .HtmlAttributes(new { accept = acceptAttr, title = "Загрузить..." })
+                  .Multiple(false)
+                  .ShowFileList(false)
+                  .Events(e => e.Upload(wrapID + ".onUpload").Success(wrapID + ".onSuccess").Select(wrapID + ".onSelect"))
+                  .Messages(m => m.Select("<i class=\"glyphicon glyphicon-upload\"></i>"))
+                  .Async(a => a
+                      .Save("SaveFile", "FileData")
+                      .AutoUpload(true)
+                  ))
+        </div>
+        @if (!hideSelect)
+        {
+            <div style="float: left; padding: .8em 0 0 0; margin-left: -0.16em;">
+                @(Html.Kendo().Button()
+                      .Name(selectFileID)
+                      .Tag("a").HtmlAttributes(new { title = "Выбрать из списка..." })
+                      .Events(e => e.Click(wrapID + ".onSelectFile"))
+                      .Content("<i class=\"glyphicon glyphicon-list\"></i>")
+                )
+            </div>
+        }
+        <input id="@validationmsg" name="@validationmsg" type="hidden" @(Model.IsRequired ? "required" : "") validationmessage="Выберите значение" value="" />
+        <span class="k-invalid-msg" data-for="@validationmsg"></span>
+    </div>
+</div>

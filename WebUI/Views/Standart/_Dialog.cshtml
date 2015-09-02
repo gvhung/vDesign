@@ -1,0 +1,204 @@
+﻿@model StandartDialogViewModel
+
+@{
+    string nameSplitter = "splitter_" + Guid.NewGuid().ToString("N");
+
+    bool isTreeNode = Model.ViewModelConfig.ListView.Type == ListViewType.Tree;
+    bool isCategorizedItem = typeof(ICategorizedItem).IsAssignableFrom(Model.ViewModelConfig.TypeEntity);
+    bool hiddenTree = false;
+
+
+    ViewModelConfig configCategory = null;
+
+    if (isCategorizedItem)
+    {
+        ListViewCategorizedItem listViewCategorizedItem = Model.ViewModelConfig.ListView as ListViewCategorizedItem;
+
+        string mnemonicCategory = listViewCategorizedItem.MnemonicCategory;
+        
+        hiddenTree = listViewCategorizedItem.HiddenTree;
+
+        if (String.IsNullOrEmpty(mnemonicCategory))
+        {
+            Type typeCategory = Model.ViewModelConfig.TypeEntity.GetProperties().FirstOrDefault(pr => pr.PropertyType.GetInterfaces().Contains(typeof(ITreeNode))).PropertyType;
+
+            configCategory = Model.DefaultViewModelConfig(typeCategory);
+        }
+        else
+        {
+            configCategory = Model.GetViewModelConfig(mnemonicCategory);
+        }
+    }
+
+    bool isRead = Model.IsPermission(Base.Security.TypePermission.Read);
+
+    if (isRead)
+    {
+        if (isCategorizedItem)
+        {
+            isRead = Model.SecurityUser.IsPermission(configCategory.TypeEntity, Base.Security.TypePermission.Read);
+        }
+    }
+
+    bool showPreview = Model.ViewModelConfig.ListView.ShowPreview;
+}
+
+<script>
+    window["@Model.DialogID"] = new CompositeControl("@Model.DialogID");
+
+    window["@nameSplitter"] = new WrapSplitter("@nameSplitter", "DialogSplitter");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+        var splitter = window["@nameSplitter"];
+
+        composite.registerWidget(splitter);
+
+        splitter.onNeighbourWidgetChanged = function (e) {
+            if (e.params && e.params.action == "toggleTree") {
+                splitter.toggle();
+
+                e.params.event.target.toggleClass('tree-collpsed');
+                splitter.setCookie("@Model.ViewModelConfig.Mnemonic", "tree-collpsed", e.params.event.target.hasClass('tree-collpsed'));
+            }
+        };
+
+        composite.resize = function (h) {
+            splitter.resize(h - 15);
+        };
+    })();
+</script>
+
+<div id="@Model.DialogID" class="dialog-listview">
+    @Html.HiddenFor(m => m.DialogID)
+    @Html.Hidden("TypeListView", Model.ViewModelConfig.ListView.Type)
+
+    @(Html.Kendo().Splitter().Name(nameSplitter).Panes(pan =>
+    {
+
+        string previewSize = "20%";
+
+        if (isRead)
+        {
+            if (isTreeNode)
+            {
+                string treeSize = "100%";
+
+                if (showPreview)
+                {
+                    treeSize = "30%";
+                    previewSize = "70%";
+                }
+
+                pan.Add()
+                    .Size(treeSize)
+                    .Content(Html.Partial("~/Views/Standart/_BuilderTreeView.cshtml", new StandartTreeView(Model)).ToHtmlString());
+
+            }
+            else
+            {
+
+                string listViewSize = "100%";
+                
+                if (isCategorizedItem)
+                {
+                    pan.Add()
+                        .Collapsible(true)
+                        .Size("20%")
+                        .MinSize("255px")
+                        .Content(Html.Partial("~/Views/Standart/_BuilderTreeView.cshtml", new StandartTreeView(Model, configCategory.Mnemonic, Model.DialogID, Model.Type)).ToHtmlString());
+
+                    if (showPreview)
+                    {
+                        listViewSize = "60%";
+                    }
+                    else
+                    {
+                        listViewSize = "80%";    
+                    }
+                }
+                else
+                {
+                    if (showPreview)
+                    {
+                        listViewSize = "80%";
+                    }
+                }
+
+                string builder = null;
+                Dialog_WidgetViewModel widgetViewModel = null;
+
+
+                switch (Model.ViewModelConfig.ListView.Type)
+                {
+                    case ListViewType.Grid:
+                        builder = "Standart/_BuilderGrid";
+                        widgetViewModel = new WebUI.Models.StandartGridView(Model);
+                        break;
+
+                    case ListViewType.Scheduler:
+                        builder = "Standart/_BuilderScheduler";
+                        widgetViewModel = new WebUI.Models.StandartScheduler(Model);
+                        break;
+
+                    case ListViewType.Gantt:
+                        builder = "Standart/_BuilderGantt";
+                        widgetViewModel = new WebUI.Models.StandartGantt(Model);
+                        break;
+
+                    case ListViewType.Custom:
+                        builder = Model.ViewModelConfig.ListView.CustomDialog;
+                        widgetViewModel = new CustomDialogView(Model);
+                        break;
+                }
+
+                pan.Add()
+                    .Size(listViewSize)
+                    .MinSize("400px")
+                    .HtmlAttributes(new { style = "overflow-y: hidden !important;" })
+                    .Content(Html.Partial(String.Format("~/Views/{0}.cshtml", builder), widgetViewModel).ToHtmlString());
+            }
+
+            if (showPreview)
+            {
+                pan.Add()
+                    .Size(previewSize)
+                        .Content(Html.Partial("~/Views/Standart/_BuilderPreview.cshtml", new StandartViewModel(Model)).ToHtmlString());
+            }
+        }
+        else
+        {
+            pan.Add().HtmlAttributes(new { @class = "lock" }).Size("100%").Content("<h1>НЕТ ДОСТУПА</h1>");
+        }
+    })
+    .HtmlAttributes(new { style = "background-color: rgba(255, 255, 255, 0);" })
+    )
+
+    @if (Model.Type == WebUI.Models.TypeDialog.Modal)
+    {
+        <div class='footer-buttons' style='float: right; margin-top:7px'>
+            <button id="btnSelect" class="k-button"><span class='k-icon k-update'></span><span class="button-text">Выбрать</span></button>
+            <button id="btnCancel" class="k-button"><span class='k-icon k-cancel'></span><span class="button-text">Отмена</span></button>
+        </div>
+    }
+</div>
+
+<script>
+    $(function () {
+        var splitter = window["@nameSplitter"];
+        var collpsed = splitter.getCookie("@Model.ViewModelConfig.Mnemonic", "tree-collpsed", "false");
+
+        if (collpsed == "true" || (collpsed == "false" && "@hiddenTree.ToString().ToLower()" === "true")) {
+
+            $("#@nameSplitter").find('#toggleTree').addClass('tree-collpsed');
+            splitter.collapse();
+        } else {
+            splitter.expand();
+        };
+
+
+        var dialog = window["@Model.DialogID"];
+
+        $("#@Model.DialogID").data("dialogListView", dialog);
+    });
+</script>

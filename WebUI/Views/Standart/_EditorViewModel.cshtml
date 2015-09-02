@@ -1,0 +1,220 @@
+﻿@model StandartViewModel
+
+@using Newtonsoft.Json
+
+@{
+    Type typeEntity = Model.ViewModelConfig.TypeEntity;
+
+    string detailView = "Common/Form";
+
+    if (Model.HasDetailView)
+    {
+        detailView = Model.ViewModelConfig.DetailView.Name;
+    }
+
+    bool isAjaxForm = Model.ViewModelConfig.DetailView.AjaxForm != null;
+}
+
+<script>
+    window["@Model.WidgetID"] = new WrapViewModel("@Model.WidgetID", "EditorViewModel", "@Model.Type");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+
+        var view = window["@Model.WidgetID"];
+
+        composite.registerWidget(view);
+
+        view.defparams = {
+            model: null,
+            parentForm: null,
+            isReadOnly: false,
+            toSave: false,
+            buttons: null,
+        };
+
+        @if (Model.ViewModelConfig.DetailView.HideToolbar)
+        {
+            @:view.defparams.hideToolbar = true;
+                }
+        else
+        {
+            @:view.defparams.hideToolbar = false;
+                }
+
+        view.params = {};
+
+        view.asyncBind = function (params) {
+            this.params = $.extend(this.defparams, params);
+
+            if (!this.params.isReadOnly) {
+                $("#@Model.WidgetID").show();
+
+                @if(isAjaxForm)
+                {
+                    @: return view.getAjaxForm(this.params.model);
+                                                                }
+                else
+                {
+                    @: return view.initViewModel();
+                                                                }
+
+            } else {
+                var dfd = $.Deferred();
+
+                $("#@Model.WidgetID").hide();
+
+                dfd.resolve();
+
+                return dfd.promise();
+            }
+        };
+
+        view.initViewModel = function () {
+            var viewModel = kendo.observable({
+                model: composite.getCurrentModel(),
+                apply: function () {
+                    view.save("apply");
+                },
+                save: function () {
+                    view.save("save");
+                },
+                close: function () {
+                    composite.onWidgetChanged(
+                    {
+                        sender: view,
+                        event: "close",
+                        params: {}
+                    });
+                }
+            });
+
+            return view.initPbaForm(viewModel);
+        };
+
+        view.save = function (type) {
+            composite.onWidgetChanged(
+            {
+                sender: view,
+                event: type,
+                params: {}
+            });
+        };
+
+        view.initPbaForm = function (viewModel) {
+            var dfd = $.Deferred();
+
+            var $form = $("#@Model.WidgetID").find("form");
+
+            if (!$form.data("pbaForm")) {
+                var buttons = [];
+
+                var namebuttons = this.params.buttons || {};
+
+                if (view.isModal()) {
+                    if (view.params.toSave) {
+                        @if (Model.ViewModelConfig.DetailView.HideToolbar)
+                        {
+                            @: buttons.push({ title: namebuttons["save"] || "Сохранить", "click": "save", icon: "k-update", cssClass: "btn-primary" });
+                        }
+                        else
+                        {
+                            @: buttons.push({ title: namebuttons["apply"] || "Сохранить", "click": "apply", icon: "k-update", cssClass: "btn-info" });
+                            @: buttons.push({ title: namebuttons["save"] || "Сохранить и закрыть", "click": "save", icon: "k-update", cssClass: "btn-primary" });
+                        }
+                    } else {
+                        buttons.push({
+                            title: namebuttons["save"] || "Применить",
+                            "click": "save",
+                            icon: "k-update",
+                            cssClass: "btn-primary"
+                        });
+                    }
+
+                    buttons.push({
+                        title: namebuttons["close"] || "Отменить",
+                        "click": "close",
+                        icon: "k-cancel",
+                        cssClass: "btn-default"
+                    });
+
+                } else {
+                    buttons.push({
+                        title: namebuttons["apply"] || "Сохранить",
+                        "click": "apply",
+                        icon: "k-update",
+                        cssClass: "btn-primary"
+                    });
+                }
+
+                $form.pbaForm({
+                    model: viewModel,
+                    wrap: "k-edit-form-container",
+                    buttons: buttons,
+                    nameModel: "model",
+                    attrBind: true,
+                    validate: true
+                });
+
+                $form.data("pbaForm").parentForm = view.params.parentForm;
+
+                $form.data("pbaForm").bind();
+            } else {
+                $form.data("pbaForm").unbind();
+                $form.data("pbaForm").bind(viewModel);
+            }
+
+            dfd.resolve();
+
+            return dfd.promise();
+        };
+    })();
+</script>
+
+<div id="@Model.WidgetID" style="display:none;" class="form-widget">
+    @if (!isAjaxForm)
+    {
+        Html.RenderPartial(String.Format("~/Views/Shared/EditorTemplates/{0}.cshtml", detailView), Model);
+    }
+</div>
+
+@if (isAjaxForm)
+{
+    var ajaxAction = Model.ViewModelConfig.DetailView.AjaxForm;
+
+    var actionParams = JsonConvert.SerializeObject(ajaxAction.Params);
+
+    <script>
+        (function() {
+            var view = window["@Model.WidgetID"];
+            var actionParams = @Html.Raw(actionParams);
+
+            view.getAjaxForm = function(model, callback) {
+                var data = $.extend({}, model);
+
+                var params = pbaAPI.replaceObjectPlaceholders(data, actionParams);
+
+                var dfd = $.Deferred();
+
+                params["id"] = model.ID;
+                params["mnemonic"] = "@Model.Mnemonic";
+
+                params["_dialogid"] = "@Model.DialogID";
+                params["_widgetid"] = "@Model.WidgetID";
+                params["_dialogtype"] = "@Model.Type";
+                params["_parentid"] = "@Model.ParentID";
+                params["_currentid"] = "@Model.CurrentID";
+
+                return $.get("@Url.Action(ajaxAction.Name, ajaxAction.Controller)", params, function(res) {
+                    $("#@Model.WidgetID").html(res);
+
+                    view.initViewModel().done(function() {
+                        dfd.resolve();
+                    });
+                });
+
+                return dfd.promise();
+            };
+        })();
+    </script>
+}

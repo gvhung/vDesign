@@ -1,0 +1,163 @@
+﻿@model EditorViewModel
+
+@{
+    EditorViewModel eViewModel = Model;
+    ViewModelConfig config = eViewModel.ViewModelConfig;
+
+    string propertyName = eViewModel.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string contextMenuID = "cm_" + Guid.NewGuid().ToString("N");
+}
+
+<style>
+    .link-object.k-sprite {
+        font-size: 12px !important;
+    }
+</style>
+
+<script>
+    window["@wrapID"] = {
+        property: "@propertyName",
+        getForm: function () {
+            return $("#@wrapID").closest("form").data("pbaForm");
+        },
+        syncValue: function (form) {
+            if (!form.getPr(this.property)) {
+                form.setPr(this.property, []);
+            }
+
+            var links = form.getPr(this.property);
+
+            var $list = $("#@wrapID");
+
+            $list.empty();
+
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i];
+
+                var config = application.viewModelConfigs.getConfig(link.Obj.FullName);
+
+                var item = {
+                    uid: link.uid,
+                    Icon: config.Icon,
+                    Title: config.DetailView.Title + ": " + link.Description,
+                };
+
+                var template = kendo.template(
+                    "<a href='javascript:void(0);' data-uid='#= uid #' class='list-group-item' onclick='@(wrapID).openLink(this);'>" +
+                        "<span class='#= Icon #'></span>" +
+                        "<span>&nbsp#= Title #</span>" +
+                    "<a>");
+
+                $list.append(template(item));
+            }
+        },
+        openLink: function (btn) {
+            var uid = $(btn).attr("data-uid")
+
+            var property = this.property;
+            var form = this.getForm();
+
+            var links = form.getPr(property);
+            var link = null;
+
+            for (var i = 0; i < links.length; i++) {
+                if (links[i].uid == uid) {
+                    link = links[i];
+                }
+            }
+
+            if (link) {
+                pbaAPI.openViewModelEx(link.Obj.FullName, {
+                    wid: "@wrapID",
+                    id: link.Obj.ID,
+                    callback: function (e) {
+                        if (e.type == "save") {
+                            $("#@wrapID").closest(".dialog-vm").data("dialogVM").refresh();
+                        }
+                    }
+                });
+            }
+        },
+        deleteLink: function (btn) {
+            var uid = $(btn).attr("data-uid");
+            var property = this.property;
+            var form = this.getForm();
+
+            pbaAPI.confirm("Удаление", "Удалить связь?", function () {
+                var model = form.getModel();
+                var links = form.getPr(property);
+                var link = null;
+
+                for (var i = 0; i < links.length; i++) {
+                    if (links[i].uid == uid) {
+                        link = links[i];
+                    }
+                }
+
+                if (link) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("DeleteLink", "LinkedObjects")",
+                        data: JSON.stringify({ mnemonic1: model.Obj.FullName, id1: model.Obj.ID, mnemonic2: link.Obj.FullName, id2: link.Obj.ID }),
+                        contentType: "application/json; charset=utf-8",
+                        success: function (res) {
+                            if (res.error) {
+                                pbaAPI.errorMsg(res.error);
+                            } else {
+                                pbaAPI.infoUploadSuccess("Связь успешно удалена");
+
+                                $("#@wrapID").closest(".dialog-vm").data("dialogVM").refresh();
+                            }
+                        }
+                    });
+                }
+            });
+        },
+        onSelect: function (e) {
+            var wrap = window["@wrapID"];
+
+            switch ($(e.item).attr("id")) {
+                case "edit":
+                    wrap.openLink(e.target);
+                    break;
+
+                case "delete":
+                    wrap.deleteLink(e.target);
+                    break;
+            }
+        },
+    };
+</script>
+
+<div id="@wrapID" class="list-group">
+</div>
+
+@(Html.Kendo().ContextMenu()
+    .Name(contextMenuID)
+    .Filter("#" + wrapID + " > .list-group-item")
+    .Events(e => e.Select(wrapID + ".onSelect"))
+    .Items(items => {
+        items.Add().Text("Редактировать").HtmlAttributes(new { id = "edit" }).SpriteCssClasses("link-object halfling halfling-edit");
+        items.Add().Text("Удалить").HtmlAttributes(new { id = "delete" }).SpriteCssClasses("link-object halfling halfling-remove");   
+    })
+    .Animation(animation =>
+    {
+        animation.Open(open =>
+        {
+            open.Fade(FadeDirection.In);
+            open.Duration(500);
+        });
+    })
+)
+
+<script>
+    $(function () {
+        var $wrap = $("#@wrapID");
+        var $form = $wrap.closest("form");
+
+        $form.on("onAfterBind", function (e, form) {
+            window['@wrapID'].syncValue(form);
+        });
+    });
+</script>

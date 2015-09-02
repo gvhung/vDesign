@@ -1,0 +1,124 @@
+﻿@model EditorViewModel
+
+@using WebUI.Controllers
+@using WebUI.Helpers
+
+@{
+    var config = Model.ViewModelConfig;
+    
+    string propertyName = Model.PropertyName;
+    
+    string dialogID = Model.UID;
+
+    var securityUser = Base.Ambient.AppContext.SecurityUser;
+
+    var gridModel = new StandartGridView(ViewContext.Controller as IBaseController, config.Mnemonic, dialogID, TypeDialog.Lookup);
+
+    string url = "~/Views/Standart/_Grid.cshtml";
+
+    if (gridModel.HasListView)
+    {
+        url = Model.ViewModelConfig.ListView.Name;
+    }
+}
+
+<script>
+    window["@gridModel.WidgetID"] = new WrapGrid("@gridModel.WidgetID", "GridView");
+
+    (function () {
+        var grid = window["@gridModel.WidgetID"];
+        var form = $("#@dialogID").closest("form").data("pbaForm");
+
+        @*--------Grid--------*@
+        grid.getSelectDataItem = function () {
+            var g = this.widget();
+
+            var select = $(g.select());
+
+            if (select.length > 0) {
+                return g.dataItem(select);
+            }
+
+            return null;
+        };
+
+        grid.detailRow = function () {
+            var uid = grid.selectUID();
+
+            if (uid) {
+                var form = $("#@dialogID").closest("form").data("pbaForm");
+
+                var entity = grid.getByUid(uid);
+
+                pbaAPI.openViewModelEx("@config.Mnemonic",
+                        {
+                            wid: "@dialogID",
+                            entity: entity,
+                            entities: form.getPr('@(propertyName)'),
+                            isReadOnly: true,
+                            parentForm: form,
+                        });
+            }
+        };
+
+
+        grid.onDataBound = function () {
+            this.tbody.find('span[data-bg]').each(function () {
+                var $cond = $(this);
+                $cond.closest('td').css('background-color', $cond.data('bg'));
+            });
+
+            grid.activeRow();
+
+            this.tbody.children("tr").dblclick(function () {
+                grid.dblclick(this);
+            });
+        };
+
+        grid.onChange = function (e) {
+            var g = grid.widget();
+
+            grid.initCurrentRow();
+        };
+
+        grid.dblclick = function (btn) {
+            grid.detailRow();
+        };
+
+        grid.data = function () {
+            var form = $("#@dialogID").closest("form").data("pbaForm");
+
+            if (!form.getPr('@(propertyName)')) {
+                form.setPr('@(propertyName)', []);
+            }
+
+            return form.getPr('@(propertyName)');
+        };
+
+
+        grid.bind = function () {
+            grid.widget().setDataSource(new kendo.data.DataSource({
+                data: grid.data(),
+                schema: {
+                    model: grid.widget().dataSource.options.schema.model
+                }
+            }));
+
+            grid.widget().dataSource.read();
+        };
+    })();
+</script>
+
+<div id="@dialogID" class="one-to-many one-to-many-readonly">
+    @{Html.RenderPartial(url, gridModel);}
+</div>
+
+<script>
+    $(function () {
+        $("#@dialogID").closest("form").on("onAfterBind", function (e, form) {
+            var grid = window["@gridModel.WidgetID"];
+
+            grid.bind();
+        });
+     });
+</script>

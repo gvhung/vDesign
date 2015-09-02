@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>Dashboard</mnemonic>
+    <title>Рабочий стол</title>
+    <entity>WebUI.Models.Dashboard.DashboardVm, WebUI</entity>
+    <detailview></detailview>
+  </item>
+  <item>
+    <mnemonic>DashboardWidget_Tasks</mnemonic>
+    <title>Рабочий стол - Виджеты - Задачи</title>
+    <entity>WebUI.Models.Dashboard.Widgets.WidgetTasksVm, WebUI</entity>
+    <detailview title="Задачи" hideToolbar="true" width="500" height="300"></detailview>
+    <listview name="main"></listview>
+    <icon>halfling halfling-tasks</icon>
+  </item>
+</ViewModelConfig>

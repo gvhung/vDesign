@@ -1,0 +1,20 @@
+﻿@model EditorViewModel
+
+@{
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID" class="row">
+    <div class="col-md-4 e-editor">
+        @Html.TextBox(Model, Html.CreateHtmlAttributes(Model, new { data_bind = String.Format("value: {0}.Text", htmlFieldName), style = "width: 100%;", placeholder = "Текст" }))
+    </div>
+
+    <div class="col-md-1 e-label">
+        <label>Адрес (URL)</label>
+    </div>
+
+    <div class="col-md-7 e-editor">
+        @Html.TextBox(Model, Html.CreateHtmlAttributes(Model, new { data_bind = String.Format("value: {0}.Path", htmlFieldName), style = "width: 100%;", placeholder = "Адрес в сети Интернет" }))
+    </div>
+</div>

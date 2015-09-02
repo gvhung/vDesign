@@ -1,0 +1,55 @@
+﻿@model NewUserModel
+@{
+    ViewBag.Title = "Регистрация";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="header text-center">
+        <h3>@ViewBag.Title</h3>
+    </div>
+
+    <div class="main">
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div>@Html.Raw(HttpUtility.HtmlDecode(Html.ValidationSummary(true).ToHtmlString()))</div>
+        }
+        <div class="main-block primary">
+            @Html.TextBoxFor(model => model.Email, new { @class = "form-control", placeholder = "Адрес электронной почты", autofocus = "" })
+            @Html.ValidationMessageFor(m => m.Email, null, new { @class = "label label-danger val-meassage" })
+        </div>
+        <div class="main-block password">
+            @Html.PasswordFor(model => model.Password, new { @class = "form-control", placeholder = "Пароль" })
+            @Html.ValidationMessageFor(m => m.Password, null, new { @class = "label label-danger val-meassage" })
+
+            @Html.PasswordFor(model => model.ConfirmPassword, new { @class = "form-control", placeholder = "Подтверждение" })
+            @Html.ValidationMessageFor(m => m.ConfirmPassword, null, new { @class = "label label-danger val-meassage" })
+        </div>
+        <div class="main-block extra">
+            @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control", placeholder = "Имя" })
+            @Html.ValidationMessageFor(m => m.FirstName, null, new { @class = "label label-danger val-meassage" })
+
+            @Html.TextBoxFor(model => model.LastName, new { @class = "form-control", placeholder = "Фамилия" })
+            @Html.ValidationMessageFor(m => m.LastName, null, new { @class = "label label-danger val-meassage" })
+        </div>
+        <span class="clearfix"></span>
+    </div>
+    <div class="main-footer">
+        <div class="row">
+            <div class="col-xs-6 col-md-6">
+                <div class="left-section">
+                    <div class="left-section-content">
+                        <a onclick="window.history.back()" style="cursor: pointer">Вернуться</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-6">
+                <button type="submit" class="btn btn-lg btn-primary btn-block">Отправить</button>
+            </div>
+        </div>
+    </div>
+}

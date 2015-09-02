@@ -1,0 +1,38 @@
+﻿@model EditorViewModel
+
+@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID">
+    <a href="#" id="edit_@wrapID" class="btn btn-default">Редактировать</a>
+</div>
+
+<script>
+    (function () {
+        var extender;
+        var mnemonic;
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            extender = form.getPr('Extender');
+            mnemonic = form.getPr('Mnemonic');
+
+            console.log('-->>>>>>>>', extender);
+        });
+
+        $("#@wrapID").closest("form").on("onSave", function (e, form) {
+        });
+
+        $("#edit_@wrapID").click(function() {
+            pbaAPI.openViewModelEx(mnemonic, {
+                wid: "@wrapID",
+                title: "Дополнительно",
+                isMaximaze: true,
+                entity: extender,
+                toSave: false,
+                callback: function (e) {
+                    console.log('ok');
+                }
+            });
+        });
+    })();
+</script>

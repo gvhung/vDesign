@@ -1,0 +1,25 @@
+@model EditorViewModel
+
+@{
+    string name = "n_" + Guid.NewGuid().ToString("N");
+}
+
+
+@(Html.Kendo().DatePicker()
+    .Name(name)
+    .Format(Framework.JsonNetResult.MONTH_FORMATE)
+    .Start(CalendarView.Year)
+    .Depth(CalendarView.Year)
+    .HtmlAttributes(Html.CreateHtmlAttributes(Model))
+)
+
+<script>
+    $(function () {
+        var $f = $("#@name");
+
+        $f.closest("form").on("onAfterBind", function (e, form) {
+            var date = kendo.parseDate(form.getPr("@Model.PropertyName"), "@Framework.JsonNetResult.DATE_TIME_FORMATE");
+            $f.data("kendoDatePicker").value(date);
+        });
+    });
+</script>

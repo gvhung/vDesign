@@ -1,0 +1,71 @@
+﻿@model WebUI.Areas.Public.Models.BasePageViewModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="/Areas/Public/Content/Images/favicon.png" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Хурма</title>
+    
+
+    <link href="~/Areas/Public/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Areas/Public/vendor/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="~/Areas/Public/content/css/site.css" rel="stylesheet" />
+    <link href="~/Areas/Public/content/css/site.figure.css" rel="stylesheet" />
+    <link href="~/Areas/Public/content/css/site.figure2.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="container">
+        @Html.Partial("_Menu")
+        @RenderBody()
+    </div>
+    
+    
+
+    <script src="~/Areas/Public/vendor/jquery/jquery-2.1.4.min.js"></script>
+    <script src="~/Areas/Public/vendor/bootstrap/js/bootstrap.min.js"></script>
+    @RenderSection("scripts", required: false)
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('[data-menu]').each(function() {
+                var $el = $(this);
+                var $wrap = $el.closest('.nav');
+
+                var $ul = $el.find('ul').detach();
+                $ul.removeClass('dropdown-menu');
+
+                var $submenu = $('<div />');
+                $submenu.addClass('dropdown-menu-horizontal');
+                $submenu.attr('data-item', $el.attr('data-menu'));
+                $submenu.append($ul);
+
+                $wrap.append($submenu);
+
+
+                //console.log($wrap);
+            });
+
+
+
+                    $('[data-menu]').on('shown.bs.dropdown', function () {
+                        var attr = $(this).attr('data-menu');
+                        $('[data-item="' + attr +'"]').show();
+                    });
+
+                    $('[data-menu]').on('hide.bs.dropdown', function () {
+                        var attr = $(this).attr('data-menu');
+                        $('[data-item="' + attr + '"]').hide();
+                    });
+
+                    //$('[data-menu="horizontal"]').on('hide.bs.dropdown', function () {
+                    //    $('[data-item="horizontal"]').hide();
+                    //});
+                });
+        </script>
+
+
+</body>
+</html>

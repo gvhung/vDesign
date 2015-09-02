@@ -1,0 +1,166 @@
+﻿@using Base.Security
+@model EditorViewModel
+
+@{
+    EditorViewModel eViewModel = Model;
+
+    string htmlFieldName = eViewModel.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    Type prType = eViewModel.EditorType;
+
+    Type enumType;
+
+    if (prType.IsEnum)
+    {
+        enumType = prType;
+    }
+    else
+    {
+        //NOTE: Nullable<Enum>
+        enumType = prType.GetGenericArguments()[0];
+    }
+
+
+    string values = Newtonsoft.Json.JsonConvert.SerializeObject(Enum.GetValues(enumType).Cast<Enum>()
+                .Select(v => new
+                {
+                    Value = v.GetValue(),
+                    Name = v.ToString(),
+                    Text = v.GetDescription()
+                }));
+}
+
+<style>
+    .badge {
+        margin-left: 4px;
+        
+    }
+        .badge span {
+            margin-right: 2px;
+        }
+
+    .user-type-pending {
+        background-color: #26a457;
+    }
+
+    .user-type-change {
+        cursor: pointer;
+        background-color: #428bca;
+    }
+
+    .user-type-change.details {
+        background: #fff;
+        cursor: default;
+        padding: 6px;
+        margin-top: -10px;
+        /*border-radius: 3px;*/
+        border: 1px solid #357ebd;
+    }
+
+        .user-type-change.details a {
+            display: block;
+            padding: 2px;
+        }
+
+    .user-type-change .open-block {
+        display: none;
+    }
+
+    .user-type-change .close-block {
+        display: block;
+    }
+
+    .user-type-change.details .open-block {
+        display: block;
+    }
+
+    .user-type-change.details .close-block {
+        display: none;
+    }
+</style>
+
+<div id="@wrapID" class="user-type" style="margin-top: 6px;">
+    <div class="user-type-title pull-left">
+        <span id="@htmlFieldName"></span>
+    </div>
+    <div class="user-type-change badge pull-left" style="cursor: pointer">
+        <div class="close-block">
+            <span class="glyphicon glyphicon-star"></span><small>Изменить</small>
+        </div>
+        <div class="open-block">
+            <a id="expert-link">@(UserType.Expert.GetDescription())</a>
+            <a id="dev-link">@(UserType.Developer.GetDescription())</a>
+        </div>
+    </div>
+    <div class="user-type-pending badge pull-left" style="display:none">
+        <span class="glyphicon glyphicon-clock"></span><small>Заявка подана</small>
+    </div>
+</div>
+
+<script>
+    window["@wrapID"] = {
+        openModal: function(mnemonic, requestedType) {
+            $(".user-type-change").removeClass("details", 200);
+            pbaAPI.openViewModelEx (mnemonic, {
+                isMaximaze: false,
+                entity: null,
+                hideToolbar: true,
+                callback: function (e) { 
+                    if(e.type === "save" && e.changeObjects) {
+                        var obj = e.changeObjects[0];
+                        if(obj.User.ChangeTypePending) {
+                            var $form = $("#@wrapID").closest("form");
+                            $form.data("pbaForm").setPr("ChangeTypePending", true);
+                            $form.closest(".dialog-vm").data("dialogVM").refresh();
+                        }
+                    }
+                },
+                initNewEntity: function (model) {
+                    model.RequestedType = requestedType;
+                }
+            });
+        }
+    };
+
+    application.initEnumValues("@enumType.FullName", @Html.Raw(values));
+
+    $(function() {
+        var $f = $("#@wrapID").find("#@htmlFieldName");
+
+        $f.closest("form").on("onAfterBind", function(e, form) {
+            var value = form.getPr("@htmlFieldName");
+            $f.attr("class", "enum-@enumType.Name");
+            $f.attr("data-val", application.getEnumName("@enumType.FullName", value));
+            $f.html(application.getEnumText("@enumType.FullName", form.getPr("@htmlFieldName")));
+
+            if (value === @UserType.Expert.GetValue()) {
+                $(".open-block #expert-link").remove();
+            }
+            if (value === @UserType.Developer.GetValue()) {
+                $(".user-type-change").remove();
+            }
+            if (form.getPr("ChangeTypePending") === true) {
+                $(".user-type-change").remove();
+                $(".user-type-pending").show();
+            }
+        });
+
+        $(".user-type-change").on("click", function(e) {
+            $(".user-type-change").addClass("details", 200);
+            return false;
+        });
+        $(":not(.user-type-change)").on("click", function(e) {
+            $(".user-type-change").removeClass("details", 200);
+        });
+
+        $(".user-type-change #expert-link").on("click", function(e) {
+            window["@wrapID"].openModal("ExpertPromotion", "@(UserType.Expert.GetValue())");
+            return false;
+        });
+        $(".user-type-change #dev-link").on("click", function(e) {
+            window["@wrapID"].openModal("DeveloperPromotion", "@(UserType.Developer.GetValue())");
+            return false;
+        });
+    });
+</script>

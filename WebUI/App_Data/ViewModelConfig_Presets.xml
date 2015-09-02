@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>GridPreset</mnemonic>
+    <title>Пресет - Грид</title>
+    <entity>Base.UI.Presets.GridPreset, Base</entity>
+    <detailview title="Настройки" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="Standart" action="GetToolbarPreset">
+          <param key="mnemonic" value="GridPreset" />
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <icon>halfling halfling-th</icon>
+  </item>
+  <item>
+    <mnemonic>ColumnSetting</mnemonic>
+    <title>Пресет - Грид - Колонка</title>
+    <entity>Base.UI.Presets.ColumnSetting, Base</entity>
+    <detailview title="Колонка" width="600" height="400"></detailview>
+    <listview>
+      <hiddenActions>
+        <action id="Create"/>
+        <action id="Delete"/>
+      </hiddenActions>
+    </listview>
+    <icon>halfling halfling-th</icon>
+  </item>
+
+  <item>
+    <mnemonic>DashboardPreset</mnemonic>
+    <title>Пресет - Рабочий стол</title>
+    <entity>Base.UI.Presets.DashboardPreset, Base</entity>
+    <detailview title="Настройки" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="Standart" action="GetToolbarPreset">
+          <param key="mnemonic" value="DashboardPreset" />
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <icon>halfling halfling-th-large</icon>
+  </item>
+  <item>
+    <mnemonic>DashboardWidget</mnemonic>
+    <title>Пресет - Рабочий стол - Виджет</title>
+    <entity>Base.UI.DashboardWidget, Base</entity>
+  </item>
+  
+</ViewModelConfig>

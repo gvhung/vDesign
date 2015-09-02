@@ -1,0 +1,665 @@
+﻿@model StandartDialogViewModel
+@using System.Web.UI.WebControls
+@using Base.Wizard.UI
+@using Newtonsoft.Json
+
+@{
+    var isCreate = Model.IsPermission(Base.Security.TypePermission.Create);
+    //bool isRead = Model.IsPermission(Base.Security.TypePermission.Read);
+    //bool isWrite = Model.IsPermission(Base.Security.TypePermission.Write) && !Model.IsReadOnly;
+    //bool isReadOnly = !isWrite;
+
+    var typeEntity = Model.ViewModelConfig.TypeEntity;
+
+    var isCategorizedItem = typeEntity.GetInterfaces().Contains(typeof(ICategorizedItem));
+
+    var detailView = Model.HasDetailView ? Model.ViewModelConfig.DetailView.Name : "CommonEditor";
+
+    var VD = new ViewDataDictionary
+    {
+        {
+            "ViewModelConfig", Model.ViewModelConfig
+        }
+    };
+
+    string customQueryGetUrl = null;
+    string customQueryGetParams = null;
+
+    if (Model.ViewModelConfig.DetailView != null && Model.ViewModelConfig.DetailView.DataSource != null)
+    {
+        var actionGet = Model.ViewModelConfig.DetailView.DataSource.Get;
+
+        if (actionGet != null)
+        {
+            customQueryGetUrl = Url.Action(actionGet.Name, actionGet.Controller);
+            customQueryGetParams = JsonConvert.SerializeObject(actionGet.Params);
+        }
+    }
+}
+
+@if (isCreate)
+{
+    <script>
+        window["@Model.DialogID"] = new CompositeControl("@Model.DialogID");
+
+        (function () {
+            var composite = window["@Model.DialogID"];
+
+            composite.count = 0;
+            composite.Idx = {};
+            composite.prevID = null;
+            composite.nextID = null;
+            composite.mnemonic = "@Model.Mnemonic";
+            composite.type = "@Model.Type";
+            composite.firststep = "@(((WizardDetailView)Model.ViewModelConfig.DetailView).FirstStep)";
+            composite.completekey = "@WizardConfig.WIZARD_COMPLETE_KEY";
+            composite.isModal = composite.type == "Modal";
+            composite.changeObjects = [];
+
+            composite.defparams = {
+                // kendoWindow - окно диалога
+                wnd: null,
+                // ID текущего объекта
+                currentID: 0,
+                // ассоциативный массив - / key = ID; value = { model: entity, access: { Update: bool, Delete: bool }, order: №, loaded: bool } /
+                entities: {},
+                // pbaForm - ссылка на родительскую форму
+                parentForm: null,
+                // флаг - только чтение
+                isReadOnly: false,
+                // флаг - выполнить запрос сохранения объекта
+                toSave: false,
+                // флаг - скрыть toolbar
+                hideToolbar: true,
+                // события
+                events: {
+                    initNewEntity: function (e) { },
+                    nextStep: function(e) {
+                        
+                    },
+                    onNextStep: function(e) {
+                        
+                    },
+                    beforeSave: function (e) { },
+                    save: function (e) { },
+                },
+                // параметры для кастомных запросов
+                customQueryParams: {
+                    get: {},
+                    save: {}
+                }
+            };
+
+            composite.params = {};
+
+            composite.initDialog = function (params) {
+                //console.log("Init dialog: ", params);
+
+                var defparams = $.extend({}, this.defparams);
+
+                this.params = $.extend(defparams, params);
+
+                if (this.defparams.isReadOnly)
+                    this.params.isReadOnly = true;
+
+                this.count = 0;
+                this.changeObjects = [];
+
+                for (var id in this.params.entities) {
+                    var entity = this.params.entities[id];
+                    this.Idx[entity.order] = parseInt(id);
+                    this.count++;
+                }
+
+                if (this.params.hideToolbar || composite.defparams.hideToolbar) {
+                    this.element().find(".toolbar-vm").hide();
+                    this.element().find(".view-model").css("top", "5px");
+                }
+
+                this.bind();
+            };
+
+            composite.destroy = function () {
+                this.changeObjects = [];
+            };
+
+            composite.getEditorViewModel = function () {
+                return this.getWidget("EditorViewModel");
+            };
+
+            composite.getDisplayViewModel = function () {
+                return this.getWidget("DisplayViewModel");
+            };
+
+            composite.criticalError = function (msg) {
+                this.hideLoading();
+                this.element().html("<h4 style='color: red;'>" + msg + "</h4>");
+            };
+
+            composite.startLoading = function () {
+                var $content;
+
+                if (this.isModal)
+                    $content = this.params.wnd.element;
+                else
+                    $content = this.element().closest("div");
+
+                $content.addClass("wnd-loading-content");
+
+                this.element().hide();
+            };
+
+            composite.hideLoading = function () {
+                var $content;
+
+                if (this.isModal)
+                    $content = this.params.wnd.element;
+                else
+                    $content = this.element().closest("div");
+
+                $content.removeClass("wnd-loading-content");
+
+                this.element().fadeIn(300);
+
+                var editors = [composite.getEditorViewModel(), composite.getDisplayViewModel()];
+
+                for(var i in editors) {
+                    var editor = editors[i];
+
+                    if (editor && editors.hasOwnProperty(i)) {
+                        var $el = editor.element();
+
+                        if($el.is(":visible"))
+                            $el.trigger('onShown', editor.widget());
+                    }
+                }
+            };
+
+            composite.getCurrentEntity = function () {
+                return composite.params.entities[composite.params.currentID];
+            };
+
+            composite.getCurrentModel = function () {
+                return composite.getCurrentEntity().model;
+            };
+
+            composite.bind = function () {
+                this.startLoading();
+
+                this.getModel(function (entity) {
+
+                    composite.model = entity.model;
+
+                    //console.log("On bind:", entity.model);
+
+                    var dfds = [];
+
+                    composite.prevID = null;
+                    composite.nextID = null;
+
+                    if (composite.params.currentID != 0 && composite.count > 1) {
+
+                        if (entity.order > 0) {
+                            composite.prevID = composite.Idx[entity.order - 1];
+                        }
+
+                        if (entity.order < (composite.count - 1)) {
+                            composite.nextID = composite.Idx[entity.order + 1];
+                        }
+                    }
+
+                    for (var id in composite.widgets) {
+                        if (composite.widgets[id].defparams.step == composite.model.Step) {
+
+                            $("#" + composite.widgets[id].id).show();
+
+                            if ("asyncBind" in composite.widgets[id]) {
+                                dfds.push(composite.widgets[id].asyncBind({
+                                    isReadOnly: !composite.getAccess(entity).Update,
+                                    parentForm: composite.params.parentForm,
+                                    model: composite.model,
+                                    prevID: composite.prevID,
+                                    nextID: composite.nextID,
+                                    toSave: composite.params.toSave
+                                }));
+                            }
+                        } else {
+                            $("#" + composite.widgets[id].id).hide();
+                        }
+
+                    }
+
+                    $.when.apply($, dfds).done(function () {
+                        composite.hideLoading();
+                    });
+                });
+            };
+
+            composite.getAccess = function (obj) {
+                if (this.params.isReadOnly) {
+                    return { Update: false, Delete: false };
+                }
+                else {
+                    return obj.access || { Update: true, Delete: true };
+                }
+            };
+
+            composite.getModel = function (callback) {
+                var currentID = this.params.currentID;
+                var entities = this.params.entities;
+
+                if (currentID in entities) {
+                    if (entities[currentID].model) {
+                        callback(entities[currentID]);
+                        return;
+                    }
+                }
+
+                var isNew = !currentID || currentID == 0;
+
+                var queryParams = composite.queryGetParams();
+
+                if(queryParams){
+                    $.get(queryParams.url, queryParams.params, function (res) {
+                        if (res.error && res.error != 0) {
+
+                            composite.criticalError(res.message);
+
+                            return;
+                        }
+                        else {
+                            if (isNew && composite.params.events.initNewEntity)
+                                composite.params.events.initNewEntity(res.model);
+
+                            if (!(currentID in entities)) {
+                                entities[currentID] = {};
+                            }
+
+                            var entity = entities[currentID];
+
+                            entity.model = res.model;
+                            entity.access = res.access;
+                            entity.loaded = true;
+
+                            callback(entity);
+                        }
+                    });
+                }
+            };
+
+            composite.onChildWidgetChanged = function (e) {
+                if (e.sender.desc == "ToolbarViewModel") {
+                    switch (e.event) {
+                        case "refresh":
+                            composite.refresh();
+                            break;
+                        case "save":
+                            if (composite.getAccess(composite.getCurrentEntity()).Update) {
+                                $.when(composite.save(false)).done(function() {
+                                    $.when(e.params.callback()).done(function() {
+                                        composite.refresh();
+                                    });
+                                });
+                            } else {
+                                $.when(e.params.callback()).done(function () {
+                                    composite.changeObjects.push(composite.getCurrentModel());
+                                    composite.refresh();
+                                });
+                            }
+
+                            break;
+
+                        case "loadingAndRefresh":
+                        case "loadingAndNext":
+                            composite.startLoading();
+
+                            composite.changeObjects.push(composite.getCurrentModel());
+
+                            $.when(e.params.callback(false)).done(function () {
+                                if (e.event == "loadingAndRefresh")
+                                    composite.refresh();
+                                else
+                                    composite.next();
+                            });
+
+                            break;
+                        case "addToChangedAndRefresh":
+                            composite.changeObjects.push(composite.getCurrentModel());
+                            composite.refresh();
+
+                            break;
+                    }
+
+                } else if (e.sender.desc == "EditorViewModel") {
+                    switch (e.event) {
+                        case "save":
+                        case "apply":
+
+                            $.when(composite.save(true)).done(function () {
+                                if(e.event == "save")
+                                    composite.params.events.save({ sender: composite });
+                                else
+                                    composite.bind();
+                            });
+
+                            break;
+
+                        case "close":
+                            composite.params.wnd.close();
+
+                            break;
+                    }
+                } else if (e.sender.desc == "DisplayViewModel") {
+                    if (e.event == "close") {
+                        composite.params.wnd.close();
+                    }
+                } else if (e.sender.desc == "WizardViewModel") {
+                    switch (e.event) {
+                        case "prev":
+                            composite.prev(e);
+                            break;
+                        case "next":
+                            composite.next(e);
+                            break;
+                        case "close":
+                            composite.params.wnd.close();
+                            break;
+                        case "save":
+                            $.when(composite.save(e, true)).done(function () {
+                                composite.params.events.save({ sender: composite });
+                            });
+                            break;
+                    }
+                }
+            };
+
+            composite.refresh = function () {
+                var entity = composite.params.entities[composite.params.currentID];
+
+                if (entity.loaded) {
+                    entity.model = null;
+                }
+
+                composite.bind();
+            };
+
+            composite.next = function(e) {
+                var form = e.sender.widget();
+
+                form.element.trigger("onSave", form);
+
+                if (form.validate()) {
+                    var model = form.getModel();
+
+                    $.ajax({
+                        type: "POST",
+                        url: application.url.GetWizard("Next"),
+                        data: JSON.stringify({ mnemonic: composite.mnemonic, model: model }),
+                        contentType: "application/json; charset=utf-8",
+                        success: function(res) {
+                            var entity = composite.params.entities[composite.params.currentID];
+
+                            entity.model = res.model;
+                            
+                            if (res.access)
+                                entity.access = res.access;
+
+                            switch (res.status.toLowerCase()) {
+                                case "success":
+                                    composite.bind();
+                                    break;
+                                case "error":
+                                    pbaAPI.msg(res.message, "error");
+                                    break;
+                                default:
+                                    console.log("Response:", res);
+                                    break;
+                            }
+                        }
+                    });
+
+
+                } else {
+                    pbaAPI.errorMsg("Заполнены не все обязательные поля!");
+                }
+            };
+
+            composite.prev = function(e) {
+                var form = e.sender.widget();
+
+                var model = form.getModel();
+
+                $.ajax({
+                    type: "POST",
+                    url: application.url.GetWizard("Prev"),
+                    data: JSON.stringify({ mnemonic: composite.mnemonic, model: model }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function(res) {
+                        var entity = composite.params.entities[composite.params.currentID];
+
+                        entity.model = res.model;
+
+                        if (res.access)
+                            entity.access = res.access;
+
+                        composite.bind();
+                    }
+                });
+
+            };
+
+            composite.save = function (e, sync) {
+                //console.log("SYNC:", sync);
+                //console.log("OnSave:", e);
+
+                var dfd = $.Deferred();
+
+                var form = e.sender.widget();
+
+                form.element.trigger("onSave", form);
+
+                var model = form.getModel();
+
+                if (this.params.events.beforeSave) {
+                    this.params.events.beforeSave({
+                        isNew: model.ID == 0,
+                        pbaForm: form
+                    });
+                }
+
+                if (form.validate()) {
+
+                    form.element.trigger("onAfterValidate", form);
+
+                    if (this.params.toSave) {
+
+                        this.startLoading();
+
+                        $.ajax({
+                            type: "POST",
+                            url: application.url.GetWizard("Save"),
+                            data: JSON.stringify({ mnemonic: composite.mnemonic, model: model, returnEntireModel: sync }),
+                            contentType: "application/json; charset=utf-8",
+                            success: function (res) {
+                                if (res.error == 0) {
+                                    composite.changeObjects.push(res.base);
+
+                                    //if (res.basemnemonic)
+                                    //    pbaAPI.openViewModelEx(res.basemnemonic, { entity: res.base });
+
+                                    if (!composite.isModal)
+                                        pbaAPI.infoUploadSuccess(res.message);
+
+                                    if (sync) {
+                                        if (composite.params.currentID == 0) {
+                                            var entity = $.extend({}, composite.params.entities[0]);
+
+                                            delete composite.params.entities[0];
+
+                                            entity.model = res.base;
+                                            entity.loaded = true;
+
+                                            if (res.access)
+                                                entity.access = res.access;
+
+                                            composite.params.entities[res.base.ID] = entity;
+                                            composite.Idx[entity.order] = res.base.ID;
+
+                                            composite.params.currentID = res.base.ID;
+                                        } else {
+                                            var entity = composite.params.entities[composite.params.currentID];
+
+                                            entity.model = res.base;
+
+                                            if (res.access)
+                                                entity.access = res.access;
+                                        }
+                                    }
+
+                                    dfd.resolve();
+                                } else {
+                                    pbaAPI.errorMsg(res.message);
+
+                                    composite.hideLoading();
+                                }
+                            }
+                        });
+                    } else {
+                        composite.changeObjects.push(model);
+
+                        dfd.resolve();
+                    }
+                } else {
+                    pbaAPI.errorMsg("Заполнены не все обязательные поля!");
+                }
+
+                return dfd.promise();
+            };
+
+        })();
+    </script>
+}
+else
+{
+    <script>
+        window["@Model.DialogID"] = new CompositeControl("@Model.DialogID");
+
+        (function () {
+            var composite = window["@Model.DialogID"];
+
+            composite.mnemonic = "@Model.Mnemonic";
+            composite.type = "@Model.Type";
+            composite.isModal = composite.type == "Modal";
+            composite.changeObjects = [];
+
+            composite.initDialog = function (params) {
+                composite.hideLoading(params);
+            };
+
+            composite.hideLoading = function (params) {
+                var $content;
+
+                if (this.isModal)
+                    $content = params.wnd.element;
+                else
+                    $content = this.element().closest("div");
+
+                $content.removeClass("wnd-loading-content");
+
+                this.element().fadeIn(300);
+            };
+
+            composite.destroy = function () {
+                this.changeObjects = [];
+            };
+
+        })();
+    </script>
+}
+
+@if (customQueryGetParams != null)
+{
+    <script>
+        (function () {
+            var composite = window["@Model.DialogID"];
+
+            composite.queryGetParams = function () {
+                var url = "@customQueryGetUrl";
+                var params = @Html.Raw(customQueryGetParams);
+
+
+                if(!composite.params.customQueryParams || !composite.params.customQueryParams.get){
+                    composite.criticalError("Ошибка инициализации параметров get запроса");
+                    return null;
+                }
+
+                return {
+                    url: "@customQueryGetUrl",
+                    params: pbaAPI.replaceObjectPlaceholders(composite.params.customQueryParams.get, params)
+                }
+            };
+        })();
+    </script>
+}
+else
+{
+    <script>
+        (function () {
+            var composite = window["@Model.DialogID"];
+
+            composite.queryGetParams = function () {
+                return {
+                    url: application.url.GetWizard("Start"),
+                    params: {
+                        mnemonic: this.mnemonic,
+                    },
+                };
+            };
+        })();
+    </script>
+}
+
+
+<div id="@Model.DialogID" style="display:none;" class="dialog-vm">
+    @Html.HiddenFor(m => m.DialogID)
+
+    @if (isCreate)
+    {
+        <div class="view-model wizard-view-model">
+            @{ Html.RenderPartial("_EditorViewModel", new WizardFormModel(Model, Html.GetCommonEditor(Model.Mnemonic))); }
+        </div>
+    }
+    else
+    {
+        <div class="lock" style="min-height:200px;"><h2>НЕТ ДОСТУПА</h2></div>
+    }
+</div>
+
+<script>
+    $(function () {
+        var dialog = window["@Model.DialogID"];
+
+        $("#@Model.DialogID").data("dialogVM", dialog);
+    });
+</script>
+
+
+@if (ViewBag.AutoBind != null && ViewBag.AutoBind)
+{
+    <script>
+        $(function () {
+            var dialog = window["@Model.DialogID"];
+            var id = parseInt("@ViewBag.ID");
+
+            var entities = {};
+
+            entities[id] = { model: null, order: 0 };
+
+            dialog.initDialog({
+                currentID: parseInt("@ViewBag.ID"),
+                entities: entities,
+                toSave: true,
+            });
+        });
+    </script>
+}

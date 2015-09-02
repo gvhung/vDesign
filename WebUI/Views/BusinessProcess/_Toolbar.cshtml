@@ -1,0 +1,185 @@
+﻿@model WebUI.Models.BusinessProcess.WorkflowToolbarVm
+
+@{
+    string tlbrName = "tlbr_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@tlbrName">
+    @Html.Partial("_DetailViewToolbar", Model)
+</div>
+
+<script id="invoke-action-confirmation" type="text/x-kendo-template">
+    <div style="display:none" class="panel panel-default data-user-wrap">
+        <div data-user class="panel-body"></div>
+    </div>
+    <textarea class="form-control action-comment" rows="10" placeholder="При необходимости, введите дополнительную информацию по принятому решению"></textarea>
+    <div style="position:absolute; bottom: 10px; right:10px;">
+        <button data-action="cancel" type="button" class="btn btn-default">Отменить</button>
+        <button data-action="invoke" type="button" class="btn btn-primary disabled">Выполнить</button>
+    </div>
+</script>
+
+<script>
+    $("#@tlbrName").on("click", "[data-wfaction]", function () {
+        
+        var $dialog = $(this).closest(".dialog-vm");
+
+        if ($dialog.length > 0) {
+            var editorVm = $dialog.data("dialogVM").getEditorViewModel();
+
+            if (editorVm.element().is(":visible")) {
+                var form = editorVm.widget();
+
+                if(form){
+                    editorVm.element().trigger("onSave", form);
+
+                    if (!form.validate()) {
+                        pbaAPI.errorMsg("Заполнены не все обязательные поля!");
+
+                        return false;
+                    }
+                }
+            }
+        }
+
+        var actionButton = $(this).addClass("disabled square-loader transparent-color");
+        var isRequiredComment = actionButton.attr("data-wfrequiredcomment") === "true";
+
+        $.get("@Url.Action("CheckNextStage", "BusinessProcess")", { actionID: actionButton.data("wfaction"), objectType: "@Model.ObjectType" ,objectID: @Model.ObjectID }, function (data) {
+            actionButton.removeClass("disabled square-loader transparent-color");
+            if (data.Dialog) {
+                var kendoWindow = $("<div />").html(data.Dialog).kendoWindow({
+                    width: 600,
+                    height: "auto",
+                    maxHeight: 900,
+                    title: "Выберите исполнителя",
+                    actions: ["Maximize", "Close"],
+                    modal: true,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                });
+
+                kendoWindow.find("[data-userid]").click(function () {
+                    kendoWindow.data('kendoWindow').close();
+
+                    actionInvokeCallback($(this));
+                });
+
+                var wnd = kendoWindow.data("kendoWindow");
+                wnd.center().open();
+
+            } else if (data.Success) {
+                actionInvokeCallback();
+            } else {
+                pbaAPI.errorMsg(data.message);
+            }
+        });
+
+        var actionInvokeCallback = function ($userImg) {
+
+            var userID = $userImg ? $userImg.data("userid") : 0;
+
+            var kendoWindow = $("<div />").kendoWindow({
+                resizable: true,
+                width: 500,
+                height: 300,
+                modal: true,
+                deactivate: function () {
+                    this.destroy();
+                }
+            });
+
+            kendoWindow.data("kendoWindow")
+                .content($("#invoke-action-confirmation").html())
+                .title(actionButton.html())
+                .center().open();
+
+            if (!isRequiredComment)
+            {
+                var invokeButton = kendoWindow.find("[data-action=invoke]");
+                invokeButton.removeClass("disabled");
+            };
+
+            kendoWindow.find("textarea.action-comment").on("keyup", function (e) {
+                if (isRequiredComment)
+                {
+                    var invokeButton = kendoWindow.find("[data-action=invoke]");
+
+                    if (e.target.value)
+                    {
+                        invokeButton.removeClass("disabled");
+                    }
+                    else if (!invokeButton.hasClass("disabled"))
+                    {
+                        invokeButton.addClass("disabled");
+                    }
+                }
+            });
+
+            if (userID) {
+                kendoWindow.find(".data-user-wrap").show();
+                kendoWindow.find("[data-user]").html($userImg.find(".media")).append('<div class="alert alert-warning" role="alert">Напоминание будет назначено <strong>только</strong> на выбранного пользователя</div>');
+                var h = kendoWindow.height();
+
+                kendoWindow.height(h + kendoWindow.find(".data-user-wrap").height());
+            }
+            kendoWindow.find("textarea.action-comment").on("copy cut paste", function (e) {
+                if (!isRequiredComment) return;
+
+                setTimeout(function () {
+                    var invokeButton = kendoWindow.find("[data-action=invoke]");
+
+                    if (e.target.value)
+                    {
+                        invokeButton.removeClass("disabled");
+                    }
+                    else if (!invokeButton.hasClass("disabled"))
+                    {
+                        invokeButton.addClass("disabled");
+                    };
+                }, 0);
+            });
+
+            kendoWindow.find("[data-action=invoke]").click(function () {
+                var button = $(this).addClass("disabled square-loader transparent-color");
+                var $toolbar = $("#@tlbrName").closest("[data-role=toolbar]");
+
+                $toolbar.trigger("onActionInvoke", {
+                    save: function (model) {
+                        return $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("ExecuteAction", "BusinessProcess")",
+                            data: {
+                                objectID : @Model.ObjectID,
+                                objectType : "@Model.ObjectType",
+                                userID: userID || null,
+                                actionID: actionButton.data("wfaction"),
+                                comment: kendoWindow.find("textarea.action-comment").val()
+                            },
+                            success: function (data) {
+                                if (data.error) {
+                                    pbaAPI.errorMsg(data.message);
+                                }
+
+                                kendoWindow.data("kendoWindow").close();
+                                button.removeClass("disabled square-loader transparent-color");
+                            }
+                        });
+                    }
+                });
+            });
+            kendoWindow.find("[data-action=cancel]").click(function () {
+                kendoWindow.data("kendoWindow").close();
+            }).end();
+        }
+    });
+
+    $("#@tlbrName").find('#agreement-map').on("click", function () {
+        var dialog = $(this).closest(".dialog-vm").data("dialogVM");
+        debugger;
+        var model = dialog.getCurrentModel();
+        var wfID = model.WorkflowContext.WorkflowID;
+        pbaAPI.openWorkflowTimelineModal("@Model.ObjectType", @Model.ObjectID, wfID);
+    });
+</script>

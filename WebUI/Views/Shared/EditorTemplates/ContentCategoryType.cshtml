@@ -1,0 +1,155 @@
+﻿@model EditorViewModel
+
+@{
+    var contentCategoryID = "category_" + Guid.NewGuid().ToString("N");
+    var extendedRowsID = "extended_" + Guid.NewGuid().ToString("N");
+    var bannerRowID = "banner_" + Guid.NewGuid().ToString("N");
+    var mnemonicRowID = "content_" + Guid.NewGuid().ToString("N");
+    var mnemonicDropDownID = "mnemonic_" + Guid.NewGuid().ToString("N");
+
+    var mnemonics = Html.GetViewModelConfigs().Where(x => typeof(Base.Content.Entities.ContentItem).IsAssignableFrom(x.TypeEntity))
+        .Where(x => x.Mnemonic != "ContentItem")
+        .Select(x => new
+        {
+            Value = x.Mnemonic,
+            Text = x.DetailView != null ? x.DetailView.Title : x.Title,
+        });
+}
+
+<div id="@contentCategoryID">
+    <div class="panel panel-default">
+        <div class="panel-heading">@{ Html.RenderPartial("EditorTemplates/Enum", Model); }</div>
+        <div class="panel-body" style="padding: 0">
+            <div id="@mnemonicRowID">
+                <div class="row e-row">
+                    <div class="col-md-2 e-label">
+                        @Html.Label("Мнемоника")
+                        <span style="color: red;">*</span>
+                    </div>
+                    <div class="col-md-10 e-editor">
+
+                        @(Html.Kendo().DropDownList()
+                            .Name(mnemonicDropDownID)
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .HtmlAttributes(new { data_bind = "value: CategoryItemMnemonic", validationmessage = "Обязательное поле", style = "width:100%;max-width:300px;" })
+                            .BindTo(mnemonics)
+                            .Value("0")
+                        )
+                    </div>
+                </div>
+            </div>
+
+            <div id="@bannerRowID">
+                <div class="row e-row">
+                    <div class="col-md-2 e-label">
+                        @Html.Label("Params")
+                    </div>
+                    <div class="col-md-10 e-editor">
+                        @Html.TextBox(Model, new { data_bind = "value: Params", style = "width: 100%;max-width:300px;" })
+                    </div>
+                </div>
+            </div>
+
+            <div id="@extendedRowsID">
+                <div class="row e-row">
+                    <div class="col-md-2 e-label">
+                        @Html.Label("Action")
+                        <span style="color: red;">*</span>
+                    </div>
+                    <div class="col-md-10 e-editor">
+                        @Html.TextBox(Model, new { data_bind = "value: Action", style = "width: 100%;max-width:300px;" })
+                    </div>
+                </div>
+                <div class="row e-row">
+                    <div class="col-md-2 e-label">
+                        @Html.Label("Controller")
+                        <span style="color: red;">*</span>
+                    </div>
+                    <div class="col-md-10 e-editor">
+                        @Html.TextBox(Model, new {data_bind = "value: Controller", style = "width: 100%;max-width:300px;"})
+                    </div>
+                </div>
+                <div class="row e-row">
+                    <div class="col-md-2 e-label">
+                        @Html.Label("Params")
+                    </div>
+                    <div class="col-md-10 e-editor">
+                        @Html.TextBox(Model, new { data_bind = "value: Params", data_non_required = "", style = "width: 100%;max-width:300px;" })
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    (function () {
+        var $wrapper = $('#@contentCategoryID');
+        var $form = $wrapper.closest('form');
+        var $dropdown = $wrapper.find('.k-dropdown');
+        var editorType = '@Model.EditorType.Name';
+        var $extendedRows = $('#@extendedRowsID');
+        var $bannerRow = $('#@bannerRowID');
+        var $mnemonicRow = $('#@mnemonicRowID');
+        var kendoDropDownList = $wrapper.find('#' + $wrapper.find('.k-dropdown').attr('aria-owns').replace('_listbox', '')).data('kendoDropDownList');
+        var kendoMnemonic = $('#@mnemonicDropDownID').data('kendoDropDownList');
+        var bannerType = '@((int)Base.Content.Entities.ContentCategoryType.Banner)';
+        var extendedType = '@((int)Base.Content.Entities.ContentCategoryType.ContentExtended)';
+        var mnemonicType = '@((int)Base.Content.Entities.ContentCategoryType.ContentRegular)';
+
+        function extendedShow(show) {
+            $extendedRows[show ? 'show' : 'hide']();
+            $extendedRows.find('input').attr('required', show);
+            $extendedRows.find('input[data-non-required]').removeAttr('required');
+        }
+
+        function mnemonicShow(show) {
+            $mnemonicRow[show ? 'show' : 'hide']();
+            $mnemonicRow.find('input').attr('required', show);
+        }
+
+        function bannerShow(show) {
+            $bannerRow[show ? 'show' : 'hide']();
+            $bannerRow.find('input').attr('required', false);
+        }
+
+        $form.on('onShown', function (e, form) {
+
+            if (kendoDropDownList) {
+                extendedShow(kendoDropDownList.value() === extendedType);
+                bannerShow(kendoDropDownList.value() === bannerType);
+            }
+            
+            if (kendoMnemonic) {
+                mnemonicShow(kendoDropDownList.value() === mnemonicType);
+            }
+            
+        });
+
+        $form.on('onChange', function (e, form) {
+            
+            if (form.field === editorType) {
+
+                if (kendoDropDownList) {
+                    extendedShow(kendoDropDownList.value() === extendedType);
+                    bannerShow(kendoDropDownList.value() === bannerType);
+                }
+
+                if (kendoMnemonic) {
+                    mnemonicShow(kendoDropDownList.value() === mnemonicType);
+                }
+                
+            }
+        });
+
+        $form.on('onSave', function (e, form) {
+            form.setPr('CategoryItemMnemonic', kendoMnemonic.value());
+        });
+
+    })();
+</script>

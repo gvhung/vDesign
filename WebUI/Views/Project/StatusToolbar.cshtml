@@ -1,0 +1,51 @@
+﻿@using Base.Task.Entities
+@model Base.Project.Entities.Project
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<div style="display: inline-block" id="@wrapID">
+    @switch (Model.GeneralTaskStatus)
+    {
+        case TaskStatus.New:
+        case TaskStatus.Viewed:
+            <button data-action="start" type="button" class="btn btn-primary"><span class="halfling halfling-play"></span>&nbsp;Запустить проект</button>
+            break;
+        case TaskStatus.InProcess:
+        <button data-action="stop" type="button" class="btn btn-danger"><span class="halfling halfling-pause"></span>&nbsp;Остановить проект</button>
+            break;
+        default:
+        <div style="margin: 0" class="alert alert-info" role="alert"><p class="text-muted">Действий нет</p></div>
+            break;
+    }
+</div>
+
+<script>
+    $(function () {
+        $("#@wrapID").on("click", "[data-action]", function () {
+            var $self = $(this);
+
+            $.get("@Url.Action("StartStopProject", "Project")", {
+                actionStr: $(this).data('action'),
+                projectID: "@Model.ID"
+            }, function () {
+                var $actionBar = $("#@wrapID");
+                var actionBar = $actionBar.data("pbaActionBar");
+
+                if (!actionBar)
+                    actionBar = $actionBar.pbaActionBar();
+
+                var listView = window[actionBar.listViewID];
+
+                if (listView) {
+                    listView.bind();
+                    $self.closest('[data-role=window]').data('kendoWindow').close();
+                } else {
+                    $self.closest('[data-role=toolbar]').trigger('onActionInvoke');
+                }
+
+            });
+        });
+    });
+</script>

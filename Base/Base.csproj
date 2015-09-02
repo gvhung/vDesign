@@ -1,0 +1,340 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B78A3750-FA57-41F2-927A-DFB795552548}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Base</RootNamespace>
+    <AssemblyName>Base</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Base.Conference">
+      <HintPath>..\WebUI\Bin\Base.Conference.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Kendo.Mvc">
+      <HintPath>..\packages\Kendo\Mvc4\Kendo.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Linq.Translations">
+      <HintPath>..\packages\Microsoft.Linq.Translations.1.0.1\lib\net40\Microsoft.Linq.Translations.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.2.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.2.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Ambient\AppContext.cs" />
+    <Compile Include="Ambient\AppContextBootstrapper.cs" />
+    <Compile Include="Ambient\DefaultDateTimeProvider.cs" />
+    <Compile Include="Ambient\IAppContextBootstrapper.cs" />
+    <Compile Include="Ambient\IDateTimeProvider.cs" />
+    <Compile Include="Attributes\ColorAttribute.cs" />
+    <Compile Include="Attributes\ListViewAttribute.cs" />
+    <Compile Include="Attributes\DetailViewAttribute.cs" />
+    <Compile Include="Attributes\LocalizedEnumAttribute .cs" />
+    <Compile Include="Attributes\PropertyDataTypeAttribute.cs" />
+    <Compile Include="Attributes\SystemPropertyAttribute.cs" />
+    <Compile Include="Attributes\LinkedListAttribute.cs" />
+    <Compile Include="BaseObject.cs" />
+    <Compile Include="DAL\EntityConfiguration.cs" />
+    <Compile Include="DAL\EntityСonfigurationItem.cs" />
+    <Compile Include="DAL\ExtendedQueryable.cs" />
+    <Compile Include="DAL\IEntityConfiguration.cs" />
+    <Compile Include="DAL\IExtendedQueryable.cs" />
+    <Compile Include="DAL\IObjectSaver.cs" />
+    <Compile Include="DAL\IRepositoryFactory.cs" />
+    <Compile Include="DAL\ITransactionUnitOfWork.cs" />
+    <Compile Include="DAL\IUnitOfWorkFactory.cs" />
+    <Compile Include="DAL\SystemTransactionUnitOfWork.cs" />
+    <Compile Include="DAL\SystemUnitOfWork.cs" />
+    <Compile Include="DAL\TransactionUnitOfWork.cs" />
+    <Compile Include="DAL\UnitOfWork.cs" />
+    <Compile Include="DAL\IBaseContext.cs" />
+    <Compile Include="DAL\IRepository.cs" />
+    <Compile Include="DAL\IUnitOfWork.cs" />
+    <Compile Include="DAL\WrapperUnitOfWork.cs" />
+    <Compile Include="Document\Entities\LinkedDocument.cs" />
+    <Compile Include="Document\Entities\DocumentBase.cs" />
+    <Compile Include="Document\Entities\DocumentTemplateCategory.cs" />
+    <Compile Include="Document\Entities\DocumentType.cs" />
+    <Compile Include="Document\Service\DocumentTemplateCategoryService.cs" />
+    <Compile Include="Document\Service\LinkedDocumentService.cs" />
+    <Compile Include="Document\Service\DocumentTemplateService.cs" />
+    <Compile Include="Document\Service\IDocumentTemplateCategoryService.cs" />
+    <Compile Include="Document\Service\ILinkedDocumentService.cs" />
+    <Compile Include="Document\Service\IDocumentTemplateService.cs" />
+    <Compile Include="Entities\Complex\Color.cs" />
+    <Compile Include="Entities\Complex\KLADR\Address.cs" />
+    <Compile Include="Entities\Complex\KLADR\AddressObject.cs" />
+    <Compile Include="Entities\Complex\LinkBaseObject.cs" />
+    <Compile Include="Entities\Complex\MultiEnum.cs" />
+    <Compile Include="Entities\Complex\Period.cs" />
+    <Compile Include="Entities\Complex\Statistic.cs" />
+    <Compile Include="Entities\Complex\UrlMultilanguageText.cs" />
+    <Compile Include="Document\Entities\DocumentTemplate.cs" />
+    <Compile Include="Entities\IRuntimeBindingType.cs" />
+    <Compile Include="Entities\ObjectStatus.cs" />
+    <Compile Include="Entities\Complex\Url.cs" />
+    <Compile Include="Entities\Complex\Multilanguage.cs" />
+    <Compile Include="Entities\Person.cs" />
+    <Compile Include="Exceptions\UpdateConcurrencyException.cs" />
+    <Compile Include="Extensions\Enumeration\Extensions.cs" />
+    <Compile Include="Extensions\QueryableExtensions\Extensions.cs" />
+    <Compile Include="IBaseInitializer.cs" />
+    <Compile Include="ICreateObject.cs" />
+    <Compile Include="Initializer.cs" />
+    <Compile Include="LinkedObjects\Entities\LinkBaseObjects.cs" />
+    <Compile Include="LinkedObjects\Entities\ListLinkedОbjects.cs" />
+    <Compile Include="LinkedObjects\ILinkedObject.cs" />
+    <Compile Include="LinkedObjects\Service\ILinkedObjectsService.cs" />
+    <Compile Include="LinkedObjects\Service\LinkedObjectsService.cs" />
+    <Compile Include="Politics\ObjectPolitic.cs" />
+    <Compile Include="Politics\PropertyPolitic.cs" />
+    <Compile Include="QueryExtensions\InterceptingQueryable.cs" />
+    <Compile Include="QueryExtensions\InterceptingQueryProvider.cs" />
+    <Compile Include="Registers\Entities\Country.cs" />
+    <Compile Include="Registers\Entities\Measure.cs" />
+    <Compile Include="Registers\Entities\MeasureCategory.cs" />
+    <Compile Include="Events\BaseObjectEventArgs.cs" />
+    <Compile Include="FIleData.cs" />
+    <Compile Include="HCategory.cs" />
+    <Compile Include="ICategorizedItem.cs" />
+    <Compile Include="IReadOnly.cs" />
+    <Compile Include="IScheduler.cs" />
+    <Compile Include="ITreeNodeImage.cs" />
+    <Compile Include="Registers\Service\CountryService.cs" />
+    <Compile Include="Registers\Service\ICountryService.cs" />
+    <Compile Include="Registers\Service\IMeasureCategoryService.cs" />
+    <Compile Include="Registers\Service\IMeasureService.cs" />
+    <Compile Include="Registers\Service\MeasureCategoryService.cs" />
+    <Compile Include="Registers\Service\MeasureService.cs" />
+    <Compile Include="Security\Entities\Abstract\IUserStatus.cs" />
+    <Compile Include="Security\Entities\Concrete\AccessUser.cs" />
+    <Compile Include="Security\Entities\Concrete\Department.cs" />
+    <Compile Include="Security\Entities\Concrete\Employee.cs" />
+    <Compile Include="Security\Entities\Abstract\IAccessUser.cs" />
+    <Compile Include="Security\Entities\Abstract\IEmployee.cs" />
+    <Compile Include="Security\Entities\Abstract\IProfile.cs" />
+    <Compile Include="Security\Entities\Abstract\IUserCategorizedItem.cs" />
+    <Compile Include="Security\Entities\Concrete\UnregisteredUser.cs" />
+    <Compile Include="Security\Entities\Concrete\Post.cs" />
+    <Compile Include="Security\Entities\Concrete\UserConfirmRequest.cs" />
+    <Compile Include="Security\Entities\Concrete\UserStatus.cs" />
+    <Compile Include="Security\Entities\Concrete\WrapUser.cs" />
+    <Compile Include="Security\Exceptions\AccessDeniedException.cs" />
+    <Compile Include="Security\Entities\Concrete\BaseUser.cs" />
+    <Compile Include="Security\Entities\Concrete\Profile.cs" />
+    <Compile Include="Security\ObjectAccess\AccessPolicyAttribute.cs" />
+    <Compile Include="Security\ObjectAccess\IEnabledState.cs" />
+    <Compile Include="Security\ObjectAccess\Policies\BaseAccessPolicy.cs" />
+    <Compile Include="Security\ObjectAccess\Policies\CreatorOnlyPolicy.cs" />
+    <Compile Include="Security\ObjectAccess\Policies\DefaultAccessPolicy.cs" />
+    <Compile Include="Security\ObjectAccess\Policies\EditCreatorOnlyAccessPolicy.cs" />
+    <Compile Include="Security\ObjectAccess\Policies\IAccessPolicy.cs" />
+    <Compile Include="Security\ObjectAccess\Services\IAccessPolicyFactory.cs" />
+    <Compile Include="Security\Service\Abstract\BaseProfileService.cs" />
+    <Compile Include="Security\Service\Abstract\IEmployeeService.cs" />
+    <Compile Include="Security\Service\Abstract\IAccessUserServices.cs" />
+    <Compile Include="Security\Service\Abstract\IAccountManager.cs" />
+    <Compile Include="Security\Service\Abstract\IGuestUserService.cs" />
+    <Compile Include="Security\Service\Abstract\ISecurityService.cs" />
+    <Compile Include="Security\Service\Abstract\IUnregisteredUserService.cs" />
+    <Compile Include="Security\Service\Abstract\IPostService.cs" />
+    <Compile Include="Security\Service\Abstract\IProfileServices.cs" />
+    <Compile Include="Security\Service\Abstract\IDepartmentService.cs" />
+    <Compile Include="Security\Service\Abstract\IUserStatusService.cs" />
+    <Compile Include="Security\Service\Concrete\SecurityService.cs" />
+    <Compile Include="Security\Service\Concrete\UnregisteredUserService.cs" />
+    <Compile Include="Security\Service\Concrete\EmployeeService.cs" />
+    <Compile Include="Security\Service\Concrete\AccessUserService.cs" />
+    <Compile Include="Security\Service\Concrete\GuestUserService.cs" />
+    <Compile Include="Security\Service\Concrete\PostService.cs" />
+    <Compile Include="Security\Service\Concrete\ProfileService.cs" />
+    <Compile Include="Security\Service\Concrete\DepartmentService.cs" />
+    <Compile Include="Security\Service\Concrete\UserStatusService.cs" />
+    <Compile Include="Security\UserType.cs" />
+    <Compile Include="Security\SystemRole.cs" />
+    <Compile Include="Service\BaseObjectServiceFacade.cs" />
+    <Compile Include="Service\IBaseObjectServiceFacade.cs" />
+    <Compile Include="Service\IObjectValidationResult.cs" />
+    <Compile Include="Service\IValidatorService.cs" />
+    <Compile Include="Service\Log\ILogService.cs" />
+    <Compile Include="ReflectionHelper.cs" />
+    <Compile Include="Security\Config.cs" />
+    <Compile Include="Security\Consts.cs" />
+    <Compile Include="Security\Initializer.cs" />
+    <Compile Include="Security\ObjectAccess\AccessType.cs" />
+    <Compile Include="Security\ObjectAccess\IAccessibleObject.cs" />
+    <Compile Include="Security\ObjectAccess\ObjectAccessItem.cs" />
+    <Compile Include="Security\ObjectAccess\Services\IUserCategoryAccessService.cs" />
+    <Compile Include="Security\ObjectAccess\Services\IUserAccessService.cs" />
+    <Compile Include="Security\ObjectAccess\Services\IObjectAccessItemService.cs" />
+    <Compile Include="Security\ObjectAccess\Services\UserCategoryAccessService.cs" />
+    <Compile Include="Security\ObjectAccess\Services\UserAccessService.cs" />
+    <Compile Include="Security\ObjectAccess\Services\ObjectAccessItemService.cs" />
+    <Compile Include="Security\ObjectAccess\UserAccess.cs" />
+    <Compile Include="Security\ObjectAccess\UserCategoryAccess.cs" />
+    <Compile Include="Security\Entities\Concrete\Permission.cs" />
+    <Compile Include="Security\Entities\Concrete\SecurityUser.cs" />
+    <Compile Include="Security\Service\Abstract\IChildRoleService.cs" />
+    <Compile Include="Security\Service\Concrete\PermissionService.cs" />
+    <Compile Include="Security\Service\Concrete\ChildRoleService.cs" />
+    <Compile Include="Security\Service\Concrete\RoleService.cs" />
+    <Compile Include="Security\Service\Concrete\SecurityUserService.cs" />
+    <Compile Include="Security\Service\Concrete\UserCategoryService.cs" />
+    <Compile Include="Security\Service\Concrete\UserService.cs" />
+    <Compile Include="Security\Setting.cs" />
+    <Compile Include="Security\Entities\Concrete\UserCategory.cs" />
+    <Compile Include="Service\BaseCategorizedItemService.cs" />
+    <Compile Include="Service\BaseCategoryService.cs" />
+    <Compile Include="Service\FileSystemService.cs" />
+    <Compile Include="Service\BaseObjectService.cs" />
+    <Compile Include="Security\Service\Abstract\IUserCategoryService.cs" />
+    <Compile Include="EasyCollectionEntry.cs" />
+    <Compile Include="UI\DashboardWidget.cs" />
+    <Compile Include="UI\DetailViewSetting.cs" />
+    <Compile Include="UI\EditorViewModel.cs" />
+    <Compile Include="UI\IDetailViewSetting.cs" />
+    <Compile Include="UI\ITreeNodeIcon.cs" />
+    <Compile Include="UI\Preset.cs" />
+    <Compile Include="UI\PresetRegistor.cs" />
+    <Compile Include="UI\Presets\DashboardPreset.cs" />
+    <Compile Include="UI\Presets\GridPreset.cs" />
+    <Compile Include="UI\Service\DetailViewService.cs" />
+    <Compile Include="UI\Service\DetailViewSettingService.cs" />
+    <Compile Include="UI\Service\IDetailViewService.cs" />
+    <Compile Include="UI\Service\IDetailViewSettingManager.cs" />
+    <Compile Include="UI\Service\IDetailViewSettingService.cs" />
+    <Compile Include="UI\Service\IListViewService.cs" />
+    <Compile Include="UI\Service\IPresetFactory.cs" />
+    <Compile Include="UI\Service\IPresetService.cs" />
+    <Compile Include="UI\Service\ListViewService.cs" />
+    <Compile Include="UI\Service\PresetService.cs" />
+    <Compile Include="Security\Service\Abstract\IUserService.cs" />
+    <Compile Include="UI\Service\IIconService.cs" />
+    <Compile Include="UI\Service\IMenuLoader.cs" />
+    <Compile Include="UI\Service\IMenuService.cs" />
+    <Compile Include="Security\Service\Abstract\IPermissionService.cs" />
+    <Compile Include="Security\Service\Abstract\IRoleServices.cs" />
+    <Compile Include="UI\Service\MenuService.cs" />
+    <Compile Include="Service\IBaseCategorizedItemService.cs" />
+    <Compile Include="Service\IFileSystemService.cs" />
+    <Compile Include="Service\IPathHelper.cs" />
+    <Compile Include="Service\IService.cs" />
+    <Compile Include="UI\Service\IViewModelConfigLoader.cs" />
+    <Compile Include="UI\Service\IViewModelConfigService.cs" />
+    <Compile Include="UI\Service\IUiFasade.cs" />
+    <Compile Include="UI\Service\UiFasade.cs" />
+    <Compile Include="UI\Service\ViewModelConfigService.cs" />
+    <Compile Include="Settings\Service\SettingCategoryService.cs" />
+    <Compile Include="Settings\Service\SettingItemService.cs" />
+    <Compile Include="Settings\Service\ISettingCategoryService.cs" />
+    <Compile Include="Settings\SettingCategory.cs" />
+    <Compile Include="Settings\SettingItem.cs" />
+    <Compile Include="Settings\Service\ISettingItemService.cs" />
+    <Compile Include="Settings\SettingValues\Boolean.cs" />
+    <Compile Include="Settings\SettingValues\Int.cs" />
+    <Compile Include="Settings\SettingValues\ISettingValue.cs" />
+    <Compile Include="Settings\SettingValues\String.cs" />
+    <Compile Include="UI\ColumnViewModel.cs" />
+    <Compile Include="UI\CommonEditorViewModel.cs" />
+    <Compile Include="UI\IExtendedCategory.cs" />
+    <Compile Include="UI\Menu.cs" />
+    <Compile Include="UI\ViewModalConfig.cs" />
+    <Compile Include="UI\IViewObject.cs" />
+    <Compile Include="Helpers\IHelperJsonConverter.cs" />
+    <Compile Include="ITreeNode.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\Entities\Concrete\Role.cs" />
+    <Compile Include="Security\Entities\Concrete\User.cs" />
+    <Compile Include="Security\Entities\Abstract\ISecurityUser.cs" />
+    <Compile Include="Service\IBaseCategoryService.cs" />
+    <Compile Include="Service\IBaseObjectService.cs" />
+    <Compile Include="Security\Service\Abstract\ISecurityUserService.cs" />
+    <Compile Include="UI\Settings.cs" />
+    <Compile Include="Validation\IValidationConfigManager.cs" />
+    <Compile Include="Validation\IValidationContext.cs" />
+    <Compile Include="Validation\IValidationRule.cs" />
+    <Compile Include="Validation\IValidationService.cs" />
+    <Compile Include="Validation\ValidationBinding.cs" />
+    <Compile Include="Validation\ValidationBindingItem.cs" />
+    <Compile Include="Validation\ValidationConfig.cs" />
+    <Compile Include="Validation\ValidationConfigBuilder.cs" />
+    <Compile Include="Validation\ValidationResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{65fb57bb-b251-4542-a08e-d56b701571d4}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

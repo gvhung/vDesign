@@ -1,0 +1,297 @@
+﻿@using WebUI.Controllers
+@model EditorViewModel
+
+@{
+    ViewModelConfig config = Model.ViewModelConfig;
+        
+    string htmlFieldName = Model.PropertyName;
+
+    string editorID = Model.UID;
+
+    var securityUser = Base.Ambient.AppContext.SecurityUser;
+
+    var gridModel = new StandartGridView(ViewContext.Controller as IBaseController, config.Mnemonic, editorID, TypeDialog.Lookup);
+
+    string nameToolbar = "toolbar_" + Guid.NewGuid().ToString("N");
+
+    string url = "~/Views/Standart/_Grid.cshtml";
+
+    if (gridModel.HasListView)
+    {
+        url = Model.ViewModelConfig.ListView.Name;
+    }
+    
+    bool isReadOnly = typeof(IReadOnly).IsAssignableFrom(config.TypeService);
+
+    bool actionCreate = !isReadOnly && securityUser.IsPermission(config.TypeEntity, Base.Security.TypePermission.Create);
+    bool actionDelete = !isReadOnly && securityUser.IsPermission(config.TypeEntity, Base.Security.TypePermission.Delete);
+    
+
+    List<Base.UI.Action> hiddenActions = config.ListView.HiddenActions;
+
+    if (hiddenActions != null && hiddenActions.Any())
+    {
+        if (actionCreate) { actionCreate = hiddenActions.All(m => m.ID != "Create"); }
+
+        if (actionDelete) { actionDelete = hiddenActions.All(m => m.ID != "Delete"); }
+    }
+}
+
+<script>
+    window["@gridModel.WidgetID"] = new WrapGrid("@gridModel.WidgetID", "GridView");
+    window["@nameToolbar"] = {};
+
+    (function () {
+        var grid = window["@gridModel.WidgetID"];
+        var toolbar = window["@nameToolbar"];
+
+        @*--------Grid--------*@
+        grid.property = "@Model.PropertyName";
+        grid.mnemonic = "@Model.Mnemonic";
+
+        grid.getSelectDataItem = function () {
+            var g = this.widget();
+
+            var select = $(g.select());
+
+            if (select.length > 0) {
+                return g.dataItem(select);
+            }
+
+            return null;
+        };
+
+        grid.addRow = function () {
+            var $content = application.getContent();
+
+            var form = $("#@editorID").closest("form").data("pbaForm");
+            form.property = "@(htmlFieldName)";
+
+            pbaAPI.openViewModelEx("@config.Mnemonic",
+                    {
+                        wid: "@editorID",
+                        toSave: false,
+                        parentForm: form,
+                        callback: function (e) {
+                            if (e.type === "save" || e.type === "apply") {
+                                form.getPr("@(htmlFieldName)").push(e.model);
+                            }
+                        }
+                    });
+
+        };
+
+        grid.editRow = function () {
+            var uid = grid.selectUID();
+
+            if (uid) {
+                var entity = grid.getByUid(uid);
+
+                var form = $("#@editorID").closest("form").data("pbaForm");
+                form.property = "@(htmlFieldName)";
+
+                pbaAPI.openViewModelEx("@config.Mnemonic",
+                        {
+                            wid: "@editorID",
+                            toSave: false,
+                            entity: entity,
+                            entities: form.getPr('@(htmlFieldName)'),
+                            parentForm: form,
+                            callback: function (e) {
+                                if (e.type == "save") {
+
+                                }
+                            }
+                        });
+            }
+        };
+
+        grid.deleteRow = function () {
+            pbaAPI.confirm("@config.ListView.Title", "Удалить запись?", function () {
+                grid.widget().removeRow(grid.select());
+            });
+        };
+
+        grid.onDataBound = function () {
+            this.tbody.find('span[data-bg]').each(function () {
+                var $cond = $(this);
+                $cond.closest('td').css('background-color', $cond.data('bg'));
+            });
+
+            grid.activeRow();
+
+            toolbar.update(this.select());
+
+            this.tbody.children("tr").dblclick(function () {
+                grid.dblclick(this);
+            });
+        };
+
+        grid.onChange = function (e) {
+            var g = grid.widget();
+
+            grid.initCurrentRow();
+
+            toolbar.update(g.select());
+        };
+
+        grid.dblclick = function (btn) {
+            $("#@nameToolbar").find("#edit").click();
+        };
+
+        grid.data = function (callback) {
+            var form = $("#@editorID").closest("form").data("pbaForm");
+
+            if (!form.getPr('@(htmlFieldName)')) {
+                form.setPr('@(htmlFieldName)', []);
+            }
+
+            @if (Model.DeferredLoading)
+             {
+                 <text>
+            var id = form.getPr("ID");
+
+            if (id != 0) {
+                $.get(application.url.GetStandart("PropertyKendoUI_CollectionRead", {
+                    parentMnemonic: "@Model.ParentViewModelConfig.Mnemonic",
+                    mnemonic: "@config.Mnemonic", property: "@htmlFieldName", objectID: id, full: true
+                }), function (res) {
+                    if (res.error != 0) {
+                        pbaAPI.errorMsg(res.message);
+                    }
+
+                    form.setPr('@(htmlFieldName)', res.collection || []);
+
+                    callback(form.getPr('@(htmlFieldName)'));
+                });
+            } else {
+                callback(form.getPr('@(htmlFieldName)'));
+            }
+
+            </text>
+             }
+             else {
+                <text>
+            callback(form.getPr('@(htmlFieldName)'));
+            </text>
+             }
+        };
+
+
+        grid.bind = function () {
+            grid.data(function (data) {
+                grid.widget().setDataSource(new kendo.data.DataSource({
+                    data: data,
+                    filter: grid.widget().dataSource.filter(),
+                    schema: {
+                        model: grid.widget().dataSource.options.schema.model
+                    }
+                }));
+
+                grid.widget().dataSource.read();
+
+                grid.initSortable();
+            });
+        };
+
+        grid.initSortable = function () {
+            var $table = grid.table();
+
+            if (!$table.data("kendoSortable")) {
+                $table.kendoSortable({
+                    filter: ">tbody >tr",
+                    hint: $.noop,
+                    cursor: "move",
+                    placeholder: function (element) {
+                        return element.clone().css("opacity", 0.5).addClass("k-state-selected");
+                    },
+                    container: "#@gridModel.WidgetID tbody",
+                    start: function (e) {
+                        grid.select(e.item);
+                    },
+                    end: function (e) {
+                    }
+                });
+            }
+        };
+
+        @*--------Toolbar--------*@
+        toolbar.init = function () {
+            if (!this["_init"]) {
+
+                var tb = $("#@nameToolbar");
+                var $btn;
+
+                $btn = tb.find("#add");
+
+                if ($btn.length > 0)
+                    this.btnAdd = $btn.pbaButton(window['@gridModel.WidgetID'].addRow);
+
+                $btn = tb.find("#edit");
+
+                if ($btn.length > 0)
+                    this.btnEdit = $btn.pbaButton(window['@gridModel.WidgetID'].editRow);
+
+                $btn = tb.find("#delete");
+
+                if ($btn.length > 0)
+                    this.btnDelete = $btn.pbaButton(window['@gridModel.WidgetID'].deleteRow);
+
+
+                this["_init"] = true;
+            }
+        };
+
+        toolbar.update = function (select) {
+            this.init();
+
+            if (this.btnAdd) this.btnAdd.enable(true);
+            if (this.btnEdit) this.btnEdit.enable(select.length > 0);
+            if (this.btnDetail) this.btnDetail.enable(select.length > 0);
+            if (this.btnDelete) this.btnDelete.enable(select.length > 0);
+        };
+    })();
+</script>
+
+<div id="@editorID" class="one-to-many">
+    <div id="@nameToolbar" class="k-toolbar k-grid-toolbar k-grid-top">
+         @if(actionCreate) { <a id="add" class="k-button k-state-disabled" title="Создать"><span class="k-icon k-i-folder-add"></span></a> }
+         <a id="edit" class="k-button k-state-disabled" title="Редактировать"><span class="k-icon k-i-pencil"></span></a>
+         @if(actionDelete) { <a id="delete" class="k-button k-state-disabled" title="Удалить"><span class="k-icon k-i-close"></span></a> }
+    </div>
+
+    @{Html.RenderPartial(url, gridModel);}
+</div>
+
+<script>
+    $(function () {
+        var $editor = $("#@editorID");
+        var $form = $editor.closest("form");
+        var grid = window["@gridModel.WidgetID"];
+
+        $editor.data("editor", grid);
+
+        $form.on("onAfterBind", function (e, form) {
+            grid.bind();
+        });
+
+        $form.on("onSave", function (e, form) {
+            var ndata = [];
+
+            grid.widget().items().each(function (i, el) {
+                var item = grid.getByUid($(el).attr("data-uid"));
+
+                if (item.ID < 0) {
+                    item.ID == 0;
+                    item.id == 0;
+                }
+
+                item.SortOrder = i;
+
+                ndata.push(item);
+            });
+
+            form.setPr('@(htmlFieldName)', ndata);
+        });
+    });
+</script>

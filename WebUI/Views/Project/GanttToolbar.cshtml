@@ -1,0 +1,106 @@
+﻿@{
+    string btnID = "btn_gantt";// +Guid.NewGuid().ToString("N");
+
+    int? projectID = (int?)ViewBag.ProjectID;
+}
+
+@if (projectID == null)
+{
+    <script>
+        window["@btnID"] = {
+            openGantt: function () {
+                pbaAPI.msg("Необходимо сохранить проект", "info");
+            }
+        };
+    </script>
+}
+else
+{
+    <script>
+    window["@btnID"] = {
+        openGantt: function () {
+            var wid = "WIN-AE1820B2-164B-408A-ACB9-410DD7B007AF"; //"w_@btnID";
+
+            var $w = $("#" + wid);
+
+            if ($w.length == 0) {
+                $("body").append("<div id='" + wid + "' data-toolbarID='@btnID' class='w-custom-toolbar view-model-window wnd-loading-content'></div>");
+
+                $w = $("#" + wid);
+
+                $w.kendoWindow({
+                    width: "auto",
+                    height: "auto",
+                    title: "Проект",
+                    resizable: false,
+                    modal: true,
+                    visible: false,
+                });
+
+            }
+
+            var wnd = $w.data("kendoWindow");
+            wnd._events.close = [];
+            wnd._events.close.push(function (e) {
+                $("#@btnID").closest("[data-role=toolbar]").trigger("onActionInvoke");
+            });
+
+            wnd._events.open = [];
+            wnd._events.open.push(function (e) {
+                $.ajax({
+                    url: application.url.GetStandart("GetDialog"),
+                    data: { mnemonic: "ProjectTask", typeDialog: "Custom", parentID: "@projectID" },
+                    success: function (data) {
+                        var $content = e.sender.element;
+
+                        var dialogID = $content.find("#DialogID").val();
+
+                        if (dialogID) {
+                            var dialog = window[dialogID];
+                            dialog.destroy();
+                        }
+
+                        $content.removeClass("wnd-loading-content");
+
+                        if (data) {
+                            $content.html(data);
+
+                            //var gantt = _g = $content.find('[data-role="gantt"]:eq(0)').data("kendoGantt");
+
+                            //gantt.refresh();
+
+                            //console.log(gantt);
+
+                            var dialogID = $content.find("#DialogID").val();
+
+                            if (dialogID) {
+                                var dialog = window[dialogID];
+
+                                dialog.resize($content.height() - 45);
+                            }
+                        } else {
+                            $content.html('<p style="text-align: center; margin:10px; color:#ddd">Действий нет</p>');
+                        }
+                    }
+                });
+            });
+
+
+            wnd.maximize();
+            wnd.center();
+            wnd.open();
+            //console.log(wnd);
+        }
+    };
+</script>
+}
+
+<button id="@btnID" style="width: 40px; display: inline-block" title="Диаграмма Ганта" type="button" class="btn"><span class='halfling halfling-tasks'></span></button>
+
+<script>
+    $(function () {
+        $("#@btnID").on("click", function () {
+            window["@btnID"].openGantt();
+        });
+    });
+</script>

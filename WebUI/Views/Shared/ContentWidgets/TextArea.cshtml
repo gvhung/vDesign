@@ -1,0 +1,29 @@
+﻿@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html.ContentEditorWidget("textarea")
+.Title("Текст")
+.Wrap(wrapID)
+.Mnemonic("Content_TextArea")
+.Template("tpl_" + wrapID)
+.TitleTemplate(
+    @<text>
+        <span><i class="glyphicon glyphicon-justify"></i> Текст</span>
+    </text>)
+.ExtendWith(
+    @<text>
+        <script>
+            new Object({
+                prepareToSave: function (element) {
+                    element.find('p').html('');
+                    contentEditor.ContentWidget.fn.prepareToSave.call(this, element);
+                }
+            })
+        </script>
+    </text>)
+)
+
+<script id="tpl_@wrapID" type="text/template">
+    <p data-bind="html: model.Value"></p>
+</script>

@@ -1,0 +1,85 @@
+﻿@model EditorViewModel
+
+@{
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    window['@wrapID'] = {
+        getForm: function () {
+            var e_form = $("#@wrapID").closest("form");
+            return e_form.data("pbaForm");
+        },
+        syncValue: function (file) {
+            var $file = $("#@wrapID").find("#file-info");
+            var fileType;
+
+            if (file) {
+                $file.children().first().html(
+                    pbaAPI.getFilePreviewHtml(file)
+                );
+
+                fileType = pbaAPI.fileType(file.FileName);
+
+                if (fileType === 'image') {
+                    $file.find('.file-icon').parent().off().on('click', function (e) {
+                        e.preventDefault();
+                        pbaAPI.showImage(file.FileID, file.parent().Title || file.FileName);
+                    });
+                } else if (pbaAPI.extension(file.FileName) === 'docx') {
+                    $file.find('.file-icon').parent().off().on('click', function (e) {
+                        e.preventDefault();
+                        pbaAPI.showDoc(file.FileID);
+                    });
+                }
+
+                $file.find(".Name").html(file.FileName);
+                $file.find(".Size").html((file.Size / 1024).toFixed() + " Кбайт");
+                $file.find(".CreationDate").html(kendo.toString(kendo.parseDate(file.CreationDate), 'd'));
+                $file.find(".ChangeDate").html(kendo.toString(kendo.parseDate(file.ChangeDate), 'd'));
+                $file.find("#info").show();
+                $file.find("#file-not-found").hide();
+            } else {
+                $file.find(".file-icon").attr("class", "file-icon " + pbaAPI.extensionClass(""));
+                $file.find("#info").hide();
+                $file.find("#file-not-found").show();
+            }
+        }
+    };
+</script>
+
+
+<script>
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            window['@wrapID'].syncValue(form.getPr('@(htmlFieldName)'));
+        });
+    });
+</script>
+
+<div id="@wrapID">
+    <div id="file-info">
+        <div style="float:left;height:100px;">
+            <!-- pbaAPI.getFilePreviewHtml -->
+        </div>
+        <div id="info" style="font-size: 12px;">
+            <div>
+                <h4 class='Name'></h4>
+            </div>
+            <div>
+                <span style="float: left; width: 102px;">Размер:</span><span class='Size'></span>
+            </div>
+            <div>
+                <span style="float: left; width: 102px;">Дата создания:</span><span class='CreationDate'></span>
+            </div>
+            <div>
+                <span style="float: left; width: 102px;">Дата изменения:</span><span class='ChangeDate'></span>
+            </div>
+        </div>
+        <div id="file-not-found" style="display: none">
+            <span>Файл отсутствует</span>
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>

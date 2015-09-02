@@ -1,0 +1,23 @@
+﻿@model WebUI.Models.Validation.PropertyValidationVm
+
+@{
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID" data-role="wraplayout">
+    @RenderBody()
+    <hr />
+    <div class="pull-right">
+        <button data-role="close" class="btn btn-default">Отмена</button>
+        <button data-role="apply" class="btn btn-success">Применить</button>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var wrap = $("#@wrapID");
+        wrap.find('[data-role=close]').click(function () {
+            $(this).closest('[data-role=window]').data('kendoWindow').close();
+        });
+    });
+</script>

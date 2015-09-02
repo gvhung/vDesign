@@ -1,0 +1,54 @@
+﻿@model EditorViewModel
+
+@{
+    EditorViewModel eViewModel = Model;
+    Type prType = eViewModel.EditorType;
+    
+    string htmlFieldName = eViewModel.PropertyName;
+    string name = "n_" + Guid.NewGuid().ToString("N");
+    
+    Type enumType;
+
+    if (prType.IsEnum)
+    {
+        enumType = prType;
+    }
+    else
+    {
+        //NOTE: Nullable<Enum>
+        enumType = prType.GetGenericArguments()[0];
+    }
+
+
+    var values = Enum.GetValues(enumType).Cast<Enum>()
+        .Select(v => new 
+        {
+            Text = v.GetDescription(),
+            Name = v.ToString(),
+            Value = v.GetValue()
+        });  
+}
+
+@(Html.Kendo().DropDownList()
+    .Name(name)
+        .HtmlAttributes(Html.CreateHtmlAttributes(Model, new { style = "width: 100%; max-width: 300px;" }))
+    .DataTextField("Text")
+    .DataValueField("Value")
+    .OptionLabel("Выберите значение...")
+    .ValueTemplate(String.Format("<span class='enum-{0}' data-val='#=data.Name#'>#=data.Text#</span>", enumType.Name))
+    .Template(String.Format("<span class='enum-{0}' data-val='#=data.Name#'>#=data.Text#</span>", enumType.Name))
+    .BindTo(values)
+)
+
+<script>
+    $(function () {
+        @* http://www.telerik.com/forums/valuetemplate-property-missing *@
+        @* NOTE: у серверного построителя отсутствует метод - valueTemplate *@
+        $("#@name").data("kendoDropDownList").options.valueTemplate = templates.enumValueTemplate("@enumType.Name");
+
+
+        $("#@name").closest("form").on("onSave", function (e, form) {
+            form.setPr("@(htmlFieldName)", $("#@name").data("kendoDropDownList").value());
+        });
+    });
+</script>

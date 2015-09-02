@@ -1,0 +1,64 @@
+﻿@model EditorViewModel
+
+@{
+    Type prType = Model.EditorType;
+
+    string propertyName = Model.PropertyName;
+    string wrapID = "w_" + Guid.NewGuid().ToString("N");
+    string multiEnumID = "m_" + Guid.NewGuid().ToString("N");
+
+    var obj = Activator.CreateInstance(Model.ParentViewModelConfig.TypeEntity);
+
+    Type enumType = (obj.GetType().GetProperty(propertyName).GetValue(obj) as Base.Entities.Complex.MultiEnum).Type;
+
+
+    var values = Enum.GetValues(enumType).Cast<Enum>()
+      .Select(v => new
+      {
+          Text = v.GetDescription(),
+          Name = v.ToString(),
+          Value = v.GetValue()
+      });
+}
+
+<script>
+    window["@wrapID"] = {
+        clear: function () {
+            $("#@multiEnumID").data("kendoMultiSelect").value(null);
+        }
+    };
+</script>
+
+<div id="@wrapID" class="input-group">
+    <div class="form-control" style="height: auto; min-height: 32px; padding: 0">
+        @(Html.Kendo().MultiSelect()
+              .HtmlAttributes(new { style = "border-width:1px;" })
+              .Name(multiEnumID)
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .ItemTemplate(String.Format("<span class='enum-{0}' data-val='#=data.Name#'>#=data.Text#</span>", enumType.Name))
+              .TagTemplate(String.Format("<span class='enum-{0}' data-val='#=data.Name#'>#=data.Text#</span>", enumType.Name))
+              .BindTo(values)
+              )
+
+    </div>
+    <span class="input-group-btn">
+        <button class="btn btn-default" type="button" onclick="window['@wrapID'].clear(); return false;" title="Очистить"><span class="halfling halfling-remove"></span></button>
+    </span>
+</div>
+
+<script>
+    $(function () {
+        var $multiselect = $("#@multiEnumID");
+        var $form = $multiselect.closest("form");
+        var multiselect = $multiselect.data("kendoMultiSelect");
+
+        $form.on("onAfterBind", function (e, form) {
+            multiselect.value(form.getPr("@(propertyName).Value"));
+        });
+
+        $form.on("onSave", function (e, form) {
+            form.setPr("@(propertyName).Value", multiselect.value());
+        });
+    });
+</script>

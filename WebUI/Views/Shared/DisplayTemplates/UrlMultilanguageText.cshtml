@@ -1,0 +1,9 @@
+﻿@model EditorViewModel
+
+@{
+    EditorViewModel parentViewModel = ViewData["EditorViewModel"] as EditorViewModel;
+
+    string htmlFieldName = parentViewModel.PropertyName;
+}
+
+<span class="halfling halfling-link">&nbsp;</span>@Html.Action(Model, new { data_bind = "attr: { href:" + htmlFieldName + ".Path}; text:" + htmlFieldName + ".Text.Lang.ru" })

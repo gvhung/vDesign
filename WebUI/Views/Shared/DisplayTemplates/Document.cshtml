@@ -1,0 +1,46 @@
+﻿@model EditorViewModel
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID" data-type="null">
+    
+</div>
+
+<script>
+    $(function () {
+        var $wrap = $("#@wrapID");
+        var $form = $wrap.closest("form");
+
+        $form.on("onAfterBind", function (e, form) {
+            var type = form.getPr("Type");
+
+            var typeName;
+
+            switch (type.toString()) {
+                case "@Base.Document.Entities.DocumentType.Excel.GetValue()":
+                    typeName = "Excel";
+                    break;
+            }
+
+            if (typeName) {
+                if ($wrap.attr("data-type") != typeName) {
+
+                    $wrap.empty();
+
+                    $.get(application.url.GetStandart("GetDisplayTemplate"), { name: typeName }, function (html) {
+                        $wrap.html(html);
+                        $wrap.attr("data-type", typeName);
+
+                        $form.trigger("onEditDocument", form);
+                    });
+                } else {
+                    $form.trigger("onEditDocument", form);
+                }
+            } else {
+                pbaAPI.errorMsg("Внутренняя ошибка");
+            }
+        });
+    });
+</script>

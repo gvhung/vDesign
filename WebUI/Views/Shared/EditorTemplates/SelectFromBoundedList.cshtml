@@ -1,0 +1,91 @@
+﻿@using Framework.Maybe
+@model EditorViewModel
+
+@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    
+    string list = null;
+    string title = null;
+    string description = null;
+    
+    string[] customParams = Model.EditorTemplateParams.With(x => x.Split(';'));
+    if (customParams.Length > 0)
+    {
+        list = customParams[0];
+
+        if (customParams.Length > 1)
+        {
+            title = customParams[1];
+
+            if (customParams.Length > 2)
+            {
+                description = customParams[2];
+            }
+        }
+    }
+    else
+    {
+        throw new Exception("Bounded list was not found, expected name in 'Params'");
+    }
+
+    title = title ?? "Title";
+    description = description ?? "Description";
+}
+
+<div id="@wrapID">
+    <div id="list_@(wrapID)" class="list-group"></div>
+    <input id="validator_@(wrapID)" type="hidden" required="True" validationmessage="Выберите значение">
+</div>
+
+<script>
+    (function () {
+        var $list = $('#list_@(wrapID)');
+        $list.on('click', '.list-group-item', function () {
+            $list.find('.list-group-item').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            $list.html('');
+            $("#validator_@(wrapID)").val('');
+            var list = form.getPr('@list');
+            if (list) {
+                for (var i = 0; i < list.length; i++) {
+                    var description = list[i]["@description"] ? ('<p class="list-group-item-text">' + list[i]["@description"] + '</p>') : '';
+                    var $a = $('<a href="#" id="' + list[i].ID + '" class="list-group-item">' +
+                               '<h4 class="list-group-item-heading">' + list[i]["@title"] + '</h4>' +
+                                description +
+                               '</a>')
+                    .data('boundedItem', list[i]);
+
+                    $list.append($a);
+                }
+            }
+
+            var value = form.getPr('@Model.PropertyName');
+            if (value) {
+                var $selected = $list.find('.list-group-item[id=' + value.ID + ']');
+                if ($selected.length) {
+                    $selected.addClass('active');
+                } else {
+                    form.setPr('@Model.PropertyName', null);
+                }
+            }
+
+
+            var $items = $list.find('.list-group-item');
+            if (!$list.find('.list-group-item.active').length && $items.length === 1) {
+                $items.addClass('active');
+            };
+
+        });
+
+        $("#@wrapID").closest("form").on("onSave", function (e, form) {
+            var selectedItem = $list.find('.list-group-item.active').data('boundedItem');
+            if (selectedItem) {
+                $("#validator_@(wrapID)").val(selectedItem.ID);
+                form.setPr('@Model.PropertyName', selectedItem);
+            }
+        });
+    })();
+</script>

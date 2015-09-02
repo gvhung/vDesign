@@ -1,0 +1,41 @@
+﻿@{
+    int? projectID = ViewBag.ProjectID;
+    int? projectTaskID = ViewBag.ProjectTaskID;
+
+    string btnID = "btn_" + Guid.NewGuid().ToString("N");
+}
+
+@if (projectTaskID != null)
+{
+    if (projectID == null)
+    {
+        <script>
+            $(function () {
+                $("#@btnID").click(function () {
+                    $.post("@Url.Action("CreateProjectFromTask", "Project")", { projectTaskID: "@projectTaskID" },
+                        function (res) {
+                            if (res.error == 0) {
+                                $('#@btnID').closest('[data-role=toolbar]').trigger('onActionInvoke');
+                            } else {
+                                pbaAPI.errorMsg(res.message);
+                            }
+                        });
+                });
+            });
+        </script>
+
+        <button id="@btnID" type="button" class="btn"><span class='m-icon halfling halfling-share-alt'></span>Вынести в проект</button>
+    }
+    else
+    {
+        <script>
+            $(function () {
+                $("#@btnID").click(function () {
+                    pbaAPI.infoMsg("Данный функционал не реализован");
+                });
+            });
+        </script>
+
+        <button id="@btnID" type="button" class="btn"><span class='m-icon halfling halfling-retweet'></span>Перейти в проект</button>
+    }
+}

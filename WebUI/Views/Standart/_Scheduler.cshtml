@@ -1,0 +1,54 @@
+﻿@model StandartScheduler
+
+@{
+    string templateID = "t_" + Guid.NewGuid().ToString("N");
+
+    bool iswrite = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Write);
+
+    string listTitle = Model.ViewModelConfig.ListView.Title;
+    string entityTitle = Model.ViewModelConfig.DetailView.Title;
+}
+
+@(Html.Kendo().Scheduler<SchedulerViewModel>()
+    .Name(Model.WidgetID)
+    .Date(DateTime.Today)
+    .StartTime(new DateTime(2000, 1, 1, 7, 0, 0))
+    .Height(400)
+    .Views(views =>
+    {
+        views.DayView(x => x.Title("День"));
+        views.WeekView(x => x.Title("Неделя"));
+        views.MonthView(x => x.Title("Месяц")).Selected(true);
+        views.AgendaView(x => x.Title("Повестка дня"));
+    })
+    .Editable(e => e.Create(false).Update(false).Move(iswrite).Confirmation(String.Format("Удалить {0}?", entityTitle.ToLower())))
+    .Selectable(true)
+    .HtmlAttributes(new { style = "color: red;" })
+    .DataSource(d => d
+        .Model(m =>
+        {
+            m.Id(f => f.ID);
+            m.Field(f => f.Title).DefaultValue("Без названия");
+            m.RecurrenceId(f => f.RecurrenceID);
+            m.Field(f => f.Color);
+        })
+        .Read("KendoUI_CollectionRead", "Standart", new { mnemonic = Model.Mnemonic })
+        .Update("KendoUI_Save", "Standart", new { mnemonic = Model.Mnemonic })
+        .Destroy("KendoUI_Destroy", "Standart", new { mnemonic = Model.Mnemonic })
+    )
+    .Events(e =>
+    {
+        e.Change(Model.WidgetID + ".onChange");
+        e.DataBound(Model.WidgetID + ".onDataBound");
+    })
+    .WorkDayStart(9, 0, 0)
+    .WorkDayEnd(19, 0, 0)
+    .Messages(msg =>
+    {
+        msg.Today("Сегодня").AllDay("весь день").Event(entityTitle).Date("Дата").Time("Время");
+        msg.ShowFullDay("Показывать весь день").ShowWorkDay("Показывать только рабочее время");
+        msg.Recurrence(x => x.DeleteWindowTitle("Удаление").DeleteRecurring(String.Format("Удалить повтор. {0}?", entityTitle.ToLower())).DeleteWindowOccurrence("Только текущую запись").DeleteWindowSeries("Все записи данной серии"));
+        msg.Recurrence(x => x.EditWindowTitle("Изменение").EditRecurring(String.Format("Изменить повтор. {0}?", entityTitle.ToLower())).EditWindowOccurrence("Только текущую запись").EditWindowSeries("Все записи данной серии"));
+        msg.DeleteWindowTitle("Удаление").Destroy("Удалить").Cancel("Отменить");
+    })
+)

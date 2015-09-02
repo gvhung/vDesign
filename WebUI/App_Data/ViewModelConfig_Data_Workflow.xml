@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <!--<item>
+    <mnemonic>TestExtender</mnemonic>
+    <title>Расширение для объекта тесотовго</title>
+    <entity>Data.Entities.TestExtender, Data</entity>
+    <service>Data.Entities.ITestExtenderService, Data</service>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-send</icon>
+  </item>
+  <item>
+    <mnemonic>TestExtenderInner</mnemonic>
+    <title>Расширение для объекта тесотовго</title>
+    <entity>Data.Entities.TestExtenderInner, Data</entity>
+    <icon>halfling halfling-send</icon>
+  </item>-->
+
+</ViewModelConfig>

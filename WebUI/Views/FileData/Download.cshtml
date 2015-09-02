@@ -1,0 +1,3 @@
+﻿@model Base.FileStorage.FileStorageItem
+
+<a href="@Url.Action("GetFile", "Files", new { area = "", fileid = Model.File.FileID })" title="@(String.IsNullOrEmpty(Model.Description) ? Model.Title : Model.Description)">@Model.Title</a>

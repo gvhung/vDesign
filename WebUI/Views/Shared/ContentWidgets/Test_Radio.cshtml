@@ -1,0 +1,49 @@
+﻿@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html.ContentEditorWidget("test_checkboxes")
+    .Title("Тест")
+    .TitleTemplate(
+    @<text>
+        <span><input type="radio" disabled /> Единственный выбор</span>
+    </text>)
+    .Wrap(wrapID)
+        .Mnemonic("TestWidget_Checkboxes")
+    .Template("tpl_" + wrapID)
+    .ExtendWith(
+    @<text>
+        <script>
+            new Object({
+                getInteractiveData: function () {
+                    var model = this.viewModel.get('model');
+
+                    return $.map(model.Values, function (e) {
+                        return {
+                            UID: e.UID,
+                            Value: e.Value,
+                            Title: e.Title
+                        }
+                    });
+                }
+            })
+        </script>
+    </text>))
+
+<script id="tpl_@wrapID" type="text/template">
+    <div class="panel panel-default">
+        <div data-bind="html: model.Title" class="panel-heading"></div>
+        <div class="panel-body" data-bind="source: model.Values" data-template="test_checkboxes_tpl">
+        </div>
+    </div>
+</script>
+
+<script id="test_checkboxes_tpl" type="text/x-kendo-template">
+    <div class="checkbox">
+        <label>
+            <input disabled="disabled" type="radio" value="true" data-bind="checked: Value">
+            <span data-bind="text: Title"></span>
+        </label>
+    </div>
+</script>
+

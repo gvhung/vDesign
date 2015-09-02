@@ -1,0 +1,23 @@
+﻿@model EditorViewModel
+           
+@{
+    var wrapID = "content_" + Guid.NewGuid().ToString("N");
+    var propName = Model.PropertyName;
+}
+
+<div id="@wrapID" style="width: 80%; margin: 0 auto;"></div>
+
+<script>
+    $(function() {
+        "use strict";
+
+        var $wrap = $("#@wrapID");
+        var $form = $wrap.closest("form");
+
+        $form.on("onAfterBind", function (e, form) {
+            var val = form.getPr("@propName");
+
+            $wrap.html(val.Html);
+        });
+    });
+</script>

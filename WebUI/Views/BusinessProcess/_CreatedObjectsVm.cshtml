@@ -1,0 +1,49 @@
+﻿@using Base.Task.Entities
+@using Framework.Extensions
+@model  WebUI.Models.BusinessProcess.CreatedObjectVm
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    string accID = "acc_" + Guid.NewGuid().ToString("N");
+
+    string panelID = "pan_" + Guid.NewGuid().ToString("N");
+}
+
+<div class="panel-group created-objs" id="@accID">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="collapse-toggle collapsed" data-toggle="collapse" data-parent="#@accID" href="#@panelID">
+                    Созданные объекты
+                </a>
+            </h4>
+        </div>
+        <div id="@panelID" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div id="@wrapID" class="list-group" style="margin-bottom: 0">
+                    
+                        <a title="@Model.Description" href="#" data-title="@Model.Config.Title" data-id="@Model.ID" data-mnemonic="@Model.Config.Mnemonic" class="list-group-item">
+                            <span class="@Model.Config.Icon"></span>&nbsp;&nbsp;@Model.Config.Title
+                            <span class="label label-info pull-right">@Model.Title.TruncateAtWord(50)</span>
+                        </a>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#@wrapID").on('click', '[data-mnemonic]', function () {
+        var $self = $(this);
+
+        pbaAPI.openViewModelEx($self.data('mnemonic'), {
+            wid: "@wrapID",
+            title: $self.data('title'),
+            isMaximaze: true,
+            id: $self.data('id'),
+            isReadOnly: false
+        });
+    });
+</script>

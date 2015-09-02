@@ -1,0 +1,80 @@
+﻿@using System.Globalization
+@using WebUI.Models.BusinessProcess
+@model WebUI.Models.BusinessProcess.TimeLineVm
+
+@{
+    var totalSeconds = Model.Elements.OfType<StageTimeLineElementVm>().Sum(x => x.ElapsedTime.TotalSeconds);
+
+    totalSeconds = totalSeconds < Model.Workflow.PerformancePeriod * 60 ? Model.Workflow.PerformancePeriod * 60 : totalSeconds;
+    
+    var coef = 100 / totalSeconds;
+
+    var id = "pr_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@id" class="progress total-progress" style="position: relative; overflow: visible;">
+    @foreach (var item in Model.Elements.OfType<StageTimeLineElementVm>().Where(x => !double.IsNaN(x.ElapsedPercentage)).Reverse())
+    {
+        if (!(item is TerminatedTimeLineElementVm))
+        {
+            <a href="#@item.ID" class="progress-bar progress-bar-@GetClass(item.Status) @(item.EndDateFact == null ? "active progress-bar-striped" : "")"
+               style="width: @((item.ElapsedTime.TotalSeconds * coef).ToString(CultureInfo.GetCultureInfo("en-US")))%"
+               title="@item.Step.Title">
+            </a>
+        }
+    }
+
+    <div class="animated halfling halfling-chevron-down bounceIn progress-position" style="left: @((Model.Workflow.PerformancePeriod * 60 * coef).ToString(CultureInfo.GetCultureInfo("en-US")))%"></div>
+</div>
+
+<script>
+    $("#@id a").tooltip({
+        placement: 'bottom',
+        container: 'body'
+    }).click();
+</script>
+
+@functions
+{
+    string GetClass(StageTimeLineElementVm.ElapsedStatus? status)
+    {
+        switch (status)
+        {
+            case StageTimeLineElementVm.ElapsedStatus.Good:
+                return "success";
+            case StageTimeLineElementVm.ElapsedStatus.Info:
+                return "success";
+            case StageTimeLineElementVm.ElapsedStatus.Warning:
+                return "warning";
+            case StageTimeLineElementVm.ElapsedStatus.Danger:
+                return "danger";
+        }
+
+        return "success";
+    }
+
+}
+
+<style>
+    .total-progress a {
+        display: block;
+        /*border: 1px solid black;*/
+        /*margin-right: 1px;*/
+        outline: 1px solid #fff;
+    }
+
+    .progress-position {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        color: #d9534f;
+        width: 2px;
+        background: black;
+    }
+
+        .progress-position:before {
+            top: -15px;
+            position: absolute;
+            left: -5px;
+        }
+</style>

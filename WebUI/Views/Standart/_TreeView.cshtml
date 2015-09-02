@@ -1,0 +1,50 @@
+﻿@model WebUI.Models.StandartTreeView
+
+@{
+    int width = 24;
+    int height = 24;    
+    
+    if (typeof(ITreeNodeImage).IsAssignableFrom(Model.ViewModelConfig.TypeEntity))
+    {
+        var commonEditorViewModel = Html.GetCommonEditor(Model.Mnemonic);
+        
+        var editor = commonEditorViewModel.Editors.FirstOrDefault(x => x.PropertyName == "Image");
+
+        width = editor.Width ?? width;
+        height = editor.Height ?? height;
+    }
+}
+
+<script id="treeViewTemplate" type="text/x-kendo-template">
+    # var icon; #
+    # if (item.Image) { #
+    # icon = '<img src="' + pbaAPI.imageHelpers.getsrc(item.Image.FileID, @width, @height) + '" />&nbsp;'; #
+    # } else if (item.Icon && item.Icon.Value) { #
+    # var color = item.Icon.Color ? item.Icon.Color : '\\#333';  #
+    # icon = '<span style="color: ' + color + '" class="' + item.Icon.Value + '">&nbsp;</span>'; #
+    # } else { #
+    # icon = '<span class="halfling halfling-folder-open">&nbsp;</span>'; #
+    # } #
+    <div title='#= pbaAPI.htmlEncode(item.Title) #' class='tree-node' id='#= item.id #'>
+        #= icon #
+        #= pbaAPI.htmlEncode(item.Title) #
+    </div>
+</script>
+
+@(Html.Kendo().TreeView()
+    .Name(Model.WidgetID)
+    .HtmlAttributes(new { style = "overflow-x: hidden;" })
+    .DragAndDrop(!Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Write | Base.Security.TypePermission.Delete | Base.Security.TypePermission.Create))
+    .TemplateId("treeViewTemplate")
+    .Events(e => e
+        .DataBound(Model.WidgetID + ".onDataBound")
+        .Select(Model.WidgetID + ".onSelect")
+        .Drop(Model.WidgetID + ".onBeforeDrop")
+        .DragEnd(Model.WidgetID + ".onAfterDrop"))
+    .DataSource(dataSource => dataSource
+        .Read(read => read
+                .Action("TreeView_Read", "HCategory", new { area = "", mnemonic = Model.Mnemonic, searchStr = Model.SearchStr, sysFilter = Model.SysFilter  })
+        )
+    )
+)
+

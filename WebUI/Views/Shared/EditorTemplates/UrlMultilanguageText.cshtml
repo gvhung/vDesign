@@ -1,0 +1,36 @@
+﻿@model EditorViewModel
+
+@{
+    EditorViewModel parentViewModel = Model;
+
+    string htmlFieldName = parentViewModel.PropertyName;
+        
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    EditorViewModel editorMultilanguage = new EditorViewModel()
+    {
+        Title = parentViewModel.Title,
+        Description = "Текст",
+        IsRequired = parentViewModel.IsRequired,
+        EditorType = typeof(Base.Entities.Complex.MultilanguageText),
+        PropertyName = htmlFieldName + ".Text"
+    };
+}
+
+@*<div id="@wrapID" class="row">
+    <div class="col-md-4 e-editor">
+        
+
+        @{ Html.RenderPartial("~/Views/Shared/EditorTemplates/Common/Editor.cshtml", Model); }
+
+        @Html.Editor("", "Multilanguage", new { EditorViewModel = editorMultilanguage })
+    </div>
+
+    <div class="col-md-1 e-label">
+        <label>Адрес (URL)</label>
+    </div>
+
+    <div class="col-md-7 e-editor">
+        @Html.TextBox("", Html.CreateHtmlAttributes(new { data_bind = String.Format("value: {0}.Path", htmlFieldName), @class = "k-textbox", style = "width: 100%;", placeholder = "Адрес в сети Интернет" }))
+    </div>
+</div>*@

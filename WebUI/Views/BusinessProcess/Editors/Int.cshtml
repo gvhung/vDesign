@@ -1,0 +1,125 @@
+﻿@using Base.BusinessProcesses.Entities
+@using Newtonsoft.Json
+@using WebUI.Models.BusinessProcess
+@model WithCustomEditorVm
+
+@{
+    Layout = "EditorLayout.cshtml";
+
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+
+    var operators = new[]
+    {
+        new EditorVm("+", "+"),
+        new EditorVm("-", "-"),
+        new EditorVm("*", "*"),
+        new EditorVm("/", "/")
+    };
+
+    var json = JsonConvert.SerializeObject(operators.Concat(Model.Editors));
+}
+
+<div id="@wrapID">
+    <div class="form-group">
+        <input readonly="readonly" data-tags type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <input type="number" step="any" class="form-control">
+            <span class="input-group-btn">
+                <button data-role="addnumber" class="btn btn-default" type="button">Добавить число</button>
+            </span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="btn-group">
+            @foreach (var item in operators)
+            {
+                <button data-type="@((int)MacroType.Operator)" data-member="@item.Member" type="button" class="btn btn-default">@item.Name</button>
+            }
+        </div>
+    </div>
+    <div class="list-group">
+        @foreach (var item in Model.Editors)
+        {
+            <a href="#" data-type="@((int)MacroType.InitObject)" data-member="@item.Member" class="list-group-item">@item.Name</a>
+        }
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var wrap = $("#@wrapID");
+
+        var values = @Html.Raw(json);
+
+        var elt = wrap.find('input[data-tags]');
+        elt.tagsinput({
+            allowDuplicates: true,
+            itemValue: 'Member',
+            itemText: 'Name',
+            freeInput: true
+        });
+
+        wrap.closest('[property-editor]').on('onLoad', function(e, args) {
+            var data = args.model;
+
+            if (data && data.Value) {
+                $.each($.parseJSON(data.Value), function(i, elem) {
+                    var obj = {
+                        MacroType: elem.MacroType,
+                        Value: elem.Value,
+                    };
+
+                    var name = elem.Value;
+
+                    if (elem.MacroType == "@((int)MacroType.InitObject)") {
+                        name = $.grep(values, function(el) {
+                            return el.Member == elem.Value;
+                        })[0].Name;
+                    }
+                    elt.tagsinput('add', { Member: obj, Name: name });
+                });
+            }
+
+            wrap.closest('[data-role=wraplayout]').find('[data-role=apply]').click(function() {
+                var items = elt.tagsinput('items');
+
+                if (items.length) {
+                    data.set('Value', JSON.stringify($.map(items, function(elem) { return elem.Member; })));
+                } else {
+                    data.set('Value', null);
+                }
+
+                $(this).closest('[data-role=window]').data('kendoWindow').close();
+            });
+        });
+
+        wrap.closest('[data-role=wraplayout]').on('onSetValueFromCutomEditor', function(e, value) {
+            elt.tagsinput('removeAll');
+            elt.tagsinput('add', { "Member": {
+                MacroType: "@((int)MacroType.Number)",
+                Value: value
+            }, Name: value });
+        });
+
+        wrap.on('click', '[data-role=addnumber]', function() {
+            var input = $(this).parent().siblings('input');
+            var value = input.val();
+            if (value == parseFloat(value)) {
+                elt.tagsinput('add', { "Member": {
+                    MacroType: "@((int)MacroType.Number)",
+                    Value: value
+                }, Name: value });
+            }
+            input.val("");
+        });
+
+        wrap.on('click', '[data-member]', function () {
+            elt.tagsinput('add', { "Member": {
+                MacroType: $(this).data('type'),
+                Value: $(this).data('member')
+            }, Name: $(this).html() });
+        });
+    })
+</script>

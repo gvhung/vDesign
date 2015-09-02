@@ -1,0 +1,222 @@
+﻿@model EditorViewModel
+
+@using Base.BusinessProcesses.Entities
+@using WebUI.Helpers
+
+@{
+    var eViewModel = Model;
+    var config = eViewModel.ViewModelConfig;
+
+    string htmlFieldName = eViewModel.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string autoCompleteID = "ac_" + Guid.NewGuid().ToString("N");
+
+    string lookupProperty = config.LookupPropertyForUI;
+
+    const string className = "base-object-one";
+
+    const string placeholder = "Введите значение...";
+
+    string icon = String.Format("<span class='{0}'></span>", config.Icon);
+}
+
+<script>
+    (function () {
+        var editor = window['@wrapID'] = {
+            _selectValue: null,
+            _form: null,
+            getForm: function () {
+                if (this._form == null)
+                    this._form = $("#@wrapID").closest("form").data("pbaForm");
+
+                return this._form;
+            },
+            getTypeObject: function () {
+                pbaAPI.errorMsg("Ошибка: Неомходимо переопределить метод getTypeObject; Источник: Editor - DetailViewSetting");
+                return "";
+            },
+            getDefaultName: function () {
+                return "";
+            },
+            getSysFilter: function () {
+                return 'it.Type = "{0}"'.replace("{0}", this.getTypeObject());
+            }
+        };
+
+        editor.onAdditionalData = function () {
+            var autoComplete = $("#@autoCompleteID").data("kendoAutoComplete");
+
+            var val = autoComplete.value();
+
+            if (val === "@placeholder") val = "";
+
+            var form = editor.getForm();
+
+            var value = form.getPr("@htmlFieldName");
+
+            var ids;
+
+            if (value) {
+                ids = pbaAPI.getIDs(value).join(";");
+            }
+
+            return {
+                startswith: val,
+                mnemonic: "@Model.Mnemonic",
+                ids: ids,
+                sysFilter: editor.getSysFilter()
+            };
+        };
+
+        editor.onChange = function (e) {
+            if (editor._selectValue == null) {
+                this.value("");
+            }
+        };
+
+        editor.onSelect = function (e) {
+            editor._selectValue = this.value();
+
+            $("#@wrapID").trigger('changeValue', {
+                value: this.dataItem(e.item.index())
+            });
+        };
+
+        editor.onDataBound = function (e) {
+            editor._selectValue = null;
+        };
+
+        editor.openDialog = function () {
+            pbaAPI.openModalDialog("@config.Mnemonic",
+                function (res) {
+                    var item = res[0];
+
+                    var form = editor.getForm();
+
+                    @* заполняем поле *@
+                    $("#@wrapID").find("#@autoCompleteID").data("kendoAutoComplete").value(@("item." + lookupProperty));
+
+                    @* записываем в модель *@
+                    form.setPr("@htmlFieldName", item);
+
+                    $("#@wrapID").trigger('changeValue', {
+                        value: item
+                    });
+                },
+                {
+                    title: "ВЫБОР - @config.ListView.Title",
+                    sysFilter: editor.getSysFilter()
+                });
+        };
+
+        editor.openObject = function () {
+            var form = editor.getForm();
+
+            var bo = form.getPr("@htmlFieldName") || { ID: 0 };
+
+            pbaAPI.openViewModelEx("@Model.Mnemonic",
+            {
+                wid: "@Model.UID",
+                id: bo.ID,
+                initNewEntity: function (entity) {
+                    entity.Type = editor.getTypeObject();
+                    entity.Title = editor.getDefaultName();
+                },
+                callback: function (e) {
+                    if (e.type === "save") {
+                        var model = {
+                            ID: e.model.ID
+                        };
+
+                        model["@lookupProperty"] = e.model["@lookupProperty"];
+
+                        form.setPr("@htmlFieldName", model);
+
+                        $("#@wrapID").trigger('changeValue', {
+                            value: model
+                        });
+                    }
+                }
+            });
+        };
+
+        editor.clear = function () {
+            var form = editor.getForm();
+
+            $("#@wrapID").find("#@autoCompleteID").data("kendoAutoComplete").value("");
+
+            form.setPr("@htmlFieldName", null);
+
+            $("#@wrapID").trigger('changeValue', {
+                value: null
+            });
+        };
+    })();
+</script>
+
+
+@if (Model.ParentViewModelConfig != null && (Model.ParentViewModelConfig.TypeEntity == typeof(Stage) || (Model.ParentViewModelConfig.TypeEntity == typeof(WorkflowOwnerStep))))
+{
+    <script>
+        (function () {
+            var editor = window["@wrapID"];
+
+            editor.getTypeObject = function () {
+                return this.getForm().parentForm.getPr("ObjectType");
+            };
+
+            editor.getDefaultName = function () {
+                return this.getForm().getPr("@Model.ParentViewModelConfig.LookupProperty");
+            };
+        })();
+    </script>
+}
+
+<div data-editortemplate="BaseObjectOne" id="@wrapID" class="input-group">
+    @(Html.Kendo().AutoComplete()
+            .Name(autoCompleteID)
+            .DataTextField(lookupProperty)
+            .Placeholder(placeholder)
+            .HtmlAttributes(Html.CreateHtmlAttributes(Model, new { @class = className }))
+            .Filter("startswith")
+            .MinLength(1)
+            .Height(370)
+            .Events(e => e.Change(wrapID + ".onChange").DataBound(wrapID + ".onDataBound").Select(wrapID + ".onSelect"))
+            .DataSource(source =>
+            {
+                source.Read(read =>
+                {
+                    read.Action("Filter_Read", "Standart").Data(wrapID + ".onAdditionalData");
+                })
+                .ServerFiltering(true);
+            })
+    )
+
+    <span class="@className icon">@Html.Raw(icon)</span>
+
+    <span class="input-group-btn">
+        <button class="btn btn-default" type="button" onclick="@(wrapID).openObject(); return false;" title=" создать - открыть"><span class="halfling halfling-asterisk"></span></button>
+        <button class="btn btn-default" type="button" onclick="@(wrapID).openDialog(); return false;" title="Выбрать"><span class="halfling halfling-align-justify"></span></button>
+        <button class="btn btn-default" type="button" onclick="@(wrapID).clear(); return false;" title="Очистить"><span class="halfling halfling-remove"></span></button>
+    </span>
+</div>
+
+<script>
+    $(function () {
+        var $autocomplete = $("#@autoCompleteID");
+
+        $autocomplete.on("focus", function () {
+            $autocomplete.data("kendoAutoComplete").search("");
+        });
+    });
+</script>
+
+<style>
+    .base-object-one-color {
+        border-radius: 50%;
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 4px;
+    }
+</style>

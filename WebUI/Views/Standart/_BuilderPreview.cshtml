@@ -1,0 +1,181 @@
+﻿@model StandartViewModel
+
+@{
+    string wrapTemplate = Guid.NewGuid().ToString();
+}
+
+<script>
+    window["@Model.WidgetID"] = new WrapViewModel("@Model.WidgetID", "preview", "@Model.Type");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+
+        var view = window["@Model.WidgetID"];
+
+        composite.registerWidget(view);
+
+        view._template = null;
+
+        view.element = function () {
+            return $("#@Model.WidgetID");
+        };
+
+        view.onNeighbourWidgetChanged = function (e) {
+            switch (e.sender.desc) {
+                case "DialogSplitter":
+                    if (e.event == "resize") {
+                        view.element().closest(".panel").height(e.params.height - 2);
+                    }
+
+                    break;
+            }
+
+            view._onNeighbourWidgetChanged(e);
+        };
+
+        view._onNeighbourWidgetChanged = function (e) {
+
+        };
+
+        view.startLoading = function () {
+            var $content = this.element();
+
+            $content.empty();
+            $content.addClass("wnd-loading-content");
+        };
+
+        view.hideLoading = function () {
+            var $content = this.element();
+
+            $content.removeClass("wnd-loading-content");
+        };
+
+        view.criticalError = function (msg) {
+            var $content = this.element();
+
+            view.hideLoading();
+
+            $content.html("<h4 style='color: red;'>" + msg + "</h4>");
+        };
+
+
+        view.init = function (id) {
+
+            view.startLoading();
+
+            if (id) {
+
+                if(view._template === null){
+                    view._template = kendo.template($("#@wrapTemplate").find("script[type='text/x-kendo-template']").html());
+                }
+
+                $.get(application.url.GetStandart("Get"), { id: id, mnemonic: "@Model.Mnemonic" }, function (res) {
+                    if (res.error && res.error != 0) {
+
+                        view.criticalError(res.message);
+
+                        return;
+                    }
+                    else {
+                        var previewHtml = view._template(res.model);
+
+                        view.element().html(previewHtml);
+
+                        view.hideLoading();
+                    }
+                });
+            } else {
+                view.hideLoading();
+            }
+        };
+    })();
+</script>
+
+@switch (Model.ViewModelConfig.ListView.Type)
+{
+    case ListViewType.Tree:
+
+        <script>
+            (function () {
+                var composite = window["@Model.DialogID"];
+
+                var view = window["@Model.WidgetID"];
+
+                view._onNeighbourWidgetChanged = function (e) {
+                    if (e.sender.desc === "TreeView") {
+
+                        if (e.event == "select") {
+                            var id = null;
+
+                            if (e.params.dataItem) {
+                                id = e.params.dataItem.id;
+                            }
+
+                            view.init(id)
+                        }
+
+                    }
+                }
+            })();
+        </script>
+
+        break;
+
+    case ListViewType.Grid:
+    <script>
+        (function () {
+            var composite = window["@Model.DialogID"];
+
+            var view = window["@Model.WidgetID"];
+
+            view._onNeighbourWidgetChanged = function (e) {
+                if (e.sender.desc === "GridView") {
+
+                    if (e.event === "select") {
+                        var id = null;
+
+                        if (e.params.dataItem) {
+                            id = e.params.dataItem.id;
+                        }
+
+                        view.init(id)
+                    } else if (e.event === "onDataBound") {
+                        view.element().empty();
+                    }
+                }
+            }
+        })();
+    </script>
+
+    break;
+}
+
+<div id="@wrapTemplate">
+    @{
+
+        var template = String.Format("~/Views/Shared/PreviewTemplates/{0}.cshtml", Model.Mnemonic);
+
+        var partialView = ViewEngines.Engines.FindPartialView(ViewContext, template);
+
+        if (partialView != null && partialView.View != null)
+        {
+            Html.RenderPartial(template, Model);
+        }
+        else
+        {
+            Html.RenderPartial("~/Views/Shared/PreviewTemplates/Default.cshtml", Model);
+        }
+    }
+</div>
+
+<div class="panel panel-default" style="margin: 0px; border-radius: 0px; overflow: auto;">
+    <div id="@Model.WidgetID" class="panel-body" style="min-height: 100px;">
+
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $("#@Model.WidgetID").data("preview", window["@Model.WidgetID"]);
+    });
+</script>

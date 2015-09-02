@@ -1,0 +1,51 @@
+﻿@model EditorViewModel
+@using WebUI.Helpers
+
+@{
+
+    ViewModelConfig config = Model.ViewModelConfig;
+
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    string lookupProperty = config.LookupPropertyForUI;
+
+    string template = String.Format("<span class='{0}'>&nbsp;</span><a href='javascript:void(0)' id='{1}'>#= pbaAPI.htmlEncode(model.{2}) #</a>", config.Icon, htmlFieldName, lookupProperty);
+
+    string wrapClass = "wrap-detail-bo";
+
+    if (typeof(Base.Security.BaseUser).IsAssignableFrom(Model.PropertyType))
+    {
+        template = "#= pbaAPI.getUserStr(model, true) #" + String.Format("&nbsp;<a href='javascript:void(0)' id='{0}'>#= pbaAPI.htmlEncode(model.{1}) #</a>", htmlFieldName, lookupProperty);
+
+        wrapClass = "wrap-detail-user";
+    }
+}
+
+<div id="@wrapID" class="@wrapClass">
+</div>
+
+<script>
+    $(function () {
+        var $wrap = $("#@wrapID");
+        var template = kendo.template("@Html.Raw(template)");
+
+        $wrap.closest("form").on("onAfterBind", function (e, form) {
+            var obj = form.getPr("@htmlFieldName");
+
+            if (obj) {
+                $wrap.html(template({ model: obj })).show();
+
+                $wrap.find("#@htmlFieldName").click(function () {
+                    pbaAPI.openViewModelEx("@config.Mnemonic",
+                        {
+                            wid: "@wrapID",
+                            id: obj.ID
+                        });
+                });
+            } else {
+                $wrap.html("").hide();
+            }
+        })
+    });
+</script>

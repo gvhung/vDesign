@@ -1,0 +1,47 @@
+﻿@model EditorViewModel
+
+@{
+    string wrapID = "n_" + Guid.NewGuid().ToString("N");
+    string wid = "wnd_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    window["@wrapID"] = {
+        openDialog: function () {
+            var e_form = $("#@wrapID").closest("form");
+            var form = e_form.data("pbaForm");
+            var type = form.getPr("@(Model.PropertyName).Type");
+            
+            var entity = $.extend({}, form.getPr("@Model.PropertyName"));
+
+            pbaAPI.openViewModelEx(type,
+                    {
+                        entity: entity,
+                        hideToolbar: true,
+                        callback: function (e) {
+                            if (e.type == "save") {
+                                form.setPr("@Model.PropertyName", e.model);
+                            }
+                        }
+                    });
+        }
+    };
+</script>
+
+<div id="@wrapID">
+    <a class='k-button' onclick="window['@wrapID'].openDialog(); return false;" title="Редактировать">...</a>
+</div>
+
+<script>
+    $(function () {
+        var $wrap = $("#@wrapID");
+
+        $wrap.closest("form").on("onAfterBind", function (e, form) {
+           
+        });
+
+        $wrap.closest("form").on("onSave", function (e, form) {
+
+        });
+    });
+</script>

@@ -1,0 +1,13 @@
+﻿@model ColumnSetting
+
+@{
+    ViewBag.Title = "ColumnSetting";
+}
+
+<li class="list-group-item">
+    @Html.CheckBoxFor(x => x.Exportable)
+</li>
+
+<li class="list-group-item">
+    @Html.CheckBoxFor(x => x.Visible)
+</li>

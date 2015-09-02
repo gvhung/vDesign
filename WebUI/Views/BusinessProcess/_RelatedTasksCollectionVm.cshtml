@@ -1,0 +1,44 @@
+﻿@using Base.Task.Entities
+@model IEnumerable<Base.BusinessProcesses.Entities.RelatedTaskCollection>
+
+@{
+    var allTasks = Model.SelectMany(x => x.RelatedTasks).ToList();
+    
+    bool isAllTaskComplited = Model.All(x => x.IsComplited);
+}
+
+<div class="timeline-panel panel-inverted">
+    <div class="timeline-heading">
+        <span class="badge pull-right @(isAllTaskComplited ? "tsk-collect-complite" : "")">@allTasks.Count(x => x.Status == TaskStatus.Complete) из @allTasks.Count()</span>
+        <h4 class="timeline-title"><small><span class="halfling halfling-comments @(isAllTaskComplited ? "green-icon" : "") "></span>&nbsp;&nbsp;</small>Дополнительные напоминания</h4>
+    </div>
+    <hr />
+    <div class="timeline-body">
+        @foreach (var item in Model)
+        {
+            string panelID = "panel_" + Guid.NewGuid().ToString("N");
+
+            string accID = "acco_" + Guid.NewGuid().ToString("N");
+
+            <div class="panel-group" id="@accID">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a class="collapse-toggle collapsed" title="@item.TaskStep.Description" data-toggle="collapse" data-parent="#@accID" href="#@panelID">
+                                <span class="badge pull-right @(item.IsComplited ? "tsk-collect-complite" : "")">@item.Count(x => x.Status == TaskStatus.Complete) из @item.Count()</span>@item.TaskStep.Title
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="@panelID" class="panel-collapse collapse">
+                        <div class="panel-body task-group">
+                            @foreach (var task in item.RelatedTasks)
+                            {
+                                @Html.Partial("_RelatedTask", task)
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

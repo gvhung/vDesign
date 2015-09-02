@@ -1,0 +1,151 @@
+﻿@model EditorViewModel
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    string htmlFieldName = Model.PropertyName;
+}
+
+<script src="~/Scripts/underscore-min.js"></script>
+
+<div id="@wrapID">
+    <div class="list-group available-items disabled action-container">
+        <div class="list-group-item disabled" style="color: #777; background-color: #eee;">
+            Доступные действия
+        </div>
+    </div>
+
+    <div class="list-group active-items action-container">
+        <div class="list-group-item disabled" style="color: #777; background-color: #dff0d8;">
+            Активные действия
+        </div>
+    </div>
+
+    <script type="text/template" id="action-template">
+        <% _.each(items,function(item) { %>
+        <div class="sortable-action list-group-item">
+            <div class="btn-group" data-toggle="buttons">
+                <div class="btn btn-primary disabled"><%= item.Title %><span style="margin: 0 34px; color: white;" class="halfling halfling-circle-arrow-right"></span></div>
+                <% _.each(item.Values, function(itemVal) { %>
+                <label class="btn btn-default <%= itemVal.active ? 'active' : '' %> available" data-member="<%= item.Member %>" data-value="<%= itemVal.Value %>">
+                    <input type="radio" name="options"><%= itemVal.Title %>
+                </label>
+                <% }); %>
+            </div>
+        </div>
+        <% }); %>
+    </script>
+</div>
+
+<script>
+    $(function () {
+        $("#@wrapID").find(".available-items, .active-items").sortable({
+            items: "div.sortable-action",
+            connectWith: ".action-container"
+        }).disableSelection();
+
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            window["@wrapID"] = {
+                active: {},
+                available: {}
+            };
+            $(".sortable-action", "#@wrapID").remove();
+
+            if (form.parentForm) {
+
+                var objType = form.parentForm.getPr('ObjectType') || form.parentForm.getPr('EntityType');
+
+                if (objType) {
+                    var typeStr = objType.Value ? objType.Value : objType;
+
+                    $.get("/BusinessProcess/GetActions", { objType: typeStr }, function (data) {
+                        if (!data) return;
+
+                        var wrap = window["@wrapID"];
+                        var values = form.getPr("@htmlFieldName");
+
+                        if (values) {
+                            for (var val in values) {
+                                if (data[values[val].Member]) {
+                                    for (var v in data[values[val].Member].Values) {
+                                        if (values[val].Value == data[values[val].Member].Values[v].Value) {
+                                            data[values[val].Member].Values[v].active = true;
+                                            wrap.active[values[val].Member] = data[values[val].Member];
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        for (var val in data) {
+                            if (!wrap.active[val]) {
+                                wrap.available[val] = data[val];;
+                            }
+                        }
+
+                        var template = $("#action-template").html();
+                        $("#@wrapID").find(".available-items").append(_.template(template, { items: wrap.available }));
+                        $("#@wrapID").find(".active-items").append(_.template(template, { items: wrap.active }));
+                    });
+                };
+            }
+        });
+
+        $("#@wrapID").closest("form").on("onSave", function (e, form) {
+            console.log('ok');
+
+            form.setPr("@htmlFieldName", $.map($(".active-items", "#@wrapID").find("label.active"), function (el) {
+                var $el = $(el);
+                return { Member: $el.data("member"), Value: $el.data("value") }
+            }));
+        });
+    });
+</script>
+
+<style>
+    .sortable-action {
+        cursor: move;
+        margin-top: 0;
+    }
+
+    .available-items {
+        opacity: 1;
+    }
+    .available-items .sortable-action .btn-group > .available {
+        visibility: hidden;
+    }
+
+
+    .active-items .sortable-action .btn-group > .disabled:first-child {
+        opacity: 1;
+    }
+
+    .active-items .sortable-action {
+        margin-bottom: 35px;
+        background-color: #d9edf7;
+    }
+
+    .sortable-action .active {
+        background: #5cb85c;
+        color: white;
+    }
+
+    .active-items {
+        background-color: #dff0d8;
+    }
+
+    .active-items .sortable-action:not(:last-child):after {
+        color: #428bca;
+        content: "\e026";
+        position: absolute;
+        bottom: -34px;
+        left: 50%;
+        font-family: 'Glyphicons Halflings';
+        font-style: normal;
+        font-weight: normal;
+        font-size: 25px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+</style>

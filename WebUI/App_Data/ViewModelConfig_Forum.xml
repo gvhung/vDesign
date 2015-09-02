@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>ForumSection</mnemonic>
+    <title>Форум - Раздел</title>
+    <service>Base.Forum.Service.IForumSectionService, Base.Forum</service>
+    <entity>Base.Forum.Entities.ForumSection, Base.Forum</entity>
+    <listview title="Раздел"></listview>
+    <detailview title="Раздел"></detailview>
+    <icon></icon>
+  </item>
+  <item>
+    <mnemonic>ForumTopic</mnemonic>
+    <title>Форум - Тема</title>
+    <service>Base.Forum.Service.IForumTopicService, Base.Forum</service>
+    <entity>Base.Forum.Entities.ForumTopic, Base.Forum</entity>
+    <listview title="Тема"></listview>
+    <detailview title="Тема"></detailview>
+    <icon></icon>
+  </item>
+  <item>
+    <mnemonic>ForumPost</mnemonic>
+    <title>Форум - Сообщение</title>
+    <service>Base.Forum.Service.IForumPostService, Base.Forum</service>
+    <entity>Base.Forum.Entities.ForumPost, Base.Forum</entity>
+    <listview title="Сообщение"></listview>
+    <detailview title="Сообщение"></detailview>
+    <icon></icon>
+  </item>
+</ViewModelConfig>

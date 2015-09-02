@@ -1,0 +1,243 @@
+﻿@model EditorViewModel
+
+@using WebUI.Helpers
+
+@{
+    EditorViewModel eViewModel = Model;
+    ViewModelConfig config = eViewModel.ViewModelConfig;
+
+    string htmlFieldName = eViewModel.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string autoCompleteID = "ac_" + Guid.NewGuid().ToString("N");
+    string wndDialog = "wnd_" + Guid.NewGuid().ToString("N");
+
+    string lookupProperty = config.LookupPropertyForUI;
+
+    string template = "";
+    string className = "base-object-one";
+
+    string icon = String.Format("<span class='{0}'></span>", config.Icon);
+
+    string templateIcon = "";
+
+    bool isUser = false;
+
+    if (typeof(Base.Security.BaseUser).IsAssignableFrom(eViewModel.PropertyType))
+    {
+        template = "#= pbaAPI.getUserStr(data) #";
+        className += " img";
+
+        icon = "";
+        templateIcon = "#= pbaAPI.getUserStr(model, true) #";
+
+        isUser = true;
+    }
+    else if (eViewModel.PropertyType.GetProperties().Any(x => x.PropertyType == typeof(Base.Entities.Complex.Color)))
+    {
+        string colorPrName = eViewModel.PropertyType.GetProperties().First(x => x.PropertyType == typeof(Base.Entities.Complex.Color)).Name;
+
+        template = String.Format("<span class='base-object-one-color' style='background-color: #= data.{0}.Value #'></span> #= pbaAPI.htmlEncode(data.{1}) #", colorPrName, lookupProperty);
+
+        icon = "";
+        templateIcon = String.Format("<span class='base-object-one-color' style='background-color: #= model.{0}.Value #'></span>", colorPrName);
+    }
+
+    string placeholder = "Введите значение...";
+}
+
+<script>
+    (function () {
+        var $wrap = $('#@wrapID');
+
+        window['@wrapID'] = {
+            _selectValue: null,
+            onAdditionalData: function () {
+                var autoComplete = $("#@autoCompleteID").data("kendoAutoComplete");
+
+                var val = autoComplete.value();
+
+                if (val === "@placeholder") val = "";
+
+                var form = $("#@wrapID").closest("form").data("pbaForm");
+
+                var value = form.getPr("@htmlFieldName");
+
+                var ids;
+
+                if (value) {
+                    ids = pbaAPI.getIDs(value).join(";");
+                }
+
+                return {
+                    startswith: val,
+                    mnemonic: "@Model.Mnemonic",
+                    ids: ids,
+                };
+            },
+            onChange: function (e) {
+                if (window['@wrapID']._selectValue == null) {
+                    this.value("");
+                }
+            },
+            onSelect: function (e) {
+                window['@wrapID']._selectValue = this.value();
+
+                $wrap.trigger('changeValue', {
+                    value: this.dataItem(e.item.index())
+                });
+            },
+            onDataBound: function (e) {
+                window['@wrapID']._selectValue = null;
+            },
+            openDialog: function () {
+                pbaAPI.openModalDialog("@config.Mnemonic",
+                    function (res) {
+                        var item = res[0];
+
+                        var $form = $("#@wrapID").closest("form");
+                        var form = $form.data("pbaForm");
+
+                        @* заполняем поле *@
+                        $("#@wrapID").find("#@autoCompleteID").data("kendoAutoComplete").value(@("item." + lookupProperty));
+
+                        @* записываем в модель *@
+                        form.setPr("@htmlFieldName", item);
+
+                        $wrap.trigger('changeValue', {
+                            value: item
+                        });
+                    },
+                    {
+                        title: "ВЫБОР - @config.ListView.Title"
+                    });
+            },
+            openObject: function () {
+                var $form = $("#@wrapID").closest("form");
+                var form = $form.data("pbaForm");
+
+                var bo = form.getPr("@htmlFieldName") || { ID: 0 };
+
+                pbaAPI.openViewModelEx("@Model.Mnemonic",
+                {
+                    wid: "@Model.UID",
+                    id: bo.ID,
+                    callback: function (e) {
+                        if (e.type === "save") {
+                            var model = {
+                                ID: e.model.ID
+                            };
+
+                            model["@lookupProperty"] = e.model["@lookupProperty"];
+
+                            form.setPr("@htmlFieldName", model);
+
+                            $wrap.trigger('changeValue', {
+                                value: model
+                            });
+                        }
+                    }
+                });
+            },
+            clear: function () {
+                var $form = $("#@wrapID").closest("form");
+                var form = $form.data("pbaForm");
+
+                $("#@wrapID").find("#@autoCompleteID").data("kendoAutoComplete").value("");
+
+                form.setPr("@htmlFieldName", null);
+
+                $wrap.trigger('changeValue', {
+                    value: null
+                });
+            }
+        }
+    })();
+</script>
+
+<div data-editortemplate="BaseObjectOne" id="@wrapID" class="input-group">
+    @(Html.Kendo().AutoComplete()
+            .Name(autoCompleteID)
+            .DataTextField(lookupProperty)
+            .Placeholder(placeholder)
+            .HtmlAttributes(Html.CreateHtmlAttributes(Model, new { @class = className }))
+            .Filter("startswith")
+            .Template(template)
+            .MinLength(1)
+            .Height(370)
+            .Events(e => e.Change(wrapID + ".onChange").DataBound(wrapID + ".onDataBound").Select(wrapID + ".onSelect"))
+            .DataSource(source =>
+            {
+                source.Read(read =>
+                {
+                    read.Action("Filter_Read", isUser ? "Users" : "Standart").Data(wrapID + ".onAdditionalData");
+                })
+                .ServerFiltering(true);
+            })
+    )
+
+    <span class="@className icon">@Html.Raw(icon)</span>
+
+    <span class="input-group-btn">
+        @if (!isUser)
+        {
+            <button class="btn btn-default" type="button" onclick="@(wrapID).openObject(); return false;" title=" создать - открыть"><span class="halfling halfling-asterisk"></span></button>
+        }
+        <button class="btn btn-default" type="button" onclick="@(wrapID).openDialog(); return false;" title="Выбрать"><span class="halfling halfling-align-justify"></span></button>
+        <button class="btn btn-default" type="button" onclick="@(wrapID).clear(); return false;" title="Очистить"><span class="halfling halfling-remove"></span></button>
+    </span>
+</div>
+
+
+@if (templateIcon != "")
+{
+    <script>
+        $(function () {
+            var $icon = $("#@wrapID").find(".base-object-one.icon");
+            var $form = $icon.closest("form");
+
+            var templateIcon = kendo.template("@Html.Raw(templateIcon)");
+
+            var initImg = function (form) {
+                var obj = form.getPr("@htmlFieldName");
+
+                if (obj) {
+                    $icon.html(templateIcon({ model: obj }));
+                } else {
+                    $icon.html("");
+                }
+            };
+
+            $form.on("onAfterBind", function (e, form) {
+                initImg(form);
+            });
+
+            $form.on("onChange", function (e, params) {
+                if (params.field === "@htmlFieldName") {
+                    initImg(params.sender);
+                }
+            });
+        });
+    </script>
+}
+
+
+<script>
+    $(function () {
+        var $autocomplete = $("#@autoCompleteID");
+        var $form = $autocomplete.closest("form");
+
+        $autocomplete.on("focus", function () {
+            $autocomplete.data("kendoAutoComplete").search("");
+        });
+    });
+</script>
+
+<style>
+    .base-object-one-color {
+        border-radius: 50%;
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 4px;
+    }
+</style>

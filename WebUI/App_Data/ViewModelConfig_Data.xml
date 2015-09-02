@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <!-- *********************UserPromotion************************ -->
+  <item>
+    <mnemonic>UserPromotion</mnemonic>
+    <readonly>true</readonly>
+    <title>Заявки</title>
+    <entity>Data.Entities.UserPromotion, Data</entity>
+    <service>Data.Service.Abstract.IUserPromotionService, Data</service>
+    <detailview title="Заявка на изменение типа пользователя" width="900" height="500">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="UserPromotion" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <listview>
+      <condappearance>
+        <add condition="State == 0" bg="\\#FEE529" />
+        <add condition="State == 1" bg="\\#5cb85c" />
+        <add condition="State == 2" bg="\\#d9534f" />
+      </condappearance>
+      <dataSource>
+        <sorts>
+          <sort descriptor="SubmitTime" order="desc" />
+        </sorts>
+      </dataSource>
+    </listview>
+    <icon>glyphicon glyphicon-notes-2</icon>
+  </item>
+  <item>
+    <mnemonic>ExpertPromotion</mnemonic>
+    <title>Заявка на расширение прав до эксперта</title>
+    <entity>Data.Entities.UserPromotion, Data</entity>
+    <service>Data.Service.Abstract.IUserPromotionService, Data</service>
+    <detailview title="Заявка на расширение прав до эксперта" width="800" height="270">
+      <editors>
+        <editor propertyName="User" visible="false" />
+        <editor propertyName="State" visible="false" />
+        <editor propertyName="Department" visible="false" isRequired="false" />
+        <editor propertyName="RequestedType" isReadOnly="true" />
+        <editor propertyName="SubmitTime" visible="false" />
+        <editor propertyName="DecideTime" visible="false" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-notes-2</icon>
+  </item>
+  <item>
+    <mnemonic>DeveloperPromotion</mnemonic>
+    <title>Заявка на расширение прав до разработчика</title>
+    <entity>Data.Entities.UserPromotion, Data</entity>
+    <service>Data.Service.Abstract.IUserPromotionService, Data</service>
+    <detailview title="Заявка на расширение прав до разработчика" width="800" height="320">
+      <editors>
+        <editor propertyName="User" visible="false" />
+        <editor propertyName="State" visible="false" />
+        <editor propertyName="RequestedType" isReadOnly="true" />
+        <editor propertyName="SubmitTime" visible="false" />
+        <editor propertyName="DecideTime" visible="false" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-notes-2</icon>
+  </item>
+
+  <!--<item>
+    <mnemonic>SupportQA</mnemonic>
+    <title>Обратная связь</title>
+    <entity>Data.Entities.SupportQA, Data</entity>
+    <service>Data.Service.Abstract.ISupportQAService, Data</service>
+    <listview>
+      <hiddenActions>
+        <action id="Create"/>
+        <action id="Delete"/>
+      </hiddenActions>
+      <condappearance>
+        <add condition="Status == 0" bg="\\#76e0ff" />
+        <add condition="Status == 1" bg="\\#5dd95d" />
+        <add condition="Status == 2" bg="\\#d9534f" />
+      </condappearance>
+      <dataSource>
+        <sorts>
+          <sort descriptor="CreateDate" order="desc" />
+        </sorts>
+      </dataSource>
+      <columns>
+        <column propertyName="ID" visible="true" order ="-1" width="100"/>
+      </columns>
+    </listview>
+    <detailview title="Обратная связь" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="SupportQA" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="ID" visible="true" order="0" isReadOnly="true" title="Идентификатор сообщения"/>
+        <editor propertyName="Type" isReadOnly="true" />
+        <editor propertyName="Status" isReadOnly="true" />
+        <editor propertyName="SenderName" isReadOnly="true" />
+        <editor propertyName="SenderEmail" isReadOnly="true" />
+        <editor propertyName="Title" isReadOnly="true" />
+        <editor propertyName="Question" isReadOnly="true" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-notes-2</icon>
+  </item>
+  <item>
+    <mnemonic>SupportQAPublic</mnemonic>
+    <title>Обратная связь</title>
+    <entity>Data.Entities.SupportQA, Data</entity>
+    <service>Data.Service.Abstract.ISupportQAService, Data</service>
+    <detailview title="Обратная связь" width="800" height="360" hideToolbar="true">
+      <editors>
+        <editor propertyName="Status" visible="false" />
+        <editor propertyName="Sender" visible="false" />
+        <editor propertyName="SenderName" visible="false" />
+        <editor propertyName="SenderEmail" visible="false" />
+        <editor propertyName="SenderIsAnonymous" visible="false" />
+        <editor propertyName="CreateDate" visible="false" />
+        <editor propertyName="Respondent" visible="false" />
+        <editor propertyName="Answer" visible="false" />
+        <editor propertyName="ProcessingDate" visible="false" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-notes-2</icon>
+  </item>
+  <item>
+    <mnemonic>SupportQAPublicUnreg</mnemonic>
+    <title>Обратная связь</title>
+    <entity>Data.Entities.SupportQA, Data</entity>
+    <service>Data.Service.Abstract.ISupportQAService, Data</service>
+    <detailview title="Обратная связь" width="800" height="480" hideToolbar="true">
+      <editors>
+        <editor propertyName="Status" visible="false" />
+        <editor propertyName="Sender" visible="false" />
+        <editor propertyName="SenderIsAnonymous" visible="false" />
+        <editor propertyName="SenderName" isRequired="true" title="Имя"/>
+        <editor propertyName="SenderEmail" isRequired="true" title="Email"/>
+        <editor propertyName="CreateDate" visible="false" />
+        <editor propertyName="Respondent" visible="false" />
+        <editor propertyName="Answer" visible="false" />
+        <editor propertyName="ProcessingDate" visible="false" />
+      </editors>
+    </detailview>
+    <icon>glyphicon glyphicon-notes-2</icon>
+  </item>-->
+
+  <!-- *********************TestObject************************ -->
+  <item>
+    <mnemonic>TestObject</mnemonic>
+    <title>TestObject</title>
+    <service>Data.Service.Abstract.ITestObjectService, Data</service>
+    <entity>Data.Entities.TestObject, Data</entity>
+    <listview>
+      <toolbars>
+        <toolbar title="Невероятные действия" controller="BusinessProcess" action="GetToolbar" icon="halfling halfling-send" ajax="true">
+          <param key="mnemonic" value="TestObject" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+    </listview>
+    <detailview>
+      <ajaxform action="GetAjaxForm" controller="Standart" />
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="TestObject" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-send</icon>
+  </item>
+
+  <item>
+    <mnemonic>TestObjectEntry</mnemonic>
+    <title>TestObjectEntry</title>
+    <service>Data.Service.Abstract.ITestObjectEntryService, Data</service>
+    <entity>Data.Entities.TestObjectEntry, Data</entity>
+    <listview>
+    </listview>
+    <detailview>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-send</icon>
+  </item>
+
+  <item>
+    <mnemonic>TestObjectNestedEntry</mnemonic>
+    <title>TestObjectNestedEntry</title>
+    <service>Data.Service.Abstract.ITestObjectNestedEntryService, Data</service>
+    <entity>Data.Entities.TestObjectNestedEntry, Data</entity>
+    <listview>
+    </listview>
+    <detailview>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-send</icon>
+  </item>
+</ViewModelConfig>

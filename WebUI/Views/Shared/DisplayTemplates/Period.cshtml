@@ -1,0 +1,29 @@
+﻿@model EditorViewModel
+
+@{
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string name1 = "n_" + Guid.NewGuid().ToString("N");
+    string name2 = "n_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@(wrapID)">
+    <span class="glyphicon glyphicon-calendar">&nbsp;</span><span id="@name1"></span>&nbsp;~&nbsp;<span id="@name2"></span>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            if (form.getPr("@htmlFieldName")) {
+                var date1 = kendo.parseDate(form.getPr("@(htmlFieldName).Start"), "@Framework.JsonNetResult.DATE_TIME_FORMATE");
+                var date2 = kendo.parseDate(form.getPr("@(htmlFieldName).End"), "@Framework.JsonNetResult.DATE_TIME_FORMATE");
+
+                var $wrap = $("#@wrapID");
+
+                $wrap.find("#@name1").html(kendo.toString(date1, "@Framework.JsonNetResult.DATE_TIME_FORMATE"));
+                $wrap.find("#@name2").html(kendo.toString(date2, "@Framework.JsonNetResult.DATE_TIME_FORMATE"));
+            }
+        });
+    });
+</script>
+ 

@@ -1,0 +1,20 @@
+@model EditorViewModel
+
+@{
+    string fieldID = "f_" + Guid.NewGuid().ToString("N");
+}
+
+<span id="@fieldID"></span>
+
+<script>
+    $(function () {
+        var $f = $("#@fieldID");
+
+        $f.closest("form").on("onAfterBind", function(e, form) {
+            if (form.getPr("@Model.PropertyName"))
+                $f.html(kendo.toString(form.getPr("@Model.PropertyName"), "n0"));
+            else
+                $f.html("");
+        });
+    });
+</script>

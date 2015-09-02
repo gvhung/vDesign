@@ -1,0 +1,19 @@
+﻿@model AccountInfoModel
+@{
+    ViewBag.Title = Model.Title;
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+<div class="info-block text-center" >
+    <div class="info-block-title">
+        <h3>
+            @Model.Title
+        </h3>
+    </div>
+    <div class="info-block-message">
+        @Model.Message
+    </div>
+    <div class="info-block-nav">
+        <a href="@Url.Action("Index", "Home", new { area = "Regulation"})">Перейти на главную</a>
+    </div>
+</div>

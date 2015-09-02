@@ -1,0 +1,146 @@
+﻿@model EditorViewModel
+
+<div id="@Model.UID" class="grid-preset-columns list-group"></div>
+
+<script>
+    $(function () {
+        var $editor = $("#@Model.UID")
+        var $form = $editor.closest("form");
+        var dicColumns = {};
+
+        $form.on("onAfterBind", function (e, form) {
+            var columns = form.getPr("@Model.PropertyName");
+
+            $editor.empty();
+            dicColumns = {};
+
+            for (var i = 0; i < columns.length; i++) {
+                var col = columns[i];
+
+                dicColumns[col.Name] = col;
+
+                $editor.append($("<a id='" + col.Name + "' href='#' class='column list-group-item " + (col.Visible ? "active" : "") + "'><span class='column-setting glyphicon glyphicon-cogwheel'></span><span class='title'>" + col.Title + "<span></a>"));
+            }
+        });
+
+        $editor.on("click", ".column", function () {
+            if ($(this).hasClass("active"))
+                $(this).removeClass("active");
+            else
+                $(this).addClass("active");
+        });
+
+        $editor.on("click", ".column-setting", function () {
+            var $col = $(this).closest(".column");
+            var col = dicColumns[$col.attr("id")];
+
+            pbaAPI.openViewModelEx("ColumnSetting",
+                       {
+                           wid: "@Model.UID",
+                           entity: col,
+                           width:600,
+                           height: 400,
+                           toSave: false,
+                           callback: function (e) {
+                               if (e.type == "save") {
+                                   col.Title = e.model.Title;
+                                   col.Width = e.model.Width;
+                                   col.Visible = e.model.Visible;
+
+                                   $col.find(".title").html(col.Title);
+
+                                   if (col.Visible)
+                                       $col.addClass("active");
+                                   else
+                                       $col.removeClass("active");
+                                   
+                               }
+                           }
+                       });
+
+            return false;
+        });
+
+        $form.on("onSave", function (e, form) {
+            if (!form.getPr("@Model.PropertyName"))
+                form.setPr("@Model.PropertyName", []);
+
+            var resColumns = [];
+
+            $editor.find("a.column").each(function () {
+                var $col = $(this);
+
+                var col = dicColumns[$col.attr("id")];
+
+                col.Visible = $col.hasClass("active");
+
+                resColumns.push(col);
+            });
+
+            form.setPr("@Model.PropertyName", resColumns);
+        });
+
+        var placeholder = function (element) {
+            return element.clone()
+                .addClass("placeholder")
+                .removeClass("active");
+        };
+
+        var hint = function (element) {
+            return element.clone()
+                .addClass("hint")
+                .height(element.height())
+                .width(element.width()).
+                css({
+                    "height": "40px",
+                });
+        };
+
+
+        $editor.kendoSortable({
+            filter: ">a",
+            cursor: "move",
+            placeholder: placeholder,
+            hint: hint,
+        });
+    });
+</script>
+
+<style>
+    .grid-preset-columns {
+        width: 500px;
+        border: 1px solid #e1e1e8;
+        border-radius: 3px;
+    }
+
+        .grid-preset-columns .column {
+            margin: 5px;
+            border-radius: 3px;
+            padding-left: 35px;
+        }
+
+
+            .grid-preset-columns .column.placeholder {
+                color: #555;
+                background-color: rgba(223, 240, 216, 0.45);
+                -webkit-box-shadow: 0px 0px 5px 0px #5cb85c;
+                -moz-box-shadow: 0px 0px 5px 0px #5cb85c;
+                box-shadow: 0px 0px 5px 0px #5cb85c;
+                background-image: -webkit-linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+                background-image: -o-linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+                background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+                -webkit-background-size: 40px 40px;
+                background-size: 40px 40px;
+            }
+
+
+        .grid-preset-columns .column-setting {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top: 7px;
+            left: 10px;
+            text-align: center;
+            padding-top: 4px;
+        }
+</style>

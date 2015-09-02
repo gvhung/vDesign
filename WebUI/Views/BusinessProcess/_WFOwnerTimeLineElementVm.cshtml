@@ -1,0 +1,50 @@
+﻿@using Framework.Maybe
+@model WebUI.Models.BusinessProcess.WorkflowOwnerStepTimeLineLementVm
+
+@{
+    string panelID = "panel_" + Guid.NewGuid().ToString("N");
+}
+
+
+<div class="timeline-badge">
+    <i class="halfling halfling-ok"></i>
+</div>
+<div id="@Model.ID" class="timeline-panel">
+    <div class=" timeline-heading">
+        <h4 title="@Model.Description" class="timeline-title">&nbsp;@Model.Title</h4>
+    </div>
+    <hr />
+    <div class="timeline-body">
+        <div class="timeline-body stage-content">
+            <p>@Model.Description</p>
+        </div>
+        <hr />
+        <a title="@Model.Description" class="btn btn-white" style="background-color: @Model.Color">Открыть</a>
+        <hr />
+        <div class="text-primary small">
+            <span><i class="glyphicon glyphicon-calendar"></i>&nbsp;@Model.Date.ToShortDateString()</span> 
+            @if (Model.EndDate != null)
+            {
+                if (Model.Date.Date == Model.EndDate.GetValueOrDefault().Date)
+                {
+                    <span><i class="halfling halfling-time"></i>&nbsp;@Model.Date.ToShortTimeString()</span>
+                    <span>&nbsp;~&nbsp;</span>
+                    <span><i class="halfling halfling-time"></i>&nbsp;@Model.EndDate.GetValueOrDefault().ToShortTimeString()</span>
+                }
+                else
+                {
+                    <span>&nbsp;~&nbsp;</span>
+                    <span><i class="halfling halfling-time"></i>&nbsp;@Model.EndDate.GetValueOrDefault().ToShortDateString()</span>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    var button = $(@Model.ID).find(".btn");
+    button.on("click", function() {
+        pbaAPI.openWorkflowTimelineModal("@Model.ObjectType", @Model.ObjectID, @Model.ChildWorkflowID, false);
+    });
+
+</script>

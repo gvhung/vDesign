@@ -1,0 +1,340 @@
+﻿@using Base.Forum.Entities
+@using WebUI.Models.Forum
+@model ForumViewModel
+@{
+    IEnumerable<TopicViewModel> topics = Model.Items.Cast<TopicViewModel>();
+    string wrapID = Guid.NewGuid().ToString();
+}
+
+<script>    
+    window["@wrapID"] = {
+        showModal: function () {
+            $('#newTopicModal').modal('show');
+        }
+    }
+</script>
+
+<div class="f-topics-wrap" id="@wrapID">
+    <div class="row">
+        <div class="col-md-6 col-sm-12 vertical-align">
+            <h2>@Model.Title</h2>
+            <a class="up-level-link" href="/forum/">< наверх</a>
+        </div><!--
+        --><div class="f-head-control col-md-6 col-sm-12 vertical-align">
+            <div class="row">
+                @{if (Model.UserRole >= UserRole.User) {
+                    <div class="col-xs-4 col-sm-3 col-md-4">
+                        <button type="button" class="btn btn-primary btn-block" onclick="window['@(wrapID)'].showModal();">Создать тему</button>
+                    </div>
+                }}   
+                <div class="input-group search-group @(Model.UserRole >= UserRole.User ? "col-xs-8 col-sm-9 col-md-8": "col-xs-12")">
+                    <input type="text" class="form-control search-input">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default search-btn" type="button"><span class="glyphicon glyphicon-search vertical-align"></span>&nbsp;Поиск</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @{
+        foreach (var item in topics)
+        {
+            <text>
+                @RenderTopic(item)
+            </text>
+        }
+    }
+
+    @RenderPagination(Model)
+</div>
+
+@* new topic modal *@
+
+<div class="modal fade" id="newTopicModal" tabindex="-1" role="dialog" aria-labelledby="newTopicModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-newtopic">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Закрыть</span></button>
+        <h4 class="modal-title" id="newTopicModalLabel">Новая тема</h4>
+      </div>
+      <div class="modal-body">
+          <div id="alert_placeholder"></div>
+          <div class="title">
+             <label for="titleInput">Название</label>
+             <input type="text" class="form-control" id="titleInput" placeholder="Введите название темы">
+          </div>
+          <div class="description">
+             <label for="descriptionInput">Описание</label>
+             <input type="text" class="form-control" id="descriptionInput" placeholder="Введите описание темы">
+          </div>
+          <div class="message">
+              <label for="text-editor">Сообщение</label>
+              @Html.Partial("_TextEditor", new ViewDataDictionary() { { "NeedSendButton", false } })
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="create-btn">Создать</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@* confirm modal *@
+
+<div class="modal fade" id="confirm-publish" tabindex="-1" role="dialog" aria-labelledby="publishModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                Подтверждение
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите опубликовать данную тему?
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-success" id="publish-btn">Опубликовать</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong>Подтверждение</strong>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить данное сообщение?
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-danger" id="delete-btn">Удалить</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@helper RenderTopic(TopicViewModel topic)
+{
+    <div class="f-row f-topic row @(topic.Status == ForumTopicStatus.Premoderate ? "f-premoderate" : "")" 
+         onclick="location.href='@Url.Action("Index", "forum", new { sect = Model.SectionID, topic = topic.ID }, null)'"
+         topic-id="@topic.ID">
+        <div class="col-lg-8 col-xs-9 vertical-align">
+            <div class="vertical-align f-sect-info">
+                @{if (Model.UserRole == UserRole.Moderator)
+                {<span class="badge premod-count@(topic.PremodPostsCount > 0 ? " has-premod" : "")" data-toggle="tooltip" title="Количество сообщений на модерации">
+                    @topic.PremodPostsCount
+                 </span> }}
+            </div><!--
+            --><div class="vertical-align">
+                <div class="f-title">
+                    <h4>@topic.Title</h4>
+                </div>
+                <div class="f-description text-muted">
+                    @topic.Description
+                </div>
+            </div>
+        </div><!--
+        --><div class="f-last col-lg-2 hidden-md hidden-sm hidden-xs vertical-align">
+            <div class="f-last-user">
+                <small>Послед.&nbsp;<strong>@(topic.LastRecord.UserLogin)</strong></small>
+            </div>
+            <div class="f-last-time">
+                <small>@(topic.LastRecord.Date.ToShortDateString() + " " + topic.LastRecord.Date.ToShortTimeString())</small>
+            </div>
+        </div><!--
+        --><div class="f-counts col-lg-2 col-xs-3 vertical-align">
+            <div class="row">                
+                <div class="f-posts-count col-sm-6 col-xs-12 text-right">
+                    <strong>@(topic.PostsCount)</strong>&nbsp;<small>сообщ.</small>
+                </div>
+                <div class="f-views-count col-sm-6 col-xs-12 text-right">
+                    <strong>@(topic.ViewsCount)</strong>&nbsp;<small>просм.</small>
+                </div>
+            </div>
+            <div class="f-topic-control" >
+                @if (Model.UserRole == UserRole.Moderator)
+                {
+                    <div class="pull-right f-topic-control-delete">
+                        <a href="#"><small>Удалить</small></a>
+                    </div>
+                    <div class="pull-right f-topic-control-publish">
+                        <a href="#"><small>Опубликовать</small></a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+
+@helper RenderPagination(ForumViewModel model)
+{
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <ul class="pagination pagination-sm">
+                <li class="@(Model.CurrentPage == 1 ? "disabled" : "")">
+                    <a href="@Url.Action("Index", new { sect = Model.SectionID, page = 1 })">
+                        <span aria-hidden="true">&laquo;</span><span class="sr-only">Назад</span>
+                    </a>
+                </li>
+                @{
+                    int pageNum = 1;
+                    while (pageNum <= Model.PageCount)
+                    {
+                        <text>
+                            <li class="@(Model.CurrentPage == pageNum ? "active" : "")">
+                                <a href="@Url.Action("Index", new { sect = Model.SectionID, page = pageNum })">@pageNum</a>
+                            </li>
+                        </text>
+                        pageNum++;
+                    }
+                }
+                <li class="@(Model.CurrentPage == Model.PageCount ? "disabled" : "")">
+                    <a href="@Url.Action("Index", new { sect = Model.SectionID, page = Model.PageCount })">
+                        <span aria-hidden="true">&raquo;</span><span class="sr-only">Вперед</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+
+
+<script>
+    $(function() {
+        $('#newTopicModal').on('shown.bs.modal', function (e) {
+            $('.f-wrap .editor-content').wysiwyg();
+            $('[data-toggle="tooltip"]').tooltip();
+
+            $(this).find('#create-btn').on('click', function (event) {
+
+                $(e.target).find("#alert_placeholder").children().hide('fast').remove();
+
+                var title = $(e.target).find("#titleInput").val().trim();
+                var description = $(e.target).find("#descriptionInput").val().trim();
+                var message = $(e.target).find(".text-editor .editor-content").html().trim();
+
+                if (title == "") {
+                    $('<div class="alert alert-danger">Поле "Название" не может быть пустым.</div>').hide().appendTo($(e.target).find("#alert_placeholder")).fadeIn(100);
+                    return;
+                }
+                if (message == "") {
+                    $('<div class="alert alert-danger">Поле "Сообщение" не может быть пустым.</div>').hide().appendTo($(e.target).find("#alert_placeholder")).fadeIn(100);
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("CreateTopic")",
+                    data: {
+                        sectionID: "@Model.SectionID",
+                        title: title,
+                        description: description,
+                        message: message
+                    },
+                    success: function (data) {
+                        if (data.success != null) {
+                            location.href = data.success;
+                        }
+                        else {
+                            $('<div class="alert alert-danger">' + data.error + '</div>').hide().appendTo($(e.target).find("#alert_placeholder")).fadeIn(100);
+                        }
+                    }
+                });
+            });
+        });
+
+
+        $('.f-topic-control').on('click', function (e) {
+            return false;
+        });
+
+
+        $(".f-topic-control-publish").on('click', function (e) {
+            $('#confirm-publish').modal('show', e);
+            return false;
+        });
+
+        $('#confirm-publish').on('show.bs.modal', function (e) {
+            var topicId = $(e.relatedTarget.target).closest('.f-topic').attr('topic-id');
+
+            $(this).find('#publish-btn').on('click', function (event) {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("PublishTopic")",
+                    data: {
+                        id: topicId
+                    },
+                success: function (data) {
+                    if (data.success != null) {
+                        //location.href = data.success;
+                        $(e.relatedTarget.target).closest('.f-topic').removeClass('f-premoderate', { duration: 100 });
+                        $(event.target).closest('.modal').modal('hide');
+                    }
+                    else {
+                        console.log(data.error);
+                    }
+                }
+                });
+            });
+        });
+
+        $(".f-topic-control-delete").on('click', function (e) {
+            $('#confirm-delete').modal('show', e);
+            return false;
+        });
+
+        $('#confirm-delete').on('show.bs.modal', function (e) {
+            var topicId = $(e.relatedTarget.target).closest('.f-topic').attr('topic-id');
+
+            $(this).find('#delete-btn').on('click', function (event) {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("DeleteTopic")",
+                    data: {
+                        id: topicId
+                    },
+                    success: function (data) {
+                        if (data.success != null) {
+                            //location.href = data.success;
+                            $(e.relatedTarget.target).closest('.f-topic').hide('slow');
+                            $(event.target).closest('.modal').modal('hide');
+                        }
+                        else {
+                            console.log(data.error);
+                        }
+                    }
+                });
+            });
+        });
+
+        $('.search-input').on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                $('.search-btn').trigger('click');
+                return false;
+            }
+        });
+        
+        $('.search-btn').on('click', function (e) {
+            var searchStr = $('.search-input').val().trim();
+            if (searchStr == '') return;
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("Search")",
+                data: {
+                    searchStr: searchStr,
+                    sect: @Model.SectionID
+                },
+                success: function (data) {
+                    $('body').html(data);
+                }
+            });
+        });
+    });
+</script>

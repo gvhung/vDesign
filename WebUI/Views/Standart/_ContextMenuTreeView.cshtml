@@ -1,0 +1,112 @@
+﻿@model Dialog_WidgetViewModel
+
+@{
+    Type typeEntity = Model.ViewModelConfig.TypeEntity;
+
+    string nameContextMenu = "contextMenu_" + Guid.NewGuid().ToString("N");
+    string btnAddId = Guid.NewGuid().ToString("N");
+    string btnEditId = Guid.NewGuid().ToString("N");
+    string btnDeleteId = Guid.NewGuid().ToString("N");
+
+    bool actionCreate = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Create);
+    bool actionEdit = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Write);
+    bool actionDetail = Model.IsPermission(Base.Security.TypePermission.Read);
+    bool actionDelete = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Delete);
+
+    List<Base.UI.Action> hiddenActions = Model.ViewModelConfig.ListView.HiddenActions;
+
+    if (hiddenActions != null && hiddenActions.Count() > 0)
+    {
+        if (actionCreate) { actionCreate = !hiddenActions.Any(m => m.ID == "Create"); }
+
+        if (actionEdit) { actionEdit = !hiddenActions.Any(m => m.ID == "Edit"); }
+
+        if (actionDelete) { actionDelete = !hiddenActions.Any(m => m.ID == "Delete"); }
+    }
+}
+
+<script>
+    window["@nameContextMenu"] = new WrapContextMenu("@nameContextMenu", "ContextMenuTreeView");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+        var contextMenu = window["@nameContextMenu"];
+        
+        composite.registerWidget(contextMenu);
+
+        contextMenu.onNeighbourWidgetChanged = function (e) {
+            if (e.sender.desc == "TreeView" && e.event == "select") {
+                var $select = e.params.select;
+
+                var isSelected = $select.length > 0;
+
+                @if (actionEdit) {
+                    @: contextMenu.enable("#@btnEditId", isSelected);
+                                }
+
+                @if (actionDelete) {
+                    @: contextMenu.enable("#@btnDeleteId", isSelected);
+                                }
+            }
+        };
+
+        //events
+        contextMenu.onSelect = function (e) {
+            composite.onWidgetChanged({
+                sender: contextMenu,
+                event: "click",
+                params: { action: e.item.getAttribute("data-action") }
+            });
+        };
+        contextMenu.onOpen = function (e) {
+            composite.onWidgetChanged({
+                sender: contextMenu,
+                event: "select",
+                params: { el: $(e.target) }
+            });
+        }
+    })();
+</script>
+
+@(Html.Kendo().ContextMenu()
+    
+    .Name(nameContextMenu)
+    
+    .Target("#" + Model.WidgetID)
+    
+    .Filter("span.k-in")
+    
+    .Events(e => 
+    {
+        e.Select(nameContextMenu + ".onSelect");
+        e.Open(nameContextMenu + ".onOpen");
+    })
+    
+    .Items(items =>
+    {
+        if (actionCreate) { items.Add().Text("Создать").HtmlAttributes(new { id = btnAddId, data_action = "add" }).SpriteCssClasses("btntoolbar halfling halfling-plus"); }
+        
+        if (actionEdit)
+        {
+            items.Add().Text("Редактировать").HtmlAttributes(new { id = btnEditId, data_action = "edit" }).SpriteCssClasses("btntoolbar halfling halfling-pencil");
+        }
+        else
+        {
+            items.Add().Text("Просмотр").HtmlAttributes(new { id = btnEditId, data_action = "edit" }).SpriteCssClasses("btntoolbar halfling halfling-eye-open");
+        }
+
+        if (actionDelete) { items.Add().Text("Удалить").HtmlAttributes(new { id = btnDeleteId, data_action = "delete" }).SpriteCssClasses("btntoolbar halfling halfling-remove").Enabled(actionDelete); }
+    })
+)
+
+<script>
+    $(function () {
+        var contextMenu = window["@nameContextMenu"];
+        var $contextMenu = contextMenu.element();
+
+        //NOTE: в данной версии возможно использовать иконки только из кендо-спрайтов
+        //TODO: убрать!!!
+
+        $contextMenu.find(".k-sprite.glyphicon").removeClass("k-sprite");
+    });
+</script>

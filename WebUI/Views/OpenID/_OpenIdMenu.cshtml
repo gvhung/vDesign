@@ -1,0 +1,12 @@
+﻿@model OpenIdMenu
+
+<div class="openid-menu">
+    <div class="@(Model.IsVertical ? "btn-group-vertical" : "btn-group")">
+        @foreach (var itm in Model.Items)
+        {
+            <a id="@(itm.TypeName)-authBtn" class="btn btn-default btn-lg" href="@itm.AuthUrl" role="button">
+                <span class="@itm.IconCssClass"></span> @itm.TypeName
+            </a>
+        }
+    </div>
+</div>

@@ -1,0 +1,71 @@
+﻿@model EditorViewModel
+
+@{
+    var propertyName = Model.PropertyName;
+
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    window["@wrapID"] = {
+        editOkpd: function () {
+            var form = $("#@wrapID").closest("form").data("pbaForm");
+
+            pbaAPI.openViewModelEx("@typeof(Base.Nomenclature.Entities.Okpd).FullName", {
+                title: "Редактирование",
+                isMaximaze: false,
+                entity: $.extend({}, form.getPr("@propertyName")),
+                width: 800,
+                height: 300,
+                hideToolbar: true,
+                callback: function (e) {
+                    if (e.type == "save") {
+                        form.setPr("@propertyName", e.model);
+                        @(wrapID).updateOkpdTitle();
+                    }
+                }
+            });
+        },
+        chooseOkpd: function () {
+            var form = $("#@wrapID").closest("form").data("pbaForm");
+
+            pbaAPI.openModalDialog("@typeof(Base.Nomenclature.Entities.OkpdHierarchy).FullName",
+                function (res) {
+                    if (res.length > 0) {
+                        form.setPr("@propertyName", { Value: res[0].Code, Name: res[0].Name });
+                        @(wrapID).updateOkpdTitle();
+                    }
+                }, {
+                    title: "Выбор ОКПД"
+                });
+        },
+        updateOkpdTitle: function () {
+            var model = $("#@wrapID").closest("form").data("pbaForm").getPr("@propertyName");
+
+            if(model.Value)
+                model.Title = "[" + model.Value + "] " + (model.Name || "");
+            else
+                model.Title = "Введите код или выберите из справочника";
+            
+            $("#@(wrapID)_okpdTitle").val(model.Title);
+        }
+    }
+</script>
+
+<div id="@wrapID">
+    <input class="k-textbox" id="@(wrapID)_okpdTitle" disabled="disabled" style="max-width: 1000px; width: 80%;" />
+
+    <button class="btn btn-default" type="button" onclick="@(wrapID).editOkpd(); return false;"><span class="halfling halfling-pencil"></span></button>
+    <button class="btn btn-default" type="button" onclick="@(wrapID).chooseOkpd(); return false;"><span class="k-icon k-i-more"></span></button>
+</div>
+
+
+<script>
+    $(function () {
+        var $form = $("#@wrapID").closest("form");
+        $form.on("onAfterBind", function(e, form){
+            @(wrapID).updateOkpdTitle();
+        });
+    });
+
+</script>

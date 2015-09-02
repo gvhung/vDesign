@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>Audit_Settings</mnemonic>
+    <title>Аудит - Настройки</title>
+    <entity>Base.Audit.Entities.Setting, Base.Audit</entity>
+    <detailview title="Настройки"></detailview>
+  </item>
+  <item>
+    <mnemonic>Audit_Settings_ConfigEntities</mnemonic>
+    <title>Аудит - Настройки - Список сущностей</title>
+    <entity>Base.Audit.Entities.ConfigEntities, Base.Audit</entity>
+    <detailview title="Настройки"></detailview>
+    <icon>halfling halfling-chevron-down</icon>
+  </item>
+  <item>
+    <mnemonic>Audit</mnemonic>
+    <title>Аудит</title>
+    <service>Base.Audit.Services.IAuditItemService, Base.Audit</service>
+    <entity>Base.Audit.Entities.AuditItem, Base.Audit</entity>
+    <listview title="Аудит">
+      <dataSource>
+        <sorts>
+          <sort descriptor="Date" order="desk" />
+        </sorts>
+      </dataSource>
+    </listview>
+    <detailview title="Аудит - Запись"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-warning-sign</icon>
+  </item>
+  <item>
+    <mnemonic>Audit_DiffItem</mnemonic>
+    <title>Аудит - Список изменений</title>
+    <entity>Base.Audit.Entities.DiffItem, Base.Audit</entity>
+    <detailview title="Список изменений"></detailview>
+  </item>
+</ViewModelConfig>

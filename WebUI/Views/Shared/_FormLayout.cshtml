@@ -1,0 +1,132 @@
+﻿@model StandartFormModel
+
+<form id="@Model.FormName" class="common-form">
+    @if (Model.TabsCount > 0 || !Model.ViewModelConfig.DetailView.HideTab)
+    {
+        <div class="base-tabs-wrapper">
+            <div class="scroller scroller-left"><i class="glyphicon glyphicon-chevron-left"></i></div>
+            <div class="common-tabs-wrapper">
+                <ul class="nav nav-tabs common-editor-tabs">
+                    @for (int i = 0; i < Model.TabsCount; i++)
+                    {
+                        var tab = Model.Tabs[i];
+                        <li @(i == 0 ? "class=active" : "")><a href="#@tab.TabID" data-toggle="tab">@Html.Raw(String.Format("<span class='{0}'></span>&nbsp{1}", tab.Editors.Count() > 1 ? ("halfling halfling-th-large") : (tab.Editors.First().ViewModelConfig != null ? tab.Editors.First().ViewModelConfig.Icon : "halfling halfling-th-large"), System.Text.RegularExpressions.Regex.Replace(tab.TabName, @"\[[0-9]*\]", "")))</a></li>
+                    }
+                </ul>
+            </div>
+            <div class="scroller scroller-right"><i class="glyphicon glyphicon-chevron-right"></i></div>
+        </div>
+    }
+    
+    @RenderBody()
+</form>
+
+<script>
+    (function () {
+        var offset = 300;
+        var $form = $('#@Model.FormName');
+        var $tabs = $form.find('.common-editor-tabs');
+        var animated = false;
+
+        $tabs.find("a").on('shown.bs.tab', function (e) {
+            var form = $form.data("pbaForm");
+
+            if (form) {
+                form.onTabShown($(e.currentTarget).attr("href").replace("#", ""));
+                //$form.find(".tab-pane.active").find("input:first").focus();
+            }
+        });
+
+        $(document.body).keydown(function (e) {
+            if (e.ctrlKey && e.keyCode === 37) {
+                $tabs.find("li.active").prev().find("a").click();
+            } else if (e.ctrlKey && e.keyCode === 39) {
+                $tabs.find("li.active").next().find("a").click();
+            }
+        });
+
+        $form.on('onShown', function () {
+            var form = $form.data("pbaForm");
+
+            if (form.getPr("ID") === 0) {
+                $tabs.find("a:first").click();
+            }
+
+            toggleScrollers();
+        });
+
+        $form.on("onResize", function(){
+            toggleScrollers();
+        });
+
+        var toggleScrollers = function () {
+            var left = getLeft();
+
+            if (left <= 0) {
+                $leftScroll.hide();
+            } else {
+                $leftScroll.fadeIn();
+            }
+
+            if (getWrapWidth() >= getTabsWidth() - left) {
+                $rightScroll.hide();
+            } else {
+                $rightScroll.fadeIn();
+            }
+        }
+
+        var getLeft = function () {
+            return -parseFloat($tabs.css('left').replace(/[^-\d\.]/g, ''));
+        }
+
+        var getWrapWidth = function () {
+            return parseFloat($form.find('.common-tabs-wrapper').css('width').replace(/[^-\d\.]/g, ''));
+        }
+
+        var getTabsWidth = function () {
+            return parseFloat($tabs.css('width').replace(/[^-\d\.]/g, ''));
+
+        }
+
+        var $leftScroll = $form.find('.scroller.scroller-left').click(function () {
+            var left = getLeft();
+
+            if (!animated && left > 0) {
+                animated = true;
+
+                var currentOffset = left > offset ? offset : left;
+                $tabs.animate({
+                    left: currentOffset - left
+                }, 500).promise().always(function () {
+                    toggleScrollers();
+                    animated = false;
+                });
+            }
+        });
+
+        var $rightScroll = $form.find('.scroller.scroller-right').click(function () {
+            var wrapWidth = getWrapWidth();
+            var tabsWidth = getTabsWidth();
+            var left = getLeft();
+
+            if (!animated && wrapWidth < tabsWidth - left) {
+                animated = true;
+
+                var diff = tabsWidth - left - wrapWidth;
+                var currentOffset = diff > offset ? offset : diff;
+
+                $tabs.animate({
+                    left: -(left + currentOffset)
+                }, 500).promise().always(function () {
+                    toggleScrollers();
+                    animated = false;
+                });
+            }
+        });
+
+        $form.kendoTooltip({
+            filter: ".edt-label",
+            width: 300
+        });
+    })();
+</script>

@@ -1,0 +1,290 @@
+﻿@model WebUI.Models.Dashboard.DashboardVm
+
+@{
+    string dashboardid = Guid.NewGuid().ToString("N");
+}
+
+<div id="dashboard">
+    <div class="row">
+        <div id="main" class="col-lg-8">
+            @if (Model.Widgets != null)
+            {
+                foreach (var widget in Model.Widgets.Where(x => !x.Hidden).Where(x => x.PanelName == "main"))
+                {
+                    Html.RenderPartial(String.Format("~/Views/Dashboard/Widgets/{0}.cshtml", widget.ViewName), widget);
+                }
+            }
+        </div>
+        <div id="sidebar" class="col-lg-4">
+            @if (Model.Widgets != null)
+            {
+                foreach (var widget in Model.Widgets.Where(x => !x.Hidden).Where(x => x.PanelName == "sidebar"))
+                {
+                    Html.RenderPartial(String.Format("~/Views/Dashboard/Widgets/{0}.cshtml", widget.ViewName), widget);
+                }
+            }
+        </div>
+        <div id="dashboard-panel">
+            <div class="dashboard-panel-item" id="dashboard-settings" title="Настройка">
+                <span class="glyphicon glyphicon-cogwheels"></span>
+            </div>
+            <div class="dashboard-panel-item" id="dashboard-support" title="Обратная связь">
+                <span class="glyphicon glyphicon-headset"></span>
+            </div>
+            <div class="dashboard-panel-item" id="dashboard-help" title="Справка">
+                <span class="glyphicon glyphicon-circle-question-mark"></span>
+            </div>
+            @*<div class="dashboard-panel-item" id="dashboard-subscription" title="Подписки">
+                    <span class="glyphicon glyphicon-envelope"></span>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var $dashboard = $("#dashboard");
+
+        $dashboard.find(".dashboard-panel-item").kendoTooltip({
+            position: "left",
+            height: 16,
+            showAfter: 1000,
+            open: { effects: "fade:in" },
+            close: { effects: "fade:out" }
+        });
+
+        var placeholder = function (element) {
+            return element.clone().addClass("placeholder");
+        };
+
+        var hint = function (element) {
+            return element.find(".header").clone().addClass("dashboard-widget").addClass("hint")
+                        .width(element.width());
+        };
+
+        var onChange = function (e) {
+            if (e.action === "receive" || e.action === "sort") {
+                $(e.item).trigger("onChange");
+
+                getPreset().done(function (res) {
+                    if (res.error) {
+                        pbaAPI.errorMsg(res.error);
+                    } else {
+                        var widgets = {};
+
+                        for (var i = 0; i < res.Widgets.length; i++) {
+                            var w = res.Widgets[i];
+
+                            widgets[w.Mnemonic] = w;
+                        }
+
+                        res.Widgets = [];
+
+                        $dashboard.find(".dashboard-widget").each(function () {
+                            var $widget = $(this);
+                            var w = widgets[$widget.attr("id")];
+
+                            w.PanelName = $widget.parent().attr("id");
+
+                            res.Widgets.push(w);
+
+                            delete widgets[w.Mnemonic];
+                        });
+
+                        for (var m in widgets) {
+                            var w = widgets[m];
+
+                            w.Hidden = true;
+                            res.Widgets.push(w);
+                        }
+
+                        savePreset(res);
+                    }
+                });
+            }
+        };
+
+        var getPreset = function () {
+            return $.get("@Url.Action("GetPreset", "Dashboard")");
+        };
+
+        var savePreset = function (preset, callback) {
+            $.ajax({
+                type: "POST",
+                url: application.url.GetStandart("SavePreset"),
+                data: JSON.stringify({ model: preset, mnemonic: "DashboardPreset" }),
+                contentType: "application/json; charset=utf-8",
+                success: function (res) {
+                    if (res.error) {
+                        pbaAPI.errorMsg(res.error);
+                    } else {
+                        if (callback)
+                            callback();
+                    }
+                }
+            })
+        };
+
+        var openSettings = function () {
+            getPreset().done(function (res) {
+                if (res.error) {
+                    pbaAPI.errorMsg(res.error);
+                } else {
+                    pbaAPI.openViewModelEx("DashboardPreset",
+                       {
+                           wid: "DashboardPreset",
+                           entity: res,
+                           toSave: false,
+                           callback: function (e) {
+                               if (e.type == "save") {
+                                   savePreset(e.model, function () { location.reload(); });
+                               }
+                           }
+                       });
+                }
+            });
+        };
+
+
+        $dashboard.find("#sidebar").kendoSortable({
+            filter: ">div",
+            cursor: "move",
+            handler: ".header",
+            connectWith: "#dashboard #main",
+            placeholder: placeholder,
+            hint: hint,
+            change: onChange,
+        });
+
+        $dashboard.find("#main").kendoSortable({
+            filter: ">div",
+            cursor: "move",
+            handler: ".header",
+            connectWith: "#dashboard #sidebar",
+            placeholder: placeholder,
+            hint: hint,
+            change: onChange,
+        });
+
+        $dashboard.find("#dashboard-settings").on("click", function () {
+            openSettings();
+        });
+
+        $dashboard.find("#dashboard-support").on("click", function () {
+            pbaAPI.openViewModelEx("SupportQAPublic", { id: 0, buttons: { "save": "Отправить" } });
+            return false;
+        });
+
+        $dashboard.find("#dashboard-help").on("click", function () {
+            pbaAPI.openModalDialog("HelpItem", null, { searchStr: "рабочий_стол", maximize: true });
+            return false;
+        });
+
+        //$dashboard.find("#dashboard-subscription").on("click", function () {
+        //    pbaAPI.openModalDialog("MySubscription", null, { maximize: true });
+        //    return false;
+        //});
+    });
+</script>
+
+
+<style>
+    #dashboard {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        height: 100%;
+    }
+
+        #dashboard > .row:not(.toolbar) {
+            overflow-y: auto;
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+    #dashboard-panel {
+        opacity: 0.6;
+        position: absolute;
+        top: 30px;
+        right: 17px;
+        /*height: 80px;*/
+        width: 40px;
+        z-index: 10;
+        background: #428bca;
+        text-align: center;
+        line-height: 40px;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        -webkit-box-shadow: -1px 1px 2px rgba(0,0,0,0.15);
+        -moz-box-shadow: -1px 1px 2px rgba(0,0,0,0.15);
+        box-shadow: -1px 1px 2px rgba(0,0,0,0.15);
+    }
+
+        #dashboard-panel:hover {
+            opacity: 1;
+        }
+
+    .dashboard-panel-item {
+        width: 40px;
+        height: 40px;
+    }
+
+        .dashboard-panel-item:hover {
+            background: #1068b5;
+            color: white;
+        }
+
+    .k-tooltip-content {
+        font-size: 12px;
+    }
+
+    #dashboard #sidebar {
+        min-height: 200px;
+    }
+
+    #dashboard #main {
+        min-height: 200px;
+    }
+
+    .dashboard-widget.placeholder {
+        opacity: 0.4;
+        border: 1px dashed #a6a6a6;
+    }
+
+    .dashboard-widget.hint {
+        height: 50px;
+        padding: 10px;
+        text-transform: uppercase;
+    }
+
+    /* WIDGETS */
+    .dashboard-widget {
+        margin: 0 0 20px;
+        padding: 0;
+        background-color: #ffffff;
+        border: 1px solid #e7e7e7;
+        border-radius: 3px;
+        box-shadow: 0px 8px 17px rgba(0, 0, 0, 0.2);
+    }
+
+        .dashboard-widget:hover {
+            /*background-color: #fcfcfc;*/
+            border-color: #cccccc;
+        }
+
+        .dashboard-widget div.content {
+            padding: 10px;
+            min-height: 100px;
+        }
+
+        .dashboard-widget h3.header {
+            font-size: 13px;
+            padding: 10px;
+            margin: 0;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e7e7e7;
+            cursor: move;
+        }
+</style>

@@ -1,0 +1,35 @@
+﻿@model EditorViewModel
+
+@{
+    string name = "n_" + Guid.NewGuid().ToString("N");
+
+    string htmlFieldName = Model.PropertyName;
+}
+
+@(Html.Kendo().FlatColorPicker()
+            .Name(name)
+            .HtmlAttributes(new { @class = "picker" })
+            .Value("#000")
+            .Preview(false)
+)
+
+<script>
+    $(function () {
+        $("#@name").closest("form").on("onAfterBind", function (e, form) {
+            var color = form.getPr("@htmlFieldName");
+            var colorPalette = $("#@name").data("kendoFlatColorPicker");
+
+
+            if (color) {
+                colorPalette.value(form.getPr("@htmlFieldName"));
+            } else {
+                colorPalette.value(null);
+            }
+
+        });
+
+        $("#@name").closest("form").on("onSave", function (e, form) {
+            form.setPr("@htmlFieldName", $("#@name").data("kendoFlatColorPicker").value());
+        });
+    });
+</script>

@@ -1,0 +1,292 @@
+﻿@model EditorViewModel
+
+@{
+    string propertyName = Model.PropertyName;
+
+    string editorID = "editor_" + Guid.NewGuid().ToString("N");
+    string contentPaneID = "c_" + Guid.NewGuid().ToString("N");
+    string toolboxID = "t_" + Guid.NewGuid().ToString("N");
+    string splitterID = "s_" + Guid.NewGuid().ToString("N");
+    string contextMenuID = "cm_" + Guid.NewGuid().ToString("N");
+    string cmBtnEditID = "btn_" + Guid.NewGuid().ToString("N");
+    string cmBtnRemoveID = "btn_" + Guid.NewGuid().ToString("N");
+    string dragWidgetID = "drag_" + Guid.NewGuid().ToString("N");
+}
+
+<script src="~/Scripts/content-editor.js"></script>
+<link href="~/Content/css/content-editor.css" rel="stylesheet" />
+
+<script>
+    window["@editorID"] = {
+        propertyName: "@propertyName",
+        resize: function () {
+            var $splitter = $("#@splitterID");
+
+            $splitter.height($splitter.closest(".container").height() - 8).trigger("resize");
+        },
+        getWidget: function (el) {
+            var $e = $(el);
+
+            if ($e.attr("data-widget-name")) {
+                return $e.data('widget');
+            }
+            else {
+                return $e.closest("[data-widget-name]").data('widget');
+            }
+        },
+        widgetOnSelect: function (widget) {
+            $("#@editorID").find(".widget-selected").removeClass("widget-selected");
+            widget.element.addClass("widget-selected");
+        },
+        // draggable
+        draggable_onStop: function (event, ui) {
+        },
+        //sortable
+        sortable_init: function (el) {
+            var editor = window["@editorID"];
+
+            el.sortable({
+                connectWith: ".droptarget",
+                placeholder: "placeholder",
+                handle: ".widget-heandle",
+                revert: false,
+                update: editor.sortable_onUpdate,
+                cursor: "move",
+                helper: function (e, ui) {
+                    return $("<div class='k-header k-drag-clue drag-helper'></div>")
+                        .html(editor.getWidget(ui).title)
+                        .width(140)
+                        .height(40);
+                },
+            }).disableSelection();
+        },
+        sortable_onUpdate: function (event, ui) {
+            var editor = window["@editorID"];
+
+            var isnew = ui.item.find("[data-widget]").length > 0;
+
+            if (isnew) {
+                var $source = ui.item;
+
+                var nameCtor = $source.find("[data-widget]").attr("data-widget");
+
+                var ctor = $("#@toolboxID").find("[data-widget='" + nameCtor + "']").data("ctor");
+
+                var target = editor.getWidget(ui.item.closest(".droptarget"));
+
+                var widget = new ctor();
+
+                target.onAppend(ui.item, widget);
+
+                editor.sortable_init(widget.element.find(".droptarget"));
+            } else {
+                var $sort = ui.item;
+                
+                var widget = editor.getWidget($sort);
+                var target = editor.getWidget($sort.closest(".droptarget"));
+
+                widget.element.attr('data-parent-uid', target.uid);
+            }
+
+            editor.widgetOnSelect(widget);
+        },
+        // contextMenu
+        contextMenu_onSelect: function (e) {
+            var editor = window["@editorID"];
+
+            var widget = editor.getWidget(e.target);
+
+            switch ($(e.item).attr("id")) {
+                case "@cmBtnEditID":
+                    widget.edit();
+                    break;
+                case "@cmBtnRemoveID":
+                    widget.remove();
+                    break;
+            }
+        },
+        contextMenu_onOpen: function (e) {
+            var editor = window["@editorID"];
+            var widget = editor.getWidget(e.target);
+
+            editor.widgetOnSelect(widget);
+        },
+    };
+</script>
+
+<div id="@editorID">
+    @(Html.Kendo().Splitter().Name(splitterID).Panes(pan =>
+    {
+        pan.Add().MinSize("400px")
+            .HtmlAttributes(new { id = contentPaneID, style = "overflow-x: hidden !important;", @class = "content-editor-box" });
+        pan.Add().Size("300px").MinSize("300px")
+            .HtmlAttributes(new { id = toolboxID, style = "overflow-x: hidden !important; min-width: 2" })
+            .Content(@<text>
+                @Html.Partial("ContentWidgets/_Toolbox")
+            </text>);
+    }))
+
+    @(Html.Kendo().ContextMenu()
+    .Name(contextMenuID)
+    .Filter("[data-widget-name]")
+        .Events(e => e.Select(editorID + ".contextMenu_onSelect").Open(editorID + ".contextMenu_onOpen"))
+        .Items(items =>
+        {
+            items.Add().Text("Редактировать").HtmlAttributes(new { id = cmBtnEditID }).SpriteCssClasses("content-editor-cm halfling halfling-pencil");
+            items.Add().Text("Удалить").HtmlAttributes(new { id = cmBtnRemoveID }).SpriteCssClasses("content-editor-cm halfling halfling-remove");
+        }
+    ))
+</div>
+
+<script>
+    $(function () {
+        var $editor = $("#@editorID");
+        var $splitter = $editor.find("#@splitterID");
+        var $form = $editor.closest("form");
+
+        var editor = window["@editorID"];
+
+        $editor.on("click", "[data-widget-name]", function () {
+            var widget = editor.getWidget(this);
+            editor.widgetOnSelect(widget);
+            return false;
+
+        }).on("dblclick", "[data-widget-name]", function () {
+            var widget = editor.getWidget(this);
+            widget.edit();
+            return false;
+        });
+
+        $form.on("onBeforeBind", function (e, form) {
+            var $content = $("#@contentPaneID");
+            $content.empty();
+        });
+
+        $form.on("onAfterBind", function (e, form) {
+            var $content = $("#@contentPaneID");
+
+            var content = form.getPr(editor.propertyName) || {};
+
+            if (content.Source && content.Source != "") {
+
+                $content.html(content.Source);
+
+                var initWidget = function (el) {
+                    var $widget = $(el);
+
+                    $widget.find("[data-parent-uid='" + el.attr("data-uid") + "']").each(function () {
+                        initWidget($(this));
+                    });
+
+                    new contentEditor[$widget.attr("data-widget-name")]($widget);
+
+                    if ($widget.attr("data-bind")) {
+                        $widget.attr("tmp_data-bind", $widget.attr("data-bind"));
+                        $widget.removeAttr("data-bind");
+                    }
+
+                    $widget.find("[data-bind]").each(function () {
+                        $(this).attr("tmp_data-bind", $(this).attr("data-bind"));
+                        $(this).removeAttr("data-bind");
+                    });
+                };
+
+                initWidget($content.find("[data-widget-name]:first"));
+
+                $content.find("[tmp_data-bind]").each(function () {
+                    $(this).attr("data-bind", $(this).attr("tmp_data-bind"));
+                    $(this).removeAttr("tmp_data-bind");
+                });
+
+            } else {
+                var layout = new contentEditor.layout1();
+
+                layout.element.addClass("container-fluid");
+
+                $content.append(layout.element);
+            }
+
+            editor.sortable_init($content.find(".droptarget"));
+        });
+
+        $editor.find(".draggable").draggable({
+            connectToSortable: ".droptarget",
+            cursor: "move",
+            appendTo: "body",
+            helper: function (e) {
+                var $helper = $("<div />")
+                    .html($(this).find("span").text())
+                    .addClass("k-header k-drag-clue drag-helper")
+                    .width(140)
+                    .height(40);
+
+                return $helper;
+            },
+            revert: false,
+            stop: editor.draggable_onStop
+        });
+
+        $form.on("onShown", function (e, form) {
+            editor.resize();
+
+        });
+
+        $form.on("onTabShown", function (e, param) {
+            if (param.tabID === $editor.closest('.tab-pane').attr('id'))
+                editor.resize();
+
+            // Тут плохо!
+            $(".k-splitter").each(function () {
+                $(this).data("kendoSplitter")._resize();
+            });
+        });
+
+        $form.on("onResize", function (e, param) {
+            editor.resize();
+        });
+
+        $form.on("onAfterValidate", function (e, form) {
+            var $content = $("#@contentPaneID");
+            var results;
+
+            $content.find(".widget-selected")
+                .removeClass("widget-selected");
+
+            $content.find(".ui-sortable")
+                .removeClass("ui-sortable");
+
+            var $contenSource = $content.clone();
+            var $contenHtml = $content.clone();
+
+            $content.find("[data-widget-name]").each(function () {
+                var widget = editor.getWidget(this);
+
+                widget.prepareToSave($contenSource.find("[data-uid='" + widget.uid + "']"));
+                widget.toHtml($contenHtml.find("[data-uid='" + widget.uid + "']"));
+
+                if ("getInteractiveData" in widget) {
+                    var res = widget.getInteractiveData();
+
+                    if (res && res.length > 0) {
+                        if (!results)
+                            results = [];
+
+                        for (var i in res) {
+                            results.push(res[i]);
+                        }
+                    }
+                }
+            });
+
+            $contenHtml.find(".droptarget").removeClass("droptarget");
+
+            var content = {
+                Source: $contenSource.html(),
+                Html: $contenHtml.html(),
+                Results: results,
+            };
+
+            form.setPr(editor.propertyName, content);
+        });
+    });
+</script>

@@ -1,0 +1,46 @@
+﻿@using Base.Task.Entities
+@model Task
+
+@{
+    string panelID = "panel_" + Guid.NewGuid().ToString("N");
+
+    string accID = "acco_" + Guid.NewGuid().ToString("N");
+}
+
+<div class="panel-group tsk-info" id="@accID">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="collapse-toggle collapsed" data-toggle="collapse" data-parent="#@accID" href="#@panelID">
+                    <span class="glyphicon pull-right @(Model.Status == TaskStatus.Complete ? "green-icon glyphicon-ok" : "glyphicon-link")"></span>Связанное напоминание
+                </a>
+            </h4>
+        </div>
+        <div id="@panelID" class="panel-collapse collapse">
+            <div class="panel-body">
+                <p>
+                    <span class="label label-primary">
+                        @Model.Status.GetDescription()
+                    </span>&nbsp;
+                    @Html.Partial("_TaskStatus", Model)
+                </p>
+                <p style="margin-top: 15px;">
+                    <small class="text-muted">
+                        <i class="halfling halfling-calendar">&nbsp;</i>@Model.Period.Start.ToShortDateString()&nbsp;
+                        @if (Model.Period.End.HasValue)
+                        {
+                            <i class="halfling halfling-arrow-right"></i>
+                            @Model.Period.End.Value.ToShortDateString()
+                        }
+                    </small>
+                </p>
+                <p style="color: #999; line-height: 1.428571429;">@*@Html.Raw(Model.Сomment)*@</p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="@(Model.PercentComplete * 100)" aria-valuemin="0" aria-valuemax="100" style="width: @(Model.PercentComplete * 100)%">
+                        <span>@(Model.PercentComplete * 100)&nbsp;%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

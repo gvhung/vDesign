@@ -1,0 +1,141 @@
+﻿@model Dialog_WidgetViewModel
+
+@{
+    Type typeEntity = Model.ViewModelConfig.TypeEntity;
+
+    string nameToolbar = "toolbar_" + Guid.NewGuid().ToString("N");
+    string btnAddRootId = Guid.NewGuid().ToString("N");
+    string btnAddChildId = Guid.NewGuid().ToString("N");
+    string btnEditId = Guid.NewGuid().ToString("N");
+    string btnDeleteId = Guid.NewGuid().ToString("N");
+
+    bool actionCreate = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Create);
+    bool actionEdit = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Write);
+    bool actionDetail = Model.IsPermission(Base.Security.TypePermission.Read);
+    bool actionDelete = !Model.IsReadOnly && Model.IsPermission(Base.Security.TypePermission.Delete);
+    bool actionSearch = Model.ViewModelConfig.TypeEntity.IsFullTextSearchEnabled();
+
+    List<Base.UI.Action> hiddenActions = Model.ViewModelConfig.ListView.HiddenActions;
+
+    if (hiddenActions != null && hiddenActions.Count() > 0)
+    {
+        if (actionCreate) { actionCreate = !hiddenActions.Any(m => m.ID == "Create"); }
+
+        if (actionDelete) { actionDelete = !hiddenActions.Any(m => m.ID == "Delete"); }
+
+        if (actionSearch) { actionSearch = !hiddenActions.Any(m => m.ID == "Search"); }
+    }
+}
+
+<script>
+    window["@nameToolbar"] = new WrapToolbar("@nameToolbar", "ToolbarTreeView");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+        var toolbar = window["@nameToolbar"];
+
+        composite.registerWidget(toolbar);
+
+        toolbar.onNeighbourWidgetChanged = function (e) {
+            if (e.sender.desc == "TreeView") {
+                if (e.event == "select") {
+                    var $select = e.params.select;
+
+                    var isSelected = $select.length > 0;
+
+                    toolbar.enable("#@btnEditId", isSelected);
+
+                    @if (actionDelete) {
+                    @: toolbar.enable("#@btnDeleteId", isSelected);
+                                                        }
+                }
+                else if (e.event == "onDataBound") {
+                    toolbar.element().find('#searchbox').find('.cancel-search').removeClass('k-loading').addClass('k-i-close');
+                    toolbar.popupEl().find('#searchbox').find('.cancel-search').removeClass('k-loading').addClass('k-i-close');
+                }
+            }
+        };
+
+        //events
+        toolbar.onClick = function (e) {
+            composite.onWidgetChanged({
+                sender: toolbar,
+                event: "click",
+                params: { action: e.target[0].getAttribute("data-action") }
+            });
+        };
+
+        toolbar.searchBox_onClick = function (e) {
+            if (e.str) {
+                e.sender.find('.cancel-search').addClass('k-loading').removeClass('k-i-close');
+            }
+
+            composite.onWidgetChanged(
+                {
+                    sender: toolbar,
+                    event: "search",
+                    params: { str: e.str }
+                });
+        };
+    })();
+</script>
+
+@(Html.Kendo().ToolBar()
+    .Name(nameToolbar)
+        .Events(e => e.OverflowOpen(nameToolbar + ".onOverflowOpen"))
+    .Items(items =>
+    {
+        items.Add().Type(CommandType.ButtonGroup).Buttons(buttons =>
+        {
+            if (actionCreate) { buttons.Add().Text("Создать категорию").HtmlAttributes(new { title = "Создать категорию", data_action = "add-root" }).SpriteCssClass("btntoolbar glyphicon glyphicon-folder-plus").Id(btnAddRootId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick"); }
+            if (actionCreate) { buttons.Add().Text("Создать дочернюю категорию").HtmlAttributes(new { title = "Создать дочернюю категорию", data_action = "add" }).SpriteCssClass("btntoolbar halfling halfling-plus").Id(btnAddChildId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick"); }
+
+            if (actionEdit)
+            {
+                buttons.Add().Text("Редактировать").HtmlAttributes(new { title = "Редактировать", data_action = "edit" }).SpriteCssClass("btntoolbar halfling halfling-pencil").Id(btnEditId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            }
+            else
+            {
+                buttons.Add().Text("Просмотр").HtmlAttributes(new { title = "Просмотр", data_action = "edit" }).SpriteCssClass("btntoolbar halfling halfling-eye-open").Id(btnEditId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick");
+            }
+
+            if (actionDelete) { buttons.Add().Text("Удалить").HtmlAttributes(new { title = "Удалить", data_action = "delete" }).SpriteCssClass("btntoolbar halfling halfling-remove").Id(btnDeleteId).ShowText(ShowIn.Overflow).Click(nameToolbar + ".onClick"); }
+        });
+
+        if (actionSearch)
+        {
+            items.Add().Template(
+                        String.Format(@"<div id='searchbox'>
+                            <div class='search-tools'>
+                                <span class='k-icon k-i-close cancel-search'></span>
+                                <input class='k-textbox pull-right' placeholder='Поиск' value='{0}'>
+                            </div>
+                        </div>", Model.SearchStr))
+                        .OverflowTemplate(
+                        String.Format(@"<div id='searchbox'>
+                            <div class='search-tools'>
+                                <span class='k-icon k-i-close cancel-search'></span>
+                                <input class='k-textbox pull-right' placeholder='Поиск' value='{0}'>
+                            </div>
+                        </div>", Model.SearchStr));
+        }
+    })
+)
+
+<script>
+    $(function () {
+        var toolbar = window["@nameToolbar"];
+        var $toolbar = toolbar.element();
+
+        //NOTE: в данной версии toolbar-а возможно использовать иконки только из кендо-спрайтов
+        //TODO: убрать!!!
+        $toolbar.find(".k-sprite.glyphicon").removeClass("k-sprite");
+        toolbar.popupEl().find(".k-sprite.glyphicon").removeClass("k-sprite");
+
+        $toolbar.find("#searchbox").pbaSearchBox(toolbar.searchBox_onClick);
+        toolbar.popupEl().find("#searchbox").pbaSearchBox(toolbar.searchBox_onClick);
+
+        toolbar.enable("#@btnEditId", false);
+        toolbar.enable("#@btnDeleteId", false);
+    });
+</script>

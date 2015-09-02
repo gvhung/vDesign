@@ -1,0 +1,135 @@
+﻿@using Newtonsoft.Json
+@using WebUI.Models.Dashboard.Widgets
+@model DashboardWidget
+
+@Html.DashboardWidget().Content(WidgetBody).HtmlAttrs(new { style = "background: rgba(255,255,255,0.4); padding: 0;" })
+
+@helper WidgetBody(object _)
+{
+    var wrapID = "counter_" + Guid.NewGuid().ToString("N");
+    
+    @(Html.Widgets()
+    .CounterWidget(Model, wrapID)
+    .CountUrl("/Npa/GetCounts")
+    .ItemsUrl("/Npa/GetNpas")
+    .ItemTemplate(Template)
+    .Items(new List<CounterMnemonicVm>
+    {
+        new CounterMnemonicVm(Html.GetViewModelConfig("My_Npa_Draft")) { Color = "#BFC1C2" },
+        new CounterMnemonicVm(Html.GetViewModelConfig("My_Npa_Notification")) { Color = "#5bc0de" },
+        new CounterMnemonicVm(Html.GetViewModelConfig("My_Npa_Text")) {  Color = "#428bca" },
+        new CounterMnemonicVm(Html.GetViewModelConfig("My_Npa_Procedure")) {  Color = "#f0ad4e" },
+        new CounterMnemonicVm(Html.GetViewModelConfig("My_Npa_Finalzation")) {  Color = "#428bca" },
+        new CounterMnemonicVm(Html.GetViewModelConfig("My_Npa_Complete")) {  Color = "#5cb85c" }
+    })
+    .AdditionalScript(AdditionalScript).FirstElement(FirstElement))
+}
+
+
+
+@helper AdditionalScript(object id)
+{
+    var enums = new[] { typeof(NpaStatus) }.Select(x => new
+    {
+        Name = x.FullName,
+        Vaules = JsonConvert.SerializeObject(Enum.GetValues(x).Cast<Enum>()
+            .Select(v => new
+            {
+                Value = v.GetValue(),
+                Name = v.ToString(),
+                Text = v.GetDescription()
+            }))
+    });
+
+    foreach (var en in enums)
+    {
+        @: application.initEnumValues("@en.Name", @Html.Raw(en.Vaules));
+    }
+
+    <text>
+        $('#create_@(id)').click(function () {
+            pbaAPI.openWizardViewModelEx('NpaWizard1', {
+                wid: "@id",
+                toSave: true,
+                callback: function(e) {
+                if (e.type === "save") {
+                        $("#@(id)").closest('.dashboard-widget').trigger('refresh');
+        
+                        changed[e.model.ID] = true;
+
+                        pbaAPI.openViewModelEx("Npa",
+                        {
+                            wid: "dashboard_my_npa",
+                            id: e.model.ID,
+                            callback: function (e) {
+                                if (e.type === "save") {
+                                    $("#@(id)").closest('.dashboard-widget').trigger('refresh');
+                                }
+                            }
+                        });
+
+                    }
+                }
+            });
+        });
+    </text>
+}
+
+@helper FirstElement(object id)
+{
+    <li>
+        <a href="#" id="create_@id" style="padding: 10px;">
+            <div class="add-item">
+                <p style="margin: 0;" class="tab-icon halfling halfling-plus"></p>
+                <p style="margin: 0;" class="text-muted tab-title">Создать проект</p>
+            </div>
+        </a>
+    </li>
+}
+
+@helper Template(object _)
+{
+    <script type="text/template" id="counter-widget-items-template">
+        <div class="container-fluid dynamic-tile">
+            <div class="row ">
+                <% var delay = 0, inc = 100; %>
+                <% _(items).each(function(item) { %>
+                <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 tile-wrap">
+                    <div class="tile animated zoomIn fadeout <%= isChanged(item.ID) ? "changed" : "" %>" style="-webkit-animation-delay: <%= delay %>ms; animation-delay: <%= delay %>ms;">
+                        <div class="npa-stats clearfix">
+                            <div class="npa-rate pull-left">
+                                <i style="color: #5bc0de;" class="glyphicon glyphicon-eye-open"></i>
+                                <span><%= item.Statistic.Views %></span>
+                            </div>
+                            <div class="npa-rate pull-left">
+                                <i style="color:  #f0ad4e;" class="halfling halfling-star"></i>
+                                <span><%= item.Statistic.Rating %></span>
+                            </div>
+                            <div class="npa-rate pull-left">
+                                <i style="color:#428bca;" class="glyphicon glyphicon-quote"></i>
+                                <span><%= item.Statistic.Comments %></span>
+                            </div>
+                        </div>
+                        <div class="npa-info">
+                            <p>
+                                <a href="#" data-mnemonic="<%= mnemonic %>" data-id="<%= item.ID %>" class="title"><%= pbaAPI.htmlEncode(item.Title) %></a>
+                            </p>
+                            <p>
+                                <span class="prop-title text-muted">Статус: </span>
+                                <span class="prop-val"><%= application.getEnumText("Data.Entities.NpaStatus", item.Status) %></span>
+                            </p>
+                            <% if(item.Kind) { %>
+                            <p>
+                                <span class="prop-title text-muted">Вид: </span>
+                                <span class="prop-val"><%= pbaAPI.htmlEncode(item.Kind.Title) %></span>
+                            </p>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+                <% delay += inc %>
+                <% }) %>
+            </div>
+        </div>
+    </script>
+}

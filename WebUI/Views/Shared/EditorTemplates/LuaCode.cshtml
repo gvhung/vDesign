@@ -1,0 +1,52 @@
+﻿@model EditorViewModel
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    string htmlFieldName = Model.PropertyName;
+}
+
+<script src="/Scripts/codemirror/codemirror.js"></script>
+<script src="/Scripts/codemirror/lua.js"></script>
+<link href="/content/css/codemirror.css" rel="stylesheet" />
+
+<textarea id="@wrapID"></textarea>
+
+<script>
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            var src = form.getPr("@htmlFieldName");
+            $("#@wrapID").html(src);
+            if (!window["@wrapID"].codeEditor) {
+                var editor = CodeMirror.fromTextArea(document.getElementById("@wrapID"), {
+                    lineNumbers: true,
+                    mode: "lua",
+                    autoCloseBrackets: true
+                });
+                window["@wrapID"].codeEditor = editor;
+            } else {
+                window["@wrapID"].codeEditor.setValue(src ? src : "");
+            }
+        });
+
+        $("#@wrapID").closest("[data-role=window]").data('kendoWindow').bind('activate', function () {
+            window["@wrapID"].codeEditor.refresh();
+        });
+
+        var tabId = $("#@wrapID").closest('.tab-pane').attr('id');
+        $('a[href="#' + tabId + '"]').on('shown.bs.tab', function (e) {
+            window["@wrapID"].codeEditor.refresh();
+        });
+
+        $("#@wrapID").closest("form").on("onSave", function (e, form) {
+            form.setPr("@htmlFieldName", window["@wrapID"].codeEditor.getValue());
+        });
+    });
+</script>
+
+<style>
+    .cm-s-default{
+        border: 1px solid #ddd;
+        height:100%;
+    }
+</style>

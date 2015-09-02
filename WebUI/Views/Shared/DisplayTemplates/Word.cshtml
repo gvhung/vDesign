@@ -1,0 +1,96 @@
+﻿@{
+    string wrapId = "w_" + Guid.NewGuid().ToString("N");
+}
+
+<style>
+    .word-viewer {
+        position: relative;
+    }
+
+        .word-viewer iframe {
+            width: 100%;
+            border: 1px solid darkgrey;
+        }
+
+        .word-viewer .print {
+            opacity: 0.3;
+            position: absolute;
+            top: 0;
+            left: 0;
+            margin: 15px;
+
+            -webkit-transition: .3s;
+            -moz-transition: .3s;
+            -ms-transition: .3s;
+            -o-transition: .3s;
+            transition: .3s;
+        }
+        .word-viewer .print:hover {
+            opacity: 1;
+        }
+
+    #popupLink {
+        position: absolute;
+        display: none;
+        background: #fefee9;
+        border: #777 solid 1px;
+        -ms-border-radius: 3px;
+        border-radius: 3px;
+        padding: 5px;
+        -webkit-box-shadow: rgba(0, 0, 0, 0.20) 2px 2px 5px;
+        -ms-box-shadow: rgba(0, 0, 0, 0.20) 2px 2px 5px;
+        box-shadow: rgba(0, 0, 0, 0.20) 2px 2px 5px;
+    }
+</style>
+
+
+<div id="@wrapId" class="word-viewer">
+    <iframe frameborder="0"></iframe>
+    <div class="print">
+        <button type="button" class="btn btn-default btn-print" aria-label="Print">
+            <span class="glyphicon glyphicon-print"></span> Печать
+        </button>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery.scrollTo.min.js"></script>
+<script>
+    $(function () {
+        var $form = $("#@wrapId").closest("form");
+        $form.find("iframe").height($form.find(".tab-content").height() - 5);
+        $form.off("onEditDocument").on("onEditDocument", function (e) {
+            var form = $(e.target).data("pbaForm");
+
+            var $frame = $("#@wrapId iframe");
+            var doc = $frame[0].contentWindow.document;
+            var $body = $("body", doc);
+
+            var cssLink = document.createElement("link");
+            cssLink.href = "/Content/css/word-iframe.css";
+            cssLink.rel = "stylesheet";
+            cssLink.type = "text/css";
+
+            $body.html(form.getPr("Value"));
+            $body.prepend(cssLink);
+
+            var $viewer = $form.find("iframe").contents();
+
+            $viewer.find("a").off("click").on("click", function(e) {
+                e.preventDefault();
+
+                var href = e.currentTarget.getAttribute("href");
+                if (href.indexOf("://") === -1) {
+                    var targetId = href.substring(1).replace(/[!"#$%&'()*+,.\/:;<=>?@@[\\\]^`{|}~]/g, "\\$&");
+                    var target = $viewer.find("#" + targetId).parent()[0];
+                    $viewer.scrollTo(target);
+                } else {
+                    var win = window.open(href, "_blank");
+                    win.focus();
+                }
+            });
+        });
+        $form.find(".btn-print").off("click").on("click", function (e) {
+            $form.find("iframe").get(0).contentWindow.print();
+        });
+    });
+</script>

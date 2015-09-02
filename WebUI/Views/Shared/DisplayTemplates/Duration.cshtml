@@ -1,0 +1,44 @@
+﻿@model EditorViewModel
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+
+    string htmlFieldName = Model.PropertyName;
+}
+
+<div id="@wrapID" class="duration-editor">
+    <div style="float:left">
+        <span style="margin-right:5px">Дней</span>
+        @(Html.Kendo().TextBox().Enable(false).Name(wrapID + "_days").HtmlAttributes(new { style = "width: 100px"}))
+    </div>
+
+    <div style="float:left">
+        <span style="margin:0 5px 0 10px">Часов</span>
+        @(Html.Kendo().TextBox().Enable(false).Name(wrapID + "_hours").HtmlAttributes(new { style = "width: 100px" }))
+    </div>
+
+    <div style="float:left">
+        <span style="margin:0 5px 0 10px">Минут</span>
+        @(Html.Kendo().TextBox().Enable(false).Name(wrapID + "_minutes").HtmlAttributes(new { style = "width: 100px" }))
+    </div>
+    <div class="clear"></div>
+</div>
+
+<script>
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            var miutesCount = form.getPr("@htmlFieldName");
+
+            var days = ~~(miutesCount / 1440);
+            $("#@(wrapID)_days").val(days);
+
+            var rem = miutesCount % 1440;
+
+            var hours = ~~(rem / 60);
+            $("#@(wrapID)_hours").val(hours);
+
+            var minutes = rem - hours * 60;
+            $("#@(wrapID)_minutes").val(minutes);
+        });
+    });
+</script>

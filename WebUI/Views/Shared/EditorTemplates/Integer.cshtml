@@ -1,0 +1,11 @@
+@model EditorViewModel
+
+@{
+    string name = "n_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html.Kendo().IntegerTextBox().Name(name)
+          .HtmlAttributes(Html.CreateHtmlAttributes(Model, new { style = "width:100%; max-width: 200px;" }))
+      .Min(int.MinValue)
+      .Max(int.MaxValue)
+)

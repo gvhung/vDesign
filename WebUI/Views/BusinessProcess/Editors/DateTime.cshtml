@@ -1,0 +1,141 @@
+﻿@using Base.BusinessProcesses.Entities
+@using Newtonsoft.Json
+@using WebUI.Models.BusinessProcess
+@model WithCustomEditorVm
+
+@{
+    Layout = "EditorLayout.cshtml";
+
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+
+    var operators = new[]
+    {
+        new EditorVm("+", "+"),
+        new EditorVm("-", "-")
+    };
+
+    var json = JsonConvert.SerializeObject(operators.Concat(Model.Editors));
+}
+
+<div id="@wrapID">
+    <div class="form-group">
+        <input readonly="readonly" data-tags type="text" class="form-control">
+    </div>
+    <div class="duration-editor">
+        <div style="float:left">
+            <span style="margin-right:5px">Дней</span>
+            @(Html.Kendo().IntegerTextBox().Name(wrapID + "_days").Min(0).Max(int.MaxValue).HtmlAttributes(new { style = "width: 100px" }))
+        </div>
+
+        <div style="float:left">
+            <span style="margin:0 5px 0 10px">Часов</span>
+            @(Html.Kendo().IntegerTextBox().Name(wrapID + "_hours").Min(0).Max(int.MaxValue).HtmlAttributes(new { style = "width: 100px" }))
+        </div>
+
+        <div style="float:left">
+            <span style="margin:0 5px 0 10px">Минут</span>
+            @(Html.Kendo().IntegerTextBox().Name(wrapID + "_minutes").Min(0).Max(int.MaxValue).HtmlAttributes(new { style = "width: 100px" }))
+        </div>
+        <div class="clear"></div>
+        <button data-role="addstr" class="btn btn-default btn-block" style="margin-top: 15px;" type="button">Добавить период</button>
+
+    </div>
+    <div class="form-group">
+        <div class="btn-group">
+            @foreach (var item in operators)
+            {
+                <button data-type="@((int)MacroType.Operator)" data-member="@item.Member" type="button" class="btn btn-default">@item.Name</button>
+            }
+        </div>
+    </div>
+    <div class="list-group">
+        @foreach (var item in Model.Editors)
+        {
+            <a href="#" data-type="@((int)MacroType.InitObject)" data-member="@item.Member" class="list-group-item">@item.Name</a>
+        }
+        <a href="#" style="background-color: #5bc0de; color: #fff;" data-type="@((int)MacroType.Function)" data-member="dtn()" class="list-group-item">Текущая дата</a>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var wrap = $('#@wrapID');
+
+        var values = @Html.Raw(json);
+        var elt = wrap.find('input[data-tags]');
+        elt.tagsinput({
+            allowDuplicates: true,
+            itemValue: 'Member',
+            itemText: 'Name',
+            freeInput: true
+        });
+
+        wrap.closest('[property-editor]').on('onLoad', function(e, args) {
+            var data = args.model;
+
+            var funcs = $("#@wrapID").find("[data-type=@((int)MacroType.Function)]");
+
+            if (data && data.Value) {
+                $.each($.parseJSON(data.Value), function(i, elem) {
+                    var obj = {
+                        MacroType: elem.MacroType,
+                        Value: elem.Value,
+                    };
+
+                    var name = elem.Value;
+
+                    if (elem.MacroType == "@((int)MacroType.InitObject)") {
+                        name = $.grep(values, function(el) {
+                            return el.Member == elem.Value;
+                        })[0].Name;
+                    } else if(elem.MacroType == "@((int)MacroType.Function)") {
+                        name = funcs.filter("[data-member=" + elem.Value + "]").html();
+                    } else if(elem.MacroType == "@((int)MacroType.TimeSpan)") {
+                        name = elem.Value + " минут";
+                    }
+
+                    elt.tagsinput('add', { Member: obj, Name:name });
+                });
+            }
+
+            wrap.closest('[data-role=wraplayout]').find('[data-role=apply]').click(function() {
+                var items = elt.tagsinput('items');
+
+                if (items.length) {
+                    data.set('Value', JSON.stringify($.map(items, function(elem) { return elem.Member; })));
+
+                } else {
+                    data.set('Value', null);
+                }
+
+                $(this).closest('[data-role=window]').data('kendoWindow').close();
+            });
+        });
+
+        wrap.on('click', '[data-role=addstr]', function() {
+            var minutes = $("#@(wrapID)_days").data("kendoNumericTextBox").value() * 1440 +
+                          $("#@(wrapID)_hours").data("kendoNumericTextBox").value() * 60 +
+                          $("#@(wrapID)_minutes").data("kendoNumericTextBox").value();
+
+            elt.tagsinput('add', { "Member": {
+                MacroType: "@((int)MacroType.TimeSpan)",
+                Value: minutes
+            }, Name: minutes + " минут" });
+        });
+
+        wrap.on('click', '[data-member]', function () {
+            elt.tagsinput('add', { "Member": {
+                MacroType: $(this).data('type'),
+                Value: $(this).data('member')
+            }, Name: $(this).html() });
+        });
+
+        wrap.closest('[data-role=wraplayout]').on('onSetValueFromCutomEditor', function(e, value) {
+            elt.tagsinput('removeAll');
+            elt.tagsinput('add', { "Member": {
+                MacroType: "@((int)MacroType.DateTime)",
+                Value: value
+            }, Name: value.toLocaleString() });
+        });
+    });
+</script>

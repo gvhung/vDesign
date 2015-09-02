@@ -1,0 +1,21 @@
+﻿/*-----------*/
+.w-header {
+    padding: 5px;
+    margin-top: 10px;
+    /*background: #49B9E2;
+    color: #fff;*/
+    /*border-bottom: 1px solid #ddd;*/
+}
+
+    .w-header .w-title {
+        font-size: 24px;
+    }
+
+    .w-header .w-description {
+        font-size: 14px;
+        /*color: #DCFAFF;*/
+    }
+
+.wizard-view-model .tab-content {
+    top: 0;
+}

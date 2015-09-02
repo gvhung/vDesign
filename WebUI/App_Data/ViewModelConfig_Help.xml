@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>HelpItem</mnemonic>
+    <title>Справка</title>
+    <entity>Base.Help.Entities.HelpItem, Base.Help</entity>
+    <service>Base.Help.Services.IHelpItemService, Base.Help</service>
+    <listview showPreview="true">
+    </listview>
+    <detailview isMaximaze="true">
+    </detailview>
+    <icon>glyphicon glyphicon-circle-question-mark</icon>
+  </item>
+  <item>
+    <mnemonic>HelpItemTag</mnemonic>
+    <title>Справка - Тэги</title>
+    <entity>Base.Help.Entities.HelpItemTag, Base.Help</entity>
+    <service>Base.Help.Services.IHelpItemTagService, Base.Help</service>
+    <listview title="Тэги"></listview>
+    <detailview title="Тэг"></detailview>
+    <icon>glyphicon glyphicon-tags</icon>
+  </item>
+</ViewModelConfig>

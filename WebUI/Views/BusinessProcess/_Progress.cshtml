@@ -1,0 +1,102 @@
+﻿@using WebUI.Models.BusinessProcess
+@model WebUI.Models.BusinessProcess.StageVM
+
+@{
+    var cssClass = GetClass(Model.Status);
+}
+
+
+<div class="progress-summary">
+    <div class="clearfix small">
+        <div class="pull-left">
+            @if (Model.TimeLeft.Seconds > 0)
+            {
+                <p style="margin-bottom: 2px;" class="text-muted">Осталось:</p>
+                <p class="text-@cssClass">@TimeSpanToString(Model.TimeLeft)</p>
+            }
+            else
+            {
+                <p style="margin-bottom: 2px;" class="text-muted">Срок исчерпан на:</p>
+                <p class="text-@cssClass"> @TimeSpanToString(Model.TimeLeft.Duration())</p>
+            }
+        </div>
+
+        <div class="pull-right text-right">
+            <p style="margin-bottom: 2px;" class="text-muted"> Ожидает завершения до:</p>
+            <p class="text-@cssClass">@Model.EndDateExpected.ToString("F")</p>
+        </div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-bar progress-bar-@GetClass(Model.Status) active progress-bar-striped"  aria-valuenow="@Model.ElapsedString" aria-valuemin="0" aria-valuemax="100" style="max-width: 100%; width: @Model.ElapsedString%">
+            <span class="text-@cssClass progress-indicator">@TimeSpanToString(Model.ElapsedTime)</span>
+        </div>
+    </div>
+</div>
+
+
+@functions
+{
+
+    string TimeSpanToString(TimeSpan span)
+    {
+        //var abs = Model.ElapsedTime.Duration();
+
+        return string.Format("{0}{1}{2}",
+            span.Days != 0 ? span.Days + " дн. " : null,
+            span.Hours != 0 ? span.Hours + " час. " : null,
+            span.Minutes != 0 ? span.Minutes + " мин. " : null);
+    }
+
+    string GetClass(ElapsedStatus? status)
+    {
+        switch (status)
+        {
+            case ElapsedStatus.Good:
+                return "success";
+            case ElapsedStatus.Info:
+                return "success";
+            case ElapsedStatus.Warning:
+                return "warning";
+            case ElapsedStatus.Danger:
+                return "danger";
+        }
+
+        return "success";
+    }
+}
+
+<style>
+    .progress-indicator {
+        background: #fff;
+        box-shadow: 2px 2px 10px #aaa;
+        -o-box-shadow: 2px 2px 10px #aaa;
+        -webkit-box-shadow: 2px 2px 10px #aaa;
+        -moz-box-shadow: 2px 2px 10px #aaa;
+        border-radius: 3px;
+        padding: 0 8px;
+        white-space: pre;
+        margin-left: 3px;
+    }
+
+    /*.glow {
+        -webkit-animation-duration: 1s;
+        -webkit-animation-name: glow;
+        -webkit-animation-direction: alternate;
+        -webkit-animation-iteration-count: infinite;
+        animation-duration: 1s;
+        animation-name: glow;
+        animation-direction: alternate;
+        animation-iteration-count: infinite;
+    }
+
+    @@-webkit-keyframes glow {
+        from {
+            box-shadow: 0 0px 0px;
+        }
+
+        to {
+            box-shadow: 0 0px 10px;
+        }
+    }*/
+</style>

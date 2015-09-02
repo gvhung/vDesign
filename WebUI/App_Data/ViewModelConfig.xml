@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <!-- **********************USERS*********************** -->
+  <item>
+    <mnemonic>AccessUser</mnemonic>
+    <title>AccessUser</title>
+    <service>Base.Security.Service.IAccessUserService, Base</service>
+    <entity>Base.Security.AccessUser, Base</entity>
+    <listview title="Пользователи"></listview>
+    <detailview title="Пользователь" isMaximaze="true">
+      <editors>
+        <editor propertyName="UserType" isReadOnly="false" />
+        <editor propertyName="Email" isReadOnly="false" />
+        <editor propertyName="Department" isReadOnly="false" />
+      </editors>
+    </detailview>
+    <lookupproperty>FullName</lookupproperty>
+    <icon>halfling halfling-user</icon>
+  </item>
+  <item>
+    <mnemonic>User</mnemonic>
+    <title>Пользователи</title>
+    <service>Base.Security.Service.IUserService, Base</service>
+    <entity>Base.Security.User, Base</entity>
+    <listview title="Пользователи" type="Custom" dialog="User/Dialog" hiddenTree="true"></listview>
+    <detailview title="Пользователь" isMaximaze="true" width="800" ></detailview>
+    <lookupproperty>FullName</lookupproperty>
+    <icon>halfling halfling-user</icon>
+  </item> 
+  
+  <item>
+    <mnemonic>UnregisteredUser</mnemonic>
+    <title>Новые пользователи</title>
+    <service>Base.Security.Service.Abstract.IUnregisteredUserService, Base</service>
+    <entity>Base.Security.UnregisteredUser, Base</entity>
+    <listview title="Новые пользователи"></listview>
+    <detailview title="Новые пользователи"></detailview>
+    <lookupproperty>FullName</lookupproperty>
+    <icon>halfling halfling-user</icon>
+  </item>
+  <item>
+    <mnemonic>Employee</mnemonic>
+    <title>Сотрудники</title>
+    <service>Base.Security.Service.IEmployeeService, Base</service>
+    <entity>Base.Security.Employee, Base</entity>
+    <listview title="Сотрудники"></listview>
+    <detailview title="Сотрудник" isMaximaze="true"></detailview>
+    <lookupproperty>FullName</lookupproperty>
+    <icon>halfling halfling-user</icon>
+  </item>
+  <item>
+    <mnemonic>Post</mnemonic>
+    <title>Должность</title>
+    <service>Base.Security.Service.IPostService, Base</service>
+    <entity>Base.Security.Post, Base</entity>
+    <detailview title="Должность"></detailview>
+    <icon>halfling halfling-list-alt</icon>
+  </item>
+  <item>
+    <mnemonic>UserCategory</mnemonic>
+    <title>Пользователи - Категории</title>
+    <service>Base.Security.Service.IUserCategoryService, Base</service>
+    <entity>Base.Security.UserCategory, Base</entity>
+    <listview title="Отделы"></listview>
+    <detailview title="Отдел"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-indent-right</icon>
+  </item>
+  <item>
+    <mnemonic>Role</mnemonic>
+    <title>Роли</title>
+    <service>Base.Security.Service.IRoleService, Base</service>
+    <entity>Base.Security.Role, Base</entity>
+    <listview></listview>
+    <detailview title="Роль"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-eye-open</icon>
+  </item>
+  <item>
+    <mnemonic>ChildRole</mnemonic>
+    <title>Роли - Дочернии роли</title>
+    <service>Base.Security.Service.IChildRoleService, Base</service>
+    <entity>Base.Security.ChildRole, Base</entity>
+    <listview></listview>
+    <detailview title="Роль"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-eye-open</icon>
+  </item>
+  <item>
+    <mnemonic>Permission</mnemonic>
+    <title>Роли - Разрешения на объекты</title>
+    <service>Base.Security.Service.IPermissionService, Base</service>
+    <entity>Base.Security.Permission, Base</entity>
+    <listview title="Разрешения"></listview>
+    <detailview title="Разрешение"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>glyphicon glyphicon-lock</icon>
+  </item>
+  <item>
+    <mnemonic>Profile</mnemonic>
+    <title>Профиль</title>
+    <service>Base.Security.Service.IProfileService, Base</service>
+    <entity>Base.Security.Profile, Base</entity>
+    <listview></listview>
+    <detailview hideToolbar="true">
+      <editors>
+        <column propertyName="Email" visible="false" />
+      </editors>
+    </detailview>
+    <lookupproperty>FullName</lookupproperty>
+    <icon>halfling halfling-user</icon>
+  </item>
+  <item>
+    <mnemonic>Department</mnemonic>
+    <title>Органы гос власти</title>
+    <entity>Base.Security.Department, Base</entity>
+    <service>Base.Security.Service.IDepartmentService, Base</service>
+    <detailview title="Орган гос власти"></detailview>
+    <icon>glyphicon glyphicon-bank</icon>
+  </item>
+  <item>
+    <mnemonic>Security_Settings</mnemonic>
+    <title>Безопастность - Настройки</title>
+    <entity>Base.Security.Setting, Base</entity>
+    <detailview title="Настройки"></detailview>
+  </item>
+  <!-- **********************Settings*********************** -->
+  <item>
+    <mnemonic>SettingItem</mnemonic>
+    <title>Настройки системы - Записи</title>
+    <service>Base.Settings.ISettingItemService, Base</service>
+    <entity>Base.Settings.SettingItem, Base</entity>
+    <listview title="Настройки">
+      <hiddenActions>
+        <action id="Create"/>
+        <action id="Delete"/>
+        <action id="ChangeCategory"/>
+      </hiddenActions>
+    </listview>
+    <detailview title="Запись"></detailview>
+    <icon>glyphicon glyphicon-wrench</icon>
+  </item>
+  <item>
+    <mnemonic>SettingCategory</mnemonic>
+    <title>Настройки системы - Категории</title>
+    <service>Base.Settings.ISettingCategoryService, Base</service>
+    <entity>Base.Settings.SettingCategory, Base</entity>
+    <listview title="Категории"></listview>
+    <detailview title="Категория"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon></icon>
+  </item>
+  <item>
+    <mnemonic>SettingValues_String</mnemonic>
+    <title>Настройки системы - Строковое значение</title>
+    <entity>Base.Settings.SettingValues.String, Base</entity>
+    <detailview title="Строковое значение"></detailview>
+  </item>
+  <item>
+    <mnemonic>SettingValues_Boolean</mnemonic>
+    <title>Настройки системы - Логическое значение</title>
+    <entity>Base.Settings.SettingValues.Boolean, Base</entity>
+    <detailview title="Логическое значение"></detailview>
+  </item>
+  <item>
+    <mnemonic>SettingValues_Int</mnemonic>
+    <title>Настройки системы - Числовое значение</title>
+    <entity>Base.Settings.SettingValues.Int, Base</entity>
+    <detailview title="Числовое значение"></detailview>
+  </item>
+  <!-- **********************Access*********************** -->
+  <item>
+    <mnemonic>UserAccess</mnemonic>
+    <title>Доступ - Пользователи</title>
+    <service>Base.Security.ObjectAccess.Services.IUserAccessService, Base</service>
+    <entity>Base.Security.ObjectAccess.UserAccess, Base</entity>
+    <detailview title="Доступ - Пользователи"></detailview>
+  </item>
+  <item>
+    <mnemonic>UserCategoryAccess</mnemonic>
+    <title>Доступ - Группа пользователей</title>
+    <service>Base.Security.ObjectAccess.Services.IUserCategoryAccessService, Base</service>
+    <entity>Base.Security.ObjectAccess.UserCategoryAccess, Base</entity>
+    <detailview></detailview>
+  </item>
+  <item>
+    <mnemonic>ObjectAccessItem</mnemonic>
+    <title>Доступ к объекту</title>
+    <service>Base.Security.ObjectAccess.Services.IObjectAccessItemService, Base</service>
+    <entity>Base.Security.ObjectAccess.ObjectAccessItem, Base</entity>
+    <detailview></detailview>
+  </item>
+  <!-- **********************FILES*********************** -->
+  <item>
+    <mnemonic>FileData</mnemonic>
+    <title>Баз. файлы</title>
+    <entity>Base.FileData, Base</entity>
+    <lookupproperty>FileName</lookupproperty>
+    <icon></icon>
+  </item>
+  <!-- *********************Complex************************ -->
+  <item>
+    <mnemonic>Period</mnemonic>
+    <title>Период</title>
+    <entity>Base.Entities.Complex.Period, Base</entity>
+    <detailview title="Period"></detailview>
+  </item>
+  <!-- **********************Registers*********************** -->
+  <item>
+    <mnemonic>MeasureCategory</mnemonic>
+    <title>Единицы измерения - Категории</title>
+    <service>Base.Registers.Service.IMeasureCategoryService, Base</service>
+    <entity>Base.Registers.Entities.MeasureCategory, Base</entity>
+    <detailview title="Категория"></detailview>
+  </item>
+  <item>
+    <mnemonic>Measure</mnemonic>
+    <title>Единицы измерения</title>
+    <service>Base.Registers.Service.IMeasureService, Base</service>
+    <entity>Base.Registers.Entities.Measure, Base</entity>
+    <detailview title="Единица измерения"></detailview>
+    <icon>halfling halfling-list-alt</icon>
+  </item>
+  <item>
+    <mnemonic>Country</mnemonic>
+    <title>Страны</title>
+    <service>Base.Registers.Service.ICountryService, Base</service>
+    <entity>Base.Registers.Entities.Country, Base</entity>
+    <detailview title="Страна"></detailview>
+    <icon>halfling halfling-globe</icon>
+  </item>
+  <!-- **********************DocumentTemplate*********************** -->
+  <item>
+    <mnemonic>DocumentTemplate</mnemonic>
+    <title>Шаблоны документов</title>
+    <service>Base.Document.Service.IDocumentTemplateService, Base</service>
+    <entity>Base.Document.Entities.DocumentTemplate, Base</entity>
+    <detailview title="Шаблон"></detailview>
+  </item>
+  <item>
+    <mnemonic>DocumentTemplateCategory</mnemonic>
+    <title>Шаблоны документов - Категории</title>
+    <service>Base.Document.Service.IDocumentTemplateCategoryService, Base</service>
+    <entity>Base.Document.Entities.DocumentTemplateCategory, Base</entity>
+    <detailview title="Категория"></detailview>
+  </item>
+  <!-- **********************LinkedОbjects*********************** -->
+  <item>
+    <mnemonic>ListLinkedОbjects</mnemonic>
+    <title>Связанные объекты</title>
+    <readonly>true</readonly>
+    <service>Base.LinkedObjects.Service.ILinkedObjectsService, Base</service>
+    <entity>Base.LinkedObjects.Entities.ListLinkedОbjects, Base</entity>
+    <detailview title="Связанные объекты">
+      <dataSource>
+          <get controller="LinkedObjects" action="Get">
+            <param key="mnemonic" value="[mnemonic]" />
+            <param key="id" value="[id]" />
+          </get>
+      </dataSource>
+      <toolbars>
+        <toolbar controller="LinkedObjects" action="GetToolbar" ajax="false">
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <icon>glyphicon glyphicon-link</icon>
+  </item>
+  <item>
+    <mnemonic>ListLinkedОbjects_Link</mnemonic>
+    <title>Связанные объекты - Связь</title>
+    <entity>Base.LinkedObjects.Entities.Link, Base</entity>
+    <icon>glyphicon glyphicon-link</icon>
+  </item>
+  <item>
+    <mnemonic>LinkedDocument</mnemonic>
+    <title>Связанные документы</title>
+    <service>Base.Document.Service.ILinkedDocumentService, Base</service>
+    <entity>Base.Document.Entities.LinkedDocument, Base</entity>
+    <detailview title="Документ"></detailview>
+    <icon>glyphicon glyphicon-link</icon>
+  </item>
+
+  <!-- **********************DetailViewSettings*********************** -->
+  <item>
+    <mnemonic>DetailViewSetting</mnemonic>
+    <title>Настройки отображения</title>
+    <service>Base.UI.Service.IDetailViewSettingService, Base</service>
+    <entity>Base.UI.DetailViewSetting, Base</entity>
+    <listview>
+      <hiddenActions>
+        <action id="Create"/>
+      </hiddenActions>
+    </listview>
+    <detailview title="Настройка"></detailview>
+    <icon>halfling halfling-cog</icon>
+  </item>
+  <item>
+    <mnemonic>FieldSetting</mnemonic>
+    <title>Настройки отображения полей</title>
+    <entity>Base.UI.FieldSetting, Base</entity>
+    <detailview title="Настройка"></detailview>
+    <icon>halfling halfling-cog</icon>
+  </item>
+  <item>
+    <mnemonic>FieldRoleVisible</mnemonic>
+    <title>Настройки отображения полей - Видимость (роли)</title>
+    <entity>Base.UI.FieldRoleVisible, Base</entity>
+    <detailview title="Настройка"></detailview>
+    <icon>halfling halfling-cog</icon>
+  </item>
+  <item>
+    <mnemonic>FieldRoleEnable</mnemonic>
+    <title>Настройки отображения полей - Доступность (роли)</title>
+    <entity>Base.UI.FieldRoleEnable, Base</entity>
+    <detailview title="Настройка"></detailview>
+    <icon>halfling halfling-cog</icon>
+  </item>
+</ViewModelConfig>

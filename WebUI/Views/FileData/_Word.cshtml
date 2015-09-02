@@ -1,0 +1,75 @@
+﻿@{
+    string wrapId = "w_" + Guid.NewGuid().ToString("N");
+    Guid fileID = ViewBag.FileID;
+}
+
+<link href="~/Content/css/word-viewer.css" rel="stylesheet" />
+
+<div id="@wrapId" class="word-viewer">
+    <div class="content">
+        <iframe frameborder="0" src="@Url.Action("GetDocContent", new { id = fileID })" style="display: none"></iframe>
+    </div>
+    <div class="actions text-right">
+        <a class="btn btn-default print-btn" href="#" role="button"><span class="glyphicon glyphicon-print"></span>Печать</a>
+        <a class="btn btn-default download-btn" href="@Url.Action("GetFile", "Files", new {fileid = fileID})" role="button">
+            <span class="glyphicon glyphicon-download-alt"></span>Скачать
+        </a>
+        <a class="btn btn-primary close-btn" href="#" role="button"><span class="glyphicon glyphicon-ok-2"></span>Закрыть</a>
+    </div>
+    @*<div class="print">
+            <button type="button" class="btn btn-default btn-print" aria-label="Print">
+                <span class="glyphicon glyphicon-print"></span> Печать
+            </button>
+        </div>*@
+</div>
+
+<script src="~/Scripts/jquery.scrollTo.min.js"></script>
+<script>
+    $(function () {
+        var $wnd = $("#@wrapId").closest(".k-window-content").first();
+        $wnd.css("padding", "0").css("overflow", "hidden");
+
+        if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            $wnd.find(".print-btn").hide();
+        }
+
+        var $frame = $wnd.find("iframe");
+
+        $frame.on("load", function () {
+
+            var doc = $frame[0].contentWindow.document;
+            var $body = $("body", doc);
+
+            var cssLink = document.createElement("link");
+            cssLink.href = "/Content/css/word-iframe.css";
+            cssLink.rel = "stylesheet";
+            cssLink.type = "text/css";
+
+            $body.prepend(cssLink);
+
+            $frame.show();
+
+            var $viewer = $frame.contents();
+            $viewer.find("a").off("click").on("click", function (e) {
+                e.preventDefault();
+
+                var href = e.currentTarget.getAttribute("href");
+                if (href.indexOf("://") === -1) {
+                    var targetId = href.substring(1).replace(/[!"#$%&'()*+,.\/:;<=>?@@[\\\]^`{|}~]/g, "\\$&");
+                    var target = $viewer.find("#" + targetId).parent()[0];
+                    $viewer.scrollTo(target);
+                } else {
+                    var win = window.open(href, "_blank");
+                    win.focus();
+                }
+            });
+        });
+
+        $wnd.find(".close-btn").on("click", function () {
+            $wnd.data("kendoWindow").close();
+        });
+        $wnd.find(".print-btn").off("click").on("click", function (e) {
+            $frame.get(0).contentWindow.print();
+        });
+    });
+</script>

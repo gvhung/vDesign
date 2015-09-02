@@ -1,0 +1,39 @@
+[    
+    {
+        "Type": "Google",
+        "IconCssClass": "social social-google-plus",
+        "AuthUri": "https://accounts.google.com/o/oauth2/auth?client_id={ClientId}&response_type=code&scope={Scope}&redirect_uri={RedirectUri}&state={State}",
+        "AccessUri": "https://www.googleapis.com/oauth2/v3/token?code={Code}&client_id={ClientId}&client_secret={ClientSecret}&redirect_uri={RedirectUri}&grant_type=authorization_code",
+        "UserInfoUri": "https://www.googleapis.com/oauth2/v1/userinfo?access_token={AccessToken}",
+        "UserInfoObjectType": "Base.OpenID.Entities.Responses.UserInfoGoogleResponse",
+        "RedirectUri": "https://pba.su/openid/oauth2callback",
+        "Scope": "openid email profile",
+        "ClientId": "854984877741-6nu0ij9m5gb5p06l8sc0nsapkenpd08c.apps.googleusercontent.com",
+        "ClientSecret": "dOGivb1GRQiKq0Sc8b1-GBI2"
+    },
+    {
+        "Type": "Yandex",
+        "IconCssClass": "social social-yahoo",
+        "AuthUri": "https://oauth.yandex.ru/authorize?response_type=code&client_id={ClientId}&state={State}",
+        "AccessUri": "https://oauth.yandex.ru/token?grant_type=authorization_code&code={Code}&client_id={ClientId}&client_secret={ClientSecret}",
+        "UserInfoUri": "https://login.yandex.ru/info?format=json&oauth_token={AccessToken}",
+        "UserInfoObjectType": "Base.OpenID.Entities.Responses.UserInfoYandexResponse",
+        "RedirectUri": "https://pba.su/openid/oauth2callback",
+        "Scope": "",
+        "ClientId": "45275f1e6d184e59a06a1e4085687d11",
+        "ClientSecret": "4cd8b6dbbc1f48bda40da22c8ca98f67"
+    },
+    {
+        "Type": "Facebook",
+        "IconCssClass": "social social-facebook",
+        "AuthUri": "https://www.facebook.com/dialog/oauth?client_id={ClientId}&redirect_uri={RedirectUri}&response_type=code&state={State}&scope={Scope}",
+        "AccessUri": "https://graph.facebook.com/oauth/access_token?client_id={ClientId}&redirect_uri={RedirectUri}&client_secret={ClientSecret}&code={Code}",
+        "AccessUriType": "get",
+        "UserInfoUri": "https://graph.facebook.com/me?access_token={AccessToken}",
+        "UserInfoObjectType": "Base.OpenID.Entities.Responses.UserInfoFacebookResponse",
+        "RedirectUri": "https://pba.su/openid/oauth2callback",
+        "Scope": "email",
+        "ClientId": "1416590608643230",
+        "ClientSecret": "1bba8f576d13e7bc76536ffba6f89ce2"
+    }
+]

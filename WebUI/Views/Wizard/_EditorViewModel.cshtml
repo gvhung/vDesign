@@ -1,0 +1,233 @@
+﻿@model WizardFormModel
+
+@using Base.Wizard.UI
+@using Newtonsoft.Json
+
+<link href="~/Content/css/master-wizard.css" rel="stylesheet" />
+
+@foreach (var step in Model.Steps)
+{
+    Html.RenderPartial("_BuilderStepViewModel", new StepViewModel(Model, step));
+}
+
+@*Static Complete step*@
+
+@{
+    var lastStepWidgetID = Model.WidgetID + "_" + WizardConfig.WIZARD_COMPLETE_KEY;
+    bool isAjaxForm = Model.ViewModelConfig.DetailView.AjaxForm != null;
+
+    string formName = Model.FormName + "" + WizardConfig.WIZARD_COMPLETE_KEY;
+}
+
+<script>
+    window["@Model.WidgetID"] = new WrapViewModel("@lastStepWidgetID", "WizardViewModel", "@Model.Type");
+
+    (function () {
+        var composite = window["@Model.DialogID"];
+
+        var view = window["@Model.WidgetID"];
+
+        composite.registerWidget(view);
+
+        view.defparams = {
+            model: null,
+            parentForm: null,
+            isReadOnly: false,
+            toSave: false,
+            step: "@WizardConfig.WIZARD_COMPLETE_KEY",
+            stepCount: @Model.Steps.Count,
+            //stepIndex: @Model.Steps.Count
+        };
+
+        view.params = {};
+
+        view.asyncBind = function (params) {
+            this.params = $.extend(this.defparams, params);
+
+            if (!this.params.isReadOnly) {
+                $("#@lastStepWidgetID").show();
+
+                @if(isAjaxForm)
+                   {
+                       @: return view.getAjaxForm(this.params.model);
+                                                                                   }
+                   else
+                   {
+                       @: return view.initViewModel(this.params.model);
+                                                                                   }
+            } else {
+                var dfd = $.Deferred();
+
+                $("#@lastStepWidgetID").hide();
+
+                dfd.resolve();
+
+                return dfd.promise();
+            }
+        };
+
+        view.initViewModel = function (model) {
+            var viewModel = kendo.observable({
+                model: model,
+                apply: function () {
+                    view.save("apply");
+                },
+                save: function () {
+                    view.save("save");
+                },
+                next: function() {
+
+                    composite.onWidgetChanged(
+                    {
+                        sender: view,
+                        event: "next",
+                        params: {}
+                    });
+
+                },
+                prev: function() {
+                    composite.onWidgetChanged(
+                    {
+                        sender: view,
+                        event: "prev",
+                        params: {}
+                    });
+                },
+                close: function () {
+                    composite.onWidgetChanged(
+                    {
+                        sender: view,
+                        event: "close",
+                        params: {}
+                    });
+                }
+            });
+
+            return view.initPbaForm(viewModel);
+        };
+
+        view.save = function (type) {
+            composite.onWidgetChanged(
+            {
+                sender: view,
+                event: type,
+                params: {}
+            });
+        };
+
+        view.initPbaForm = function (viewModel) {
+            var dfd = $.Deferred();
+
+            var $form = $("#@lastStepWidgetID").find('form');
+
+            if (!$form.data("pbaForm")) {
+                var buttons = [];
+
+                if (view.isModal()) {
+                    buttons.push({
+                        title: "Назад",
+                        "click": "prev",
+                        icon: "k-i-arrow-w",
+                        cssClass: "btn-default"
+                    });
+
+                    buttons.push({
+                        title: "Применить",
+                        "click": "save",
+                        icon: "k-update",
+                        cssClass: "btn-primary"
+                    });
+
+                    buttons.push({
+                        title: "Отменить",
+                        "click": "close",
+                        icon: "k-cancel",
+                        cssClass: "btn-default"
+                    });
+
+                } else {
+                }
+
+                $form.pbaForm({
+                    model: viewModel,
+                    wrap: "k-edit-form-container",
+                    footerBtnsClass: "wizard-footer-buttons",
+                    buttons: buttons,
+                    nameModel: "model",
+                    attrBind: true,
+                    validate: true
+                });
+
+                $form.data("pbaForm").parentForm = view.params.parentForm;
+
+                $form.data("pbaForm").bind();
+            } else {
+                $form.data("pbaForm").unbind();
+                $form.data("pbaForm").bind(viewModel);
+            }
+
+            dfd.resolve();
+
+            return dfd.promise();
+        };
+    })();
+</script>
+
+<div id="@lastStepWidgetID" style="display:none;">
+    <div class="tab-content common-tab">
+        <div class="tab-pane container active" id="@(WizardConfig.WIZARD_COMPLETE_KEY + "_" + Model.Mnemonic)" style="height:100%">
+            @if (!IsAjax)
+            {
+                <form id="@formName" class="common-form">
+                    @if (!string.IsNullOrEmpty(Model.CompleteText))
+                    {
+                        <p>@Model.CompleteText</p>
+                    }
+                </form>
+            }
+            else
+            {
+
+            }
+        </div>
+    </div>
+</div>
+
+@if (isAjaxForm)
+{
+    var ajaxAction = Model.ViewModelConfig.DetailView.AjaxForm;
+
+    var actionParams = JsonConvert.SerializeObject(ajaxAction.Params);
+
+    <script>
+        (function() {
+            var view = window["@Model.WidgetID"];
+            var actionParams = @Html.Raw(actionParams);
+
+
+            view.getAjaxForm = function(model, callback) {
+                var params = {};
+                var dfd = $.Deferred();
+
+                params["model"] = model;
+                params["mnemonic"] = "@Model.Mnemonic";
+
+                return $.ajax({
+                    type: "POST",
+                    url: "@Url.Action(ajaxAction.Name, ajaxAction.Controller)",
+                    data: JSON.stringify(params),
+                    contentType: "application/json; charset=utf-8",
+                    success: function(res) {
+                        var $container = $("#@lastStepWidgetID").find(".container");
+
+                        $container.html(res);
+
+                        view.initViewModel(model).done(function() {
+                            dfd.resolve();
+                        });
+                    }
+                });
+            };
+        })();
+    </script>
+}

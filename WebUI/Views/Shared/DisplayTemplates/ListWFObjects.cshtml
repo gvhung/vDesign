@@ -1,0 +1,25 @@
+﻿@using Base.BusinessProcesses.Entities
+@model EditorViewModel
+
+@{
+    string name = "n_" + Guid.NewGuid().ToString("N");
+
+    var values = Html.GetViewModelConfigs().Where(x => typeof(IWFObjectService).IsAssignableFrom(x.TypeService))
+        .GroupBy(m => m.TypeEntity)
+        .Select(x => new
+        {
+            Value = x.Key.FullName,
+            Text = x.First().Title,
+        })
+        .OrderBy(x => x.Text);
+}
+
+@(Html.Kendo().DropDownList()
+    .Name(name)
+    .HtmlAttributes(Html.CreateHtmlAttributes(Model, new { style = "width: 100%;" }))
+    .DataValueField("Value")
+    .DataTextField("Text")
+    .OptionLabel("Выберите значение...")
+    .BindTo(values)
+    .Enable(false)
+)

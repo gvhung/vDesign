@@ -1,0 +1,20 @@
+﻿@{
+    var wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+}
+
+@(Html.ContentEditorWidget("internal_video")
+    .Title("Видео")
+    .TitleTemplate(
+    @<text>
+        <span><i class="halfling halfling-film"></i> Видео внтреннее</span>
+    </text>)
+        .Wrap(wrapID)
+        .Mnemonic("Content_Video_Internal")
+          .Template("tpl_" + wrapID))
+
+<script id="tpl_@wrapID" type="text/template">
+    <video @*poster="star.png"*@ autoplay loop controls tabindex="0">
+        <source src="movie.webm" type='video/webm; codecs="vp8, vorbis"' />
+        <source src="movie.ogv" type='video/ogg; codecs="theora, vorbis"' />
+    </video>
+</script>

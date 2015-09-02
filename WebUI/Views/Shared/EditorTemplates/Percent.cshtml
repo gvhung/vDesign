@@ -1,0 +1,79 @@
+﻿@model EditorViewModel
+
+@{
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string sliderID = "slider_" + Guid.NewGuid().ToString("N");
+    string percent = "percent_" + Guid.NewGuid().ToString("N");
+    string htmlFieldName = Model.PropertyName;
+}
+
+<style>
+    .balSlider .k-tick {
+        content: "" !important;
+        overflow: hidden;
+    }
+</style>
+<script>
+    window["@(wrapID)"] = {
+        getForm: function () {
+            var e_form = $("#@(wrapID)").closest("form");
+            return e_form.data("pbaForm");
+        },
+        PercentChange: function () {
+            var slider = $("#@(sliderID)").data("kendoSlider");
+            slider.value(this.value());
+        },
+        SliderChange: function () {
+            var period = $("#@(percent)").data("kendoNumericTextBox");
+            period.value(this.value());
+        }
+    };
+</script>
+
+<div id="@(wrapID)">
+    @{
+        Html.Kendo().Slider()
+            .HtmlAttributes(new { @class = "balSlider" })
+            .Name(sliderID)
+            .IncreaseButtonTitle("Больше")
+            .DecreaseButtonTitle("Меньше")
+            .DragHandleTitle("Индикатор")
+            .Min(0)
+            .Max(100)
+            .Value(0)
+            .SmallStep(2)
+            .LargeStep(5)
+            .ShowButtons(false)
+            .Events(ev => ev.Change(wrapID + ".SliderChange"))
+            .Render();
+    }
+    <label for="@percent" style="overflow: hidden; margin-left: 10px;"><span class="halfling halfling-transfer"></span></label>&nbsp;@(Html.Kendo().NumericTextBox().Name(percent).Format("d").HtmlAttributes(new { @class = "percent-line", style = "width: 85px;" }).Decimals(0).Max(100).Min(0).Events(ev => ev.Change(wrapID + ".PercentChange")))
+</div>
+
+
+<script>
+    $(function () {
+        $("#@(wrapID)").closest("form").on("onAfterBind", function (e, form) {
+            var _value = form.getPr('@(htmlFieldName)');
+
+            _value *= 100;
+
+            var slider = $("#@(sliderID)").data("kendoSlider");
+            var period = $("#@(percent)").data("kendoNumericTextBox");
+
+            if (_value != null) {
+                slider.value(_value);
+                period.value(_value);
+            }
+
+            slider.resize();
+
+            $("#@(wrapID)").find(".k-tick.k-last").css("width", "1px");
+        });
+
+        $("#@(wrapID)").closest("form").on("onSave", function (e, form) {
+            var slider = $("#@(sliderID)").data("kendoSlider");
+            form.setPr('@(htmlFieldName)', slider.value() / 100);
+        });
+    });
+</script>

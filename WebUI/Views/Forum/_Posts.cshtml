@@ -1,0 +1,269 @@
+﻿@using Base.Forum.Entities
+@using WebUI.Models.Forum
+
+@model ForumViewModel
+@{
+    IEnumerable<PostViewModel> posts = Model.Items.Cast<PostViewModel>();
+}
+
+<div class="f-posts-wrap">
+    <div>
+        <h2>@Model.Title</h2>
+        <a class="up-level-link" href="@Url.Action("Index", new { sect = Model.SectionID })">< наверх</a>
+    </div>
+
+    @{if (Model.Items.Count() > 3) {<text> @RenderPagination(Model) </text>}}
+    
+    @{
+        foreach (var item in posts)
+        {
+            <text>
+                @RenderPost(item)
+            </text>
+        }
+    }
+
+    @RenderPagination(Model)
+
+    @{if(Model.UserRole >= UserRole.User) {
+    <div class="row">
+        <div class="col-lg-11 col-lg-offset-1 col-md-12">
+            @Html.Partial("_TextEditor", new ViewDataDictionary() { { "NeedSendButton", true } })
+        </div>
+    </div>
+    }}
+</div>
+
+
+<div class="modal fade" id="confirm-publish" tabindex="-1" role="dialog" aria-labelledby="publishModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong>Подтверждение</strong>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите опубликовать данное сообщение?
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-success" id="publish-btn">Опубликовать</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong>Подтверждение</strong>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить данное сообщение?
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-danger" id="delete-btn">Удалить</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@helper RenderPagination(ForumViewModel model)
+{
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <ul class="pagination pagination-sm">
+                <li class="@(Model.CurrentPage == 1 ? "disabled" : "")">
+                    <a href="@Url.Action("Index", new { sect = model.SectionID, topic = model.TopicID, page = 1 })">
+                        <span aria-hidden="true">&laquo;</span><span class="sr-only">Назад</span>
+                    </a>
+                </li>
+                @{
+                    int pageNum = 1;
+                    while (pageNum <= Model.PageCount)
+                    {
+                        <text>
+                            <li class="@(Model.CurrentPage == pageNum ? "active" : "")">
+                                <a href="@Url.Action("Index", new { sect = model.SectionID, topic = model.TopicID, page = pageNum })">@pageNum</a>
+                            </li>
+                        </text>
+                        pageNum++;
+                    }
+                }
+                <li class="@(Model.CurrentPage == Model.PageCount ? "disabled" : "")">
+                    <a href="@Url.Action("Index", new { sect = model.SectionID, topic = model.TopicID, page = Model.PageCount })">
+                        <span aria-hidden="true">&raquo;</span><span class="sr-only">Вперед</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+
+
+@helper RenderPost(PostViewModel post)
+{
+    <div class="f-post @(post.Status == ForumPostStatus.Premoderate ? "f-premoderate" : "") @(post.IsFirst ? "f-post-first" : "") row" post-id="@post.ID">
+        <div class="f-post-user col-lg-2 col-sm-2">
+            <div class="row">
+                <div class="f-post-user-name col-sm-12">
+                    <strong>@post.CreateRecord.UserLogin</strong>
+                </div>
+                <div class="f-post-user-image col-sm-12 hidden-xs">
+                    <img data-user-image="@post.CreateRecord.UserID" class="img-rounded img-responsive" src="/Files/GetImage?id=@(post.CreateRecord.Image)&width=96&height=96">
+                </div>
+            </div>
+        </div>
+        <div class="f-post-message col-lg-10 col-sm-10">
+            <div class="row">
+                <div class="f-post-message-created small col-sm-6 col-xs-12">
+                    @post.CreateRecord.Date.ToString("dd.MM.yyyy HH:mm")
+                </div>
+                <div class="f-post-message-info small col-sm-6 hidden-xs text-right">
+                    @(post.Status == ForumPostStatus.Premoderate ? "на модерации" : "")
+                </div>
+            </div>
+            
+            <div class="f-post-message-content ">
+                @Html.Raw(post.Message)
+            </div>
+        </div>
+        @{if(Model.UserRole >= UserRole.User) {
+        <div class="f-post-control">
+            @{
+                if (Model.UserRole == UserRole.Moderator)
+                {
+                    if (!post.IsFirst)
+                    {
+                        <div class="pull-right f-post-control-delete">
+                            <a href="#"><small><em>Удалить</em></small></a>
+                        </div>
+                    }
+
+                    <div class="pull-right f-post-control-publish">
+                        <a href="#"><small>Опубликовать</small></a>
+                    </div>
+                }
+            }
+            <div class="pull-right f-post-control-quot">
+                <a href="#"><small>Цитировать</small></a>
+            </div>
+        </div>
+        }}
+    </div>
+}
+
+@{if(Model.UserRole >= UserRole.User) {
+<script>
+    $(function () {
+        $('.f-wrap .editor-content').wysiwyg();
+
+        $('.btn-send').on('click', function (e) {
+            var $textEditor = $(e.target).closest('.text-editor');
+            var message = $textEditor.find('.editor-content').html().trim();
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("CreatePost")",
+                data: {
+                    topicID: @Model.TopicID,
+                    message: message
+                },
+                success: function (data) {
+                    if (data.success != null) {
+                        location.href = data.success;
+                    }
+                    else {
+                        console.log(data.error);
+                    }
+                }
+            });
+        });
+
+        $(".f-topic-control").on("click", function (e) {
+            return false;
+        });
+
+        $(".f-post-control-publish").on("click", function (e) {
+            $('#confirm-publish').modal('show', e);
+            return false;
+        });
+
+        $('#confirm-publish').on('show.bs.modal', function (e) {
+            var isFirst = $(e.relatedTarget.target).closest('.f-post').hasClass('f-post-first');
+            var postId = $(e.relatedTarget.target).closest('.f-post').attr('post-id');
+
+            $(this).find('#publish-btn').on('click', function (event) {
+                $.ajax({
+                    type: "POST",
+                    url: isFirst ? "@Url.Action("PublishTopic")" : "@Url.Action("PublishPost")",
+                    data: {
+                        id: isFirst ? @Model.TopicID : postId
+                    },
+                    success: function (data) {
+                        if (data.success != null) {
+                            //location.href = data.success;
+                            $(e.relatedTarget.target).closest('.f-post').removeClass('f-premoderate', { duration: 100 });
+                            $(event.target).closest('.modal').modal('hide');
+                        }
+                        else {
+                            console.log(data.error);
+                        }
+                    }
+                });
+            });
+        });
+          
+        $(".f-post-control-delete").on("click", function (e) {
+            $('#confirm-delete').modal('show', e);
+            return false;
+        });
+
+        $('#confirm-delete').on('show.bs.modal', function (e) {
+            var postId = $(e.relatedTarget.target).closest('.f-post').attr('post-id');
+
+            $(this).find('#delete-btn').on('click', function (event) {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("DeletePost")",
+                    data: {
+                        id: postId
+                    },
+                    success: function (data) {
+                        if (data.success != null) {
+                            //location.href = data.success;
+                            $(e.relatedTarget.target).closest('.f-post').hide('slow');
+                            $(event.target).closest('.modal').modal('hide');
+                        }
+                        else {
+                            console.log(data.error);
+                        }
+                    }
+                });
+            });
+        });
+
+        $(".f-post-control-quot").on("click", function (e) {
+            var $post = $(e.target).closest(".f-post");
+
+            var $message = $post.find(".f-post-message-content").clone().removeAttr("width").removeAttr("height").removeAttr("style").removeAttr("class");
+            $message.find('.f-quot').remove();
+
+            var message = $message.html().trim();
+
+            var user = $post.find(".f-post-user-name").text().trim();
+
+            var newcontent = "<div class='f-quot'><span class='f-quot-who'><span class='f-quot-username'>" + user + "</span> сказал(а):</span>" + 
+                             "<span class='f-quot-message'>" + message + "</span></div><br/>";
+
+            $(".f-wrap .editor-content").append(newcontent).focus();
+
+            return false;
+        });
+    });
+</script>
+}}
+
+

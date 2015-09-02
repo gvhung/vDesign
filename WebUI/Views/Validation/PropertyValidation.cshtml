@@ -1,0 +1,58 @@
+﻿@model WebUI.Models.Validation.PropertyValidationVm
+
+@{
+    Layout = "ValidationEditorLayout.cshtml";
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+}
+
+<div id="@wrapID">
+    <div data-tags>
+        @foreach (var valRule in Model.ValidationRules)
+        {
+            <button class="btn btn-default btn-block" data-validation-type="@valRule.GetType().GetTypeName()">@valRule.Title</button>
+        }
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        var wrap = $("#@wrapID");
+        var elt = wrap.find('div[data-tags]');
+        var buttons = elt.find('button');
+
+        wrap.closest('[property-editor]').on('onLoad', function (e, args) {
+            var data = args.model;
+
+            if (data && data.Rules && data.Rules.length > 0) {
+                var array = data.Rules;
+                $.each(array, function (i, item) {                    
+                    buttons.filter('[data-validation-type="' + item + '"]').removeClass('btn-default').addClass('btn-success');
+                });
+            }
+
+            buttons.click(function (e) {
+                e.preventDefault();
+
+                var $this = $(this);
+                if ($this.hasClass('btn-default')) {
+                    $this.removeClass('btn-default');
+                    $this.addClass('btn-success');
+                } else {
+                    $this.removeClass('btn-success');
+                    $this.addClass('btn-default');
+                }
+            });
+
+            wrap.closest('[data-role=wraplayout]').find('[data-role=apply]').click(function () {
+                var selected = elt.find('.btn-success').map(function (i, el) {
+                    return $(el).attr('data-validation-type');
+                });
+                data.set("Rules", selected);
+                $(this).closest('[data-role=window]').data('kendoWindow').close();
+            });
+
+        });
+
+    })
+</script>

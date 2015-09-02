@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7775CB10-9515-4F15-B33B-5A303E56F322}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Data</RootNamespace>
+    <AssemblyName>Data</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Import|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Import\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;IMPORT</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.5.5631.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.5\lib\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Linq.Translations">
+      <HintPath>..\packages\Microsoft.Linq.Translations.1.0.1\lib\net40\Microsoft.Linq.Translations.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OpenXmlPowerTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenXmlPowerTools.3.1.07.0\lib\OpenXmlPowerTools.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.Linq.Dynamic">
+      <HintPath>..\packages\System.Linq.Dynamic.1.0.4\lib\net40\System.Linq.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Consts\NpaCategory.cs" />
+    <Compile Include="Consts\Settings.cs" />
+    <Compile Include="EF\Configuration.cs" />
+    <Compile Include="Entities\DescriptionLookupVm.cs" />
+    <Compile Include="Entities\ItemContactList.cs" />
+    <Compile Include="Entities\Okved.cs" />
+    <Compile Include="Entities\RequestLog.cs" />
+    <Compile Include="Entities\SupportQA.cs" />
+    <Compile Include="Entities\UserPromotion.cs" />
+    <Compile Include="Entities\TestExtender.cs" />
+    <Compile Include="Entities\TestObject.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="Entities\Workgroup\Expert.cs" />
+    <Compile Include="Entities\Workgroup\ExpertStatus.cs" />
+    <Compile Include="Entities\Workgroup\ExpertStatusInWorkGroup.cs" />
+    <Compile Include="Entities\Workgroup\WorkGroup.cs" />
+    <Compile Include="Entities\Workgroup\WorkGroupExpert.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Service\Abstract\IContactListService.cs" />
+    <Compile Include="Service\Abstract\IRequestLogService.cs" />
+    <Compile Include="Service\Abstract\IOkvedService.cs" />
+    <Compile Include="Service\Abstract\IUserPromotionService.cs" />
+    <Compile Include="Service\Abstract\ITestObjectService.cs" />
+    <Compile Include="Service\Abstract\IWordService.cs" />
+    <Compile Include="Service\Abstract\Workgroup\IExpertService.cs" />
+    <Compile Include="Service\Abstract\Workgroup\IExpertStatusInWorkGroupService.cs" />
+    <Compile Include="Service\Abstract\Workgroup\IExpertStatusService.cs" />
+    <Compile Include="Service\Abstract\Workgroup\IWorkgroupExpertService.cs" />
+    <Compile Include="Service\Abstract\Workgroup\IWorkgroupService.cs" />
+    <Compile Include="Service\Concrete\ContactListService.cs" />
+    <Compile Include="Service\Concrete\GuestRoleProvider.cs" />
+    <Compile Include="Service\Concrete\RequestLogService .cs" />
+    <Compile Include="Service\Concrete\OkvedService.cs" />
+    <Compile Include="Service\Concrete\UserPromotionService.cs" />
+    <Compile Include="Service\Concrete\TestObjectService.cs" />
+    <Compile Include="EF\CompositeContext.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\Concrete\WordService.cs" />
+    <Compile Include="Service\Concrete\Workgroup\ExpertService.cs" />
+    <Compile Include="Service\Concrete\Workgroup\ExpertStatusInWorkGroupService.cs" />
+    <Compile Include="Service\Concrete\Workgroup\ExpertStatusService.cs" />
+    <Compile Include="Service\Concrete\Workgroup\WorkgroupExpertService.cs" />
+    <Compile Include="Service\Concrete\Workgroup\WorkgroupService.cs" />
+    <Compile Include="Strategies\NpaAccessPolicy.cs" />
+    <Compile Include="Strategies\QuestionTemplate.cs" />
+    <Compile Include="Strategies\WorkflowStrategies.cs" />
+    <Compile Include="ValidationRules\BigStringValidation.cs" />
+    <Compile Include="ValidationRules\StringIsNullOrEmpty.cs" />
+    <Compile Include="ValidationRules\UserValidator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\DataSources\System.Data.DataSet.datasource" />
+    <None Include="Properties\DataSources\System.Xml.XmlNode.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Base.Audit\Base.Audit.csproj">
+      <Project>{94d34384-e253-4771-8105-79903f0d4725}</Project>
+      <Name>Base.Audit</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.BusinessProcesses\Base.BusinessProcesses.csproj">
+      <Project>{c4d72d04-2b9f-4b99-a01f-ff260c27b0bf}</Project>
+      <Name>Base.BusinessProcesses</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Censorship\Base.Censorship.csproj">
+      <Project>{75d353db-c6df-4fef-85ee-ebab25b49c88}</Project>
+      <Name>Base.Censorship</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Conference\Base.Conference.csproj">
+      <Project>{a212107b-fd1a-4703-ac02-82ef570e75e4}</Project>
+      <Name>Base.Conference</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Content\Base.Content.csproj">
+      <Project>{8d53bbe9-4883-4ffd-81d9-9dafe86eab5e}</Project>
+      <Name>Base.Content</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Contractor\Base.Contractor.csproj">
+      <Project>{0280ab86-45b0-4e90-9b51-bade4f1d0810}</Project>
+      <Name>Base.Contractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.DAL.EF\Base.DAL.EF.csproj">
+      <Project>{3efb8cc9-6a65-4a10-925f-0df1624ee13b}</Project>
+      <Name>Base.DAL.EF</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Event\Base.Event.csproj">
+      <Project>{fb4f973c-ff18-4f24-a7cf-104c7444094a}</Project>
+      <Name>Base.Event</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.FileStorage\Base.FileStorage.csproj">
+      <Project>{e771559d-36de-40be-bde9-02e4b9cf1a59}</Project>
+      <Name>Base.FileStorage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Forum\Base.Forum.csproj">
+      <Project>{b9142f93-15f0-4cd6-8715-7184d546cdbc}</Project>
+      <Name>Base.Forum</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Help\Base.Help.csproj">
+      <Project>{f641f38f-7515-4da1-822d-9b13557d79aa}</Project>
+      <Name>Base.Help</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Notification\Base.Notification.csproj">
+      <Project>{c26a8cc1-6822-481d-a2d5-52dc8295d402}</Project>
+      <Name>Base.Notification</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.OpenID\Base.OpenID.csproj">
+      <Project>{d5036e52-690a-4ec4-8b90-49f67ccf9885}</Project>
+      <Name>Base.OpenID</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Tasks\Base.Task.csproj">
+      <Project>{3082a9de-189d-42fa-843e-517c8178fd55}</Project>
+      <Name>Base.Task</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base.Wizard\Base.Wizard.csproj">
+      <Project>{731a9061-e67a-4b39-ab71-adbb16a6cf0b}</Project>
+      <Name>Base.Wizard</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base\Base.csproj">
+      <Project>{b78a3750-fa57-41f2-927a-dfb795552548}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{65fb57bb-b251-4542-a08e-d56b701571d4}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Attributes\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

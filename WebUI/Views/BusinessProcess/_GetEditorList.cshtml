@@ -1,0 +1,139 @@
+﻿@using Newtonsoft.Json
+@model WebUI.Models.BusinessProcess.ObjectInitializerVm
+
+@{
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+}
+<script src="~/Scripts/bootstrap-tagsinput.js"></script>
+<link href="~/Content/css/bootstrap-tagsinput.css" rel="stylesheet" />
+<script src="~/Scripts/typeahead.js"></script>
+
+<script id="property-template" type="text/x-kendo-template">
+    <a href="javascript:void(0)" data-bind="click: editProperty, text: Name, attr: { class: activeClass }"></a>
+</script>
+
+<div id="@wrapID">
+    <div class="tab-content common-tab">
+        <div class="tab-pane container  active list-group">
+            <div data-template="property-template" data-bind="source: properties"></div>
+        </div>
+    </div>
+    <div class="footer-buttons">
+        <button data-test class="btn btn-info"><span class="halfling halfling-play"></span> Тестировать</button>
+        <button data-apply class="btn btn-success">Применить</button>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $("#@wrapID").closest('[constructor-wnd]').on('onLoad', function (e, args) {
+            var data = args.model;
+
+            var properties = @Html.Raw(JsonConvert.SerializeObject(Model.Editors));
+
+            var tmp = [];
+
+            $.each(properties, function (i, prop) {
+                var dataelem = $.grep(data, function (elem) { return elem.Member == prop.Member; })[0];
+                if (!dataelem) {
+                    tmp.push($.extend({}, { Member: prop.Member, Value: null, Type: prop.Type, Name: prop.Name }));
+                } else {
+                    tmp.push($.extend({}, dataelem, { Type: prop.Type, Name: prop.Name }));
+                }
+            });
+
+            var viewModel = kendo.observable({
+                activeClass: function(e) {
+                    return e.Value ? "list-group-item active" : "list-group-item";
+                },
+                editProperty: function (e) {
+                    var model = e.data;
+
+                    var parObjType = args.parentObjectType.Value || args.parentObjectType;
+
+                    var kendoWindow = $("<div property-editor />").kendoWindow({
+                        width: 600,
+                        content: "@Url.Action("GetEditor", "BusinessProcess")?property=" + model.Member + "&mnemonic=@(Model.Mnemonic)&parenttype=" + parObjType + "&objectType=" + model.Type,
+                        height: 900,
+                        maxHeight: 900,
+                        title: "Инициализатор свойства",
+                        actions: ["Maximize", "Close"],
+                        modal: true,
+                        deactivate: function () {
+                            this.destroy();
+                        },
+                        refresh: function() {
+                            kendoWindow.trigger('onLoad', { model: model });
+                        }
+                    });
+
+                    var wnd = kendoWindow.data("kendoWindow");
+                    wnd.center().open();
+                },
+                properties: tmp
+            });
+
+            viewModel.bind('change', function() {
+                kendo.unbind($("#@wrapID"));
+                kendo.bind($("#@wrapID"), viewModel);
+            });
+
+            kendo.bind($("#@wrapID"), viewModel);
+
+            var filter = function() {
+                var allNew = viewModel.get('properties');
+                var props = $.map(properties, function(elem) {
+                    return elem.Member;
+                });
+
+                return $.grep(allNew, function (elem) {
+                    if (props.indexOf(elem.Member) > -1) {
+                        return elem.Value;
+                    }
+                });
+            }
+
+            $("#@wrapID").find('[data-apply]').click(function () {
+
+                args.apply(filter());
+
+                $("#@wrapID").closest('[data-role=window]').data('kendoWindow').close();
+            });
+
+            $("#@wrapID").find('[data-test]').click(function () {
+                var values = $.map(filter(), function(elem) {
+                    return {
+                        Member: elem.Member,
+                        Value: elem.Value
+                    }
+                });
+
+                var parType = args.parentObjectType.Value || args.parentObjectType;
+
+                $.ajax({
+                    url: '/BusinessProcess/TestMacros',
+                    type: "POST",
+                    data: JSON.stringify({
+                        items: values,
+                        parentType: parType,
+                        type: args.type
+                    }),
+                    success: function(testResult) {
+
+                        if (testResult) {
+                            if (testResult.result) {
+                                pbaAPI.infoUploadSuccess("Макрос прошел предварительный тест");
+                            } else {
+                                pbaAPI.errorMsg("Макрос не прошел предварительный тест " + testResult.error);
+                            }
+                        }
+                    },
+                    dataType: "json",
+                    contentType : 'application/json'
+                });
+            });
+        });
+
+
+    });
+</script>

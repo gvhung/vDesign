@@ -1,0 +1,10 @@
+﻿@using Base.Security
+@using Framework.Maybe
+@model IEnumerable<User>
+
+<div class="performers">
+    <a href="#" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" data-userid="">Выбрать всех</a>
+    <div class="list-group">
+        @Html.Partial("_UserList", Model)
+    </div>
+</div>

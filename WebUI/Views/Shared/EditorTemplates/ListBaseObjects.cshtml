@@ -1,0 +1,43 @@
+﻿@model EditorViewModel
+
+@{
+    string name = "n_" + Guid.NewGuid().ToString("N");
+
+    string htmlFieldName = Model.PropertyName;
+}
+
+<script>
+    window["@name"] = {
+        onAdditionalData: function () {
+            return {
+                text: $("#@name").data("kendoDropDownList").filterInput.val(),
+            };
+        },
+    };
+</script>
+
+
+@(Html.Kendo().DropDownList()
+    .Name(name)
+    .HtmlAttributes(Html.CreateHtmlAttributes(Model, new { style = "width: 100%;" }))
+    .DataTextField("Text")
+    .DataValueField("ID")
+    .OptionLabel("Выберите значение...")
+    .Filter(FilterType.StartsWith)
+    .Height(500)
+    .DataSource(source =>
+    {
+        source.Read(read =>
+        {
+            read.Action("GetAllTypes", "Standart").Data(name + ".onAdditionalData");
+        }).ServerFiltering(false);
+    })
+)
+
+<script>
+    $(function () {
+        $("#@name").closest("form").on("onSave", function (e, form) {
+            form.setPr("@(htmlFieldName)", $("#@name").data("kendoDropDownList").value());
+        });
+    });
+</script>

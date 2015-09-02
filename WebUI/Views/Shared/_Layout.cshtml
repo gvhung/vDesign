@@ -1,0 +1,113 @@
+﻿@model BaseViewModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link rel="shortcut icon" href="/content/images/favicon.png" type="image/x-icon"/>
+    @Styles.Render("~/Content/kendo/materialcss")
+    @Styles.Render("~/Content/bootstrapcss")
+    @Styles.Render("~/Content/main_css")
+    @Styles.Render("~/Content/aside")
+    @Styles.Render("~/Content/checkboxes")
+    @Styles.Render("~/Content/leaflet")
+    @Styles.Render("~/Content/animate_css")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/kendo")
+    @Scripts.Render("~/bundles/api")
+    @Scripts.Render("~/bundles/checkboxes")
+    @Scripts.Render("~/bundles/leaflet")
+    @Scripts.Render("~/bundles/addons")
+    @*@Styles.Render("~/Content/kendo/bootstrapcss")*@
+    
+    
+</head>
+<body class="@RenderSection("bodyClass", false)" style="overflow:hidden; opacity: 0">
+    <div id="wrapper" class="toggled">
+        <header class="navbar navbar-static-top bs-docs-nav bottom-bordered" role="banner">
+            <div class="container  width-100">
+                @Html.Partial("_NavPanelBar", Model)
+            </div>
+        </header>
+        <div id="sidebar-wrapper">
+            @Html.Partial("_SideBar", Model)
+        </div>
+
+        <div id="content" class="container bs-docs-container width-100">
+            <div class="container-fluid">
+                <div class="row" style="height:100%">
+                    <div class="col-md-12" role="main" style="height:100%">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="bs-footer" role="contentinfo">
+            <div class="container">
+                <ul class="footer-links muted">
+                    <li>Реестр композитов @ViewContext.Controller.GetType().Assembly.GetName().Version</li>
+                </ul>
+            </div>
+        </footer>
+    </div>
+
+    <div id="overlay"></div>
+
+    <script>
+        $(document).ready(function () {
+            $("body").stop().animate({ opacity: 1 }, 1000);
+        });
+
+        var layout = {
+            resize: function () {
+                var h = $(window).innerHeight() - ($("header").outerHeight(true) + $("footer").outerHeight(true));
+                var $content = $("#content:first");
+
+                var min_h = $content.outerHeight(true);
+
+                if (min_h < 400) min_h = 400;
+
+                $content.height(h);
+
+                var _fault = 0;
+
+                layout.onResize($content.outerHeight(true) - _fault);
+            },
+            onResize: function (h) {
+            }
+        }
+
+        $(function () {
+            var bool_timeout = false;
+            $(window).resize(function () {
+                if (!bool_timeout) {
+                    bool_timeout = true;
+                    timeout_id = setTimeout(function () {
+                        layout.resize();
+                        bool_timeout = false;
+                    }, 200);
+                }
+            });
+            $(window).resize();
+        });
+    </script>
+
+    <script>
+        $.ajax({
+            url: '/Standart/GetViewModelConfigs',
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                application.viewModelConfigs.init(data);
+            }
+        });
+    </script>
+
+    @RenderSection("scripts", required: false)
+    <script src="~/Scripts/layout.js"></script>
+</body>
+</html>

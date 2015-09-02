@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>FileStorageCategory</mnemonic>
+    <title>Файловое хранилище - Каталоги</title>
+    <service>Base.FileStorage.IFileStorageCategoryService, Base.FileStorage</service>
+    <entity>Base.FileStorage.FileStorageCategory, Base.FileStorage</entity>
+    <listview title="Каталоги"></listview>
+    <detailview title="Каталог"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon></icon>
+  </item>
+  <item>
+    <mnemonic>FileStorageItem</mnemonic>
+    <title>Файловое хранилище - Файлы</title>
+    <service>Base.FileStorage.IFileStorageItemService, Base.FileStorage</service>
+    <entity>Base.FileStorage.FileStorageItem, Base.FileStorage</entity>
+    <listview title="Файлы"></listview>
+    <detailview title="Файл"></detailview>
+    <icon>halfling halfling-folder-open</icon>
+  </item>
+  <item>
+    <mnemonic>FileStorageItemImage</mnemonic>
+    <title>Файловое хранилище - Изображения</title>
+    <service>Base.FileStorage.IFileStorageItemService, Base.FileStorage</service>
+    <entity>Base.FileStorage.FileStorageItem, Base.FileStorage</entity>
+    <listview title="Изображения">
+      <!--<dataSource>
+        <filters>
+          <filter group="1" field="Extension" operator="eq" value="PNG" />
+          <filter group="1" field="Extension" operator="eq" value="JPG" />
+          <filter group="1" field="Extension" operator="eq" value="JPEG" />
+          <filter group="1" field="Extension" operator="eq" value="GIF" />
+          <filter group="1" field="Extension" operator="eq" value="TIF" />
+          <filter group="1" field="Extension" operator="eq" value="TIFF" />
+        </filters>
+      </dataSource>-->
+    </listview>
+    <detailview title="Изображение"></detailview>
+    <icon>halfling halfling-folder-open</icon>
+  </item>
+
+</ViewModelConfig>

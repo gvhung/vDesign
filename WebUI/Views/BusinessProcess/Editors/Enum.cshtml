@@ -1,0 +1,82 @@
+﻿@using Base.BusinessProcesses.Entities
+@using Newtonsoft.Json
+@using WebUI.Models.BusinessProcess
+@model WithCustomEditorVm
+
+@{
+    Layout = "EditorLayout.cshtml";
+
+    var wrapID = "wrp_" + Guid.NewGuid().ToString("N");
+
+    var json = JsonConvert.SerializeObject(Model.Editors);
+}
+
+<div id="@wrapID">
+    <div class="form-group">
+        <input readonly="readonly" data-tags type="text" class="form-control">
+    </div>
+    <hr />
+
+    <div class="list-group">
+        @foreach (var item in Model.Editors)
+        {
+            <a href="#" data-type="@((int)MacroType.Number)" data-value="@item.Member" class="list-group-item">@item.Name</a>
+        }
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var wrap = $('#@wrapID');
+
+        var values = @Html.Raw(json);
+
+        var elt = wrap.find('input[data-tags]');
+        elt.tagsinput({
+            allowDuplicates: true,
+            itemValue: 'Member',
+            itemText: 'Name',
+            freeInput: true
+        });
+
+        wrap.closest('[property-editor]').on('onLoad', function(e, args) {
+            var data = args.model;
+
+            console.log(data);
+
+            if (data && data.Value) {
+                $.each($.parseJSON(data.Value), function (i, elem) {
+                    var obj = {
+                        MacroType: elem.MacroType,
+                        Value: elem.Value,
+                    };
+                    elt.tagsinput('add', {
+                        Member: obj, Name: $.grep(values, function(item) {
+                            return item.Member == elem.Value;
+                        })[0].Name });
+                });
+            }
+
+            wrap.closest('[data-role=wraplayout]').find('[data-role=apply]').click(function() {
+                if (elt.tagsinput('items').length) {
+                    data.set('Value', JSON.stringify($.map(elt.tagsinput('items'), function(elem) {
+                        return elem.Member;
+                    })));
+                } else {
+                    data.set('Value', null);
+                }
+
+                $(this).closest('[data-role=window]').data('kendoWindow').close();
+            });
+
+        });
+
+        wrap.on('click', '[data-value]', function () {
+            elt.tagsinput('removeAll');
+            elt.tagsinput('add', { "Member": {
+                MacroType: $(this).data('type'),
+                Value: $(this).data('value')
+            }, Name: $(this).html() });
+        });
+    });
+</script>

@@ -1,0 +1,20 @@
+﻿@model EditorViewModel
+
+@{
+    string template = Model.EditorTemplate;
+    string dirTemplates = "DisplayTemplates";
+    
+    if (template == "OneToMany" || template == "ManyToMany" || template == "BaseObjectOne")
+    {
+        dirTemplates += "/Common";
+    }
+
+    try
+    {
+        Html.RenderPartial(String.Format("~/Views/Shared/{0}/{1}.cshtml", dirTemplates, template), Model);
+    }
+    catch (Exception e)
+    {
+        <h6 style="color:red;">@e.Message</h6>
+    }
+}

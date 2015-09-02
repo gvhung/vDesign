@@ -1,0 +1,33 @@
+﻿@model WebUI.Models.Forum.ForumViewModel
+@{
+    ViewBag.Title = "Форум";
+
+    string partialName = "";
+
+    switch (Model.Type)
+    {
+        case WebUI.Models.Forum.ForumVMType.Topic:
+            partialName = "_Posts";
+            break;
+        case WebUI.Models.Forum.ForumVMType.Section:
+            partialName = "_Topics";
+            break;
+        case WebUI.Models.Forum.ForumVMType.Search:
+            partialName = "_Search";
+            break;
+        case WebUI.Models.Forum.ForumVMType.Root:
+        default:
+            partialName = "_Sections";
+            break;
+    }
+}
+
+<link href="~/Content/css/forum.css" rel="stylesheet" />
+
+<div class="f-wrap container-fluid">
+    <div class="row show-grid">
+        <div class="f-main-block col-lg-9">
+            @Html.Partial(partialName, Model)
+        </div>
+    </div>
+</div>

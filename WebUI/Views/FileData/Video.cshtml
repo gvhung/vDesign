@@ -1,0 +1,5 @@
+﻿@model Base.FileStorage.FileStorageItem
+
+<video style="width:400px;height:300px;" data-type="video" data-fileid="@Model.File.FileID" data-key="@Model.File.Key" controls="controls">
+    <source src="@Url.Action("GetVideo", "Files", new { area = "", fileid = Model.File.FileID, type = "mp4" })" type="video/mp4">
+</video>

@@ -1,0 +1,84 @@
+﻿@model EditorViewModel
+
+@{
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string name1 = "n_" + Guid.NewGuid().ToString("N");
+    string name2 = "n_" + Guid.NewGuid().ToString("N");
+    string period = "p_" + Guid.NewGuid().ToString("N");
+}
+<script>
+    window["@(wrapID)"] = {
+        StartChange: function () {
+            var period = $("#@(period)").data("kendoNumericTextBox");
+            var date_end = $("#@(name2)").data("kendoDateTimePicker");
+            period.value(window["@(wrapID)"].DateDiffinDays(this.value(), date_end.value()));
+        },
+
+        DateDiffinDays: function (_d1, _d2) {
+            var d1 = this.DateFromString(_d1);
+            var d2 = this.DateFromString(_d2);
+            var t2 = d2 != null ? d2.getTime() : 0;
+            var t1 = d1 != null ? d1.getTime() : 0;
+            return parseInt((t2 - t1) / (24 * 3600 * 1000));
+        },
+
+        DateFromString: function (_date) {
+            return kendo.parseDate(_date, "@Framework.JsonNetResult.DATE_TIME_FORMATE");
+        },
+
+        NewEndDate: function (period) {
+            var date_start = $("#@(name1)").data("kendoDateTimePicker");
+            if (date_start.value() != null) {
+                return new Date(date_start.value().getTime() + (period * 24 * 3600 * 1000))
+            }
+            else {
+                return window["@(wrapID)"].DateFromString("@(DateTime.Now)");
+            }
+        },
+
+        EndChange: function () {
+            var period = $("#@(period)").data("kendoNumericTextBox");
+            var date_start = $("#@(name1)").data("kendoDateTimePicker");
+            period.value(window["@(wrapID)"].DateDiffinDays(date_start.value(), this.value()));
+
+        },
+
+        PeriodChange: function () {
+            var date_end = $("#@(name2)").data("kendoDateTimePicker");
+            var date_start = $("#@(name1)").data("kendoDateTimePicker");
+            date_end.value(window["@(wrapID)"].NewEndDate(this.value()));
+        }
+    };
+</script>
+
+<div id="@(wrapID)">
+    <label for="@name1"><span class="glyphicon glyphicon-calendar"></span></label>&nbsp;@(Html.Kendo().DateTimePicker().Name(name1).Format(JsonNetResult.DATE_TIME_FORMATE).Events(ev => ev.Change(wrapID + ".StartChange")))
+    <label for="@period"><span class="halfling halfling-time"></span></label>&nbsp;@(Html.Kendo().NumericTextBox().Name(period).Format("d").HtmlAttributes(new { style = "width: 85px;" }).Min(0).Decimals(0).Events(ev => ev.Change(wrapID + ".PeriodChange")))
+    <label for="@name2"><span class="glyphicon glyphicon-calendar"></span></label>&nbsp;@(Html.Kendo().DateTimePicker().Name(name2).Format(JsonNetResult.DATE_TIME_FORMATE).Events(ev => ev.Change(wrapID + ".EndChange")))
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+            var date_start = $("#@(name1)").data("kendoDateTimePicker");
+            var date_end = $("#@(name2)").data("kendoDateTimePicker");
+            var period = $("#@(period)").data("kendoNumericTextBox");
+            date_start.value(form.getPr("@(htmlFieldName).Start"));
+            date_end.value(form.getPr("@(htmlFieldName).End"));
+            period.value(form.getPr("@(htmlFieldName).Days"));
+            //console.log(date_start);
+        });
+
+        $("#@wrapID").closest("form").on("onSave", function (e, form) {
+            var date_start = $("#@(name1)").data("kendoDateTimePicker");
+            var date_end = $("#@(name2)").data("kendoDateTimePicker");
+            //console.log("@(htmlFieldName)")
+            form.setPr("@(htmlFieldName)", { 
+                Start: kendo.toString(date_start.value(), "@Framework.JsonNetResult.DATE_TIME_FORMATE"),
+                End: kendo.toString(date_end.value(), "@Framework.JsonNetResult.DATE_TIME_FORMATE")
+            })
+        });
+    });
+</script>
+ 

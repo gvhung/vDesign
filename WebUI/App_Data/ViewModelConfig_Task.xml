@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>Task</mnemonic>
+    <readonly>true</readonly>
+    <title>Задачи</title>
+    <service>Base.Task.Services.ITaskService, Base.Task</service>
+    <entity>Base.Task.Entities.Task, Base.Task</entity>
+    <listview title="Задачи">
+      <dataSource>
+        <systemfilter value="it.System = false" />
+      </dataSource>
+      <condappearance>
+        <add condition="TaskDelay == 0" bg="\\#5cb85c" />
+        <add condition="TaskDelay == 1" bg="\\#5bc0de" />
+        <add condition="TaskDelay == 2" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 3" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 4" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 5" bg="\\#d9534f" />
+        <add condition="TaskDelay == null" bg="\\#d9534f" />
+      </condappearance>
+      <sorts>
+        <sort descriptor="SortOrder" order="desc" />
+      </sorts>
+      <columns>
+        <column propertyName="AssignedFrom" hidden="false"></column>
+        <column propertyName="AssignedTo" hidden="false"></column>
+      </columns>
+    </listview>
+    <detailview title="Задача" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="TaskToolbar" ajax="true">
+          <param key="taskID" value="[ID]" />
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>glyphicon glyphicon-calendar</icon>
+  </item>
+  <item>
+    <mnemonic>TaskCategory</mnemonic>
+    <title>Задачи - Категории</title>
+    <service>Base.Task.Services.ITaskCategoryService, Base.Task</service>
+    <entity>Base.Task.Entities.TaskCategory, Base.Task</entity>
+    <listview title="Категории"></listview>
+    <detailview title="Категория"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-align-justify</icon>
+  </item>
+  <item>
+    <mnemonic>OutTask</mnemonic>
+    <title>Задачи - Исходящие</title>
+    <service>Base.Task.Services.ITaskService, Base.Task</service>
+    <entity>Base.Task.Entities.Task, Base.Task</entity>
+    <listview title="Исходящие задачи">
+      <dataSource>
+        <systemfilter value="it.System=false and it.AssignedFromID=@CurrentUserID and int32(it.Status)!=2 and int32(it.Status)!=3" />
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <condappearance>
+        <add condition="TaskDelay == 0" bg="\\#5cb85c" />
+        <add condition="TaskDelay == 1" bg="\\#5bc0de" />
+        <add condition="TaskDelay == 2" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 3" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 4" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 5" bg="\\#d9534f" />
+        <add condition="TaskDelay == null" bg="\\#d9534f" />
+      </condappearance>
+      <columns>
+        <column propertyName="AssignedTo" hidden="false"></column>
+      </columns>
+    </listview>
+    <detailview title="Задача" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="TaskToolbar" ajax="true">
+          <param key="taskID" value="[ID]" />
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-arrow-left</icon>
+  </item>
+  <item>
+    <mnemonic>OutArchiveTask</mnemonic>
+    <readonly>true</readonly>
+    <title>Задачи - Исходящие (Выполненные)</title>
+    <service>Base.Task.Services.ITaskService, Base.Task</service>
+    <entity>Base.Task.Entities.Task, Base.Task</entity>
+    <listview title="Исходящие задачи (Выполненные)">
+      <dataSource>
+        <systemfilter value="it.System=false and it.AssignedFromID=@CurrentUserID and (int32(it.Status)=2 or int32(it.Status)=3)" />
+        <filters>
+          <filter group="1" field="Status" operator="eq" value="Complete" />
+        </filters>
+        <sorts>
+          <sort descriptor="CompliteDate" order="desc" />
+        </sorts>
+      </dataSource>
+      <condappearance>
+        <add condition="TaskDelay == 0" bg="\\#5cb85c" />
+        <add condition="TaskDelay == 1" bg="\\#5bc0de" />
+        <add condition="TaskDelay == 2" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 3" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 4" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 5" bg="\\#d9534f" />
+        <add condition="TaskDelay == null" bg="\\#d9534f" />
+      </condappearance>
+      <columns>
+        <column propertyName="AssignedTo" hidden="false"></column>
+      </columns>
+    </listview>
+    <detailview title="Задача" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="TaskToolbar" ajax="true">
+          <param key="taskID" value="[ID]" />
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-arrow-left</icon>
+  </item>
+  <item>
+    <mnemonic>InTaskCategory</mnemonic>
+    <title>Задачи - Категории</title>
+    <service>Base.Task.Services.IInTaskCategoryService, Base.Task</service>
+    <entity>Base.Task.Entities.TaskCategory, Base.Task</entity>
+    <listview title="Категории"></listview>
+    <detailview title="Категория"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-align-justify</icon>
+  </item>
+  <item>
+    <mnemonic>InTask</mnemonic>
+    <title>Задачи - Входящие</title>
+    <service>Base.Task.Services.ITaskService, Base.Task</service>
+    <entity>Base.Task.Entities.Task, Base.Task</entity>
+    <listview title="Входящие задачи" MnemonicCategory="InTaskCategory">
+      <hiddenActions>
+        <action id="Create"/>
+        <action id="Delete"/>
+        <action id="ChangeCategory"/>
+      </hiddenActions>
+      <dataSource>
+        <systemfilter value="it.System=false and it.AssignedToID=@CurrentUserID and int32(it.Status)!=2 and int32(it.Status)!=3" />
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <condappearance>
+        <add condition="TaskDelay == 0" bg="\\#5cb85c" />
+        <add condition="TaskDelay == 1" bg="\\#5bc0de" />
+        <add condition="TaskDelay == 2" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 3" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 4" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 5" bg="\\#d9534f" />
+        <add condition="TaskDelay == null" bg="\\#d9534f" />
+      </condappearance>
+      <columns>
+        <column propertyName="AssignedFrom" hidden="false"></column>
+      </columns>
+    </listview>
+    <detailview title="Задача" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="TaskToolbar" ajax="true">
+          <param key="taskID" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="Title" isReadOnly="true" />
+        <editor propertyName="Description" isReadOnly="true" />
+        <editor propertyName="AssignedFrom" isReadOnly="true" />
+        <editor propertyName="AssignedTo" isReadOnly="true" />
+        <editor propertyName="Period" isReadOnly="true" />
+        <editor propertyName="Priority" isReadOnly="true" />
+      </editors>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-arrow-right</icon>
+  </item>
+  <item>
+    <mnemonic>InArchiveTask</mnemonic>
+    <readonly>true</readonly>
+    <title>Задачи - Входящие (Выполненные)</title>
+    <service>Base.Task.Services.ITaskService, Base.Task</service>
+    <entity>Base.Task.Entities.Task, Base.Task</entity>
+    <listview title="Входящие задачи (Выполненные)" MnemonicCategory="InTaskCategory">
+      <dataSource>
+        <systemfilter value="it.System=false and it.AssignedToID=@CurrentUserID and (int32(it.Status)=2 or int32(it.Status)=3)" />
+        <filters>
+          <filter group="1" field="Status" operator="eq" value="Complete" />
+        </filters>
+        <sorts>
+          <sort descriptor="CompliteDate" order="desc" />
+        </sorts>
+      </dataSource>
+      <condappearance>
+        <add condition="TaskDelay == 0" bg="\\#5cb85c" />
+        <add condition="TaskDelay == 1" bg="\\#5bc0de" />
+        <add condition="TaskDelay == 2" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 3" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 4" bg="\\#f0ad4e" />
+        <add condition="TaskDelay == 5" bg="\\#d9534f" />
+        <add condition="TaskDelay == null" bg="\\#d9534f" />
+      </condappearance>
+      <columns>
+        <column propertyName="AssignedFrom" hidden="false"></column>
+      </columns>
+    </listview>
+    <detailview title="Задача" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="TaskToolbar" ajax="true">
+          <param key="taskID" value="[ID]" />
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-arrow-right</icon>
+  </item>
+
+  <item>
+    <mnemonic>TaskReport</mnemonic>
+    <title>Задачи - Отчет</title>
+    <service>Base.Task.Services.ITaskReportService, Base.Task</service>
+    <entity>Base.Task.Entities.TaskReport, Base.Task</entity>
+    <listview title="Отчет">
+      <hiddenActions>
+        <action id="AllCategorizedItems" />
+      </hiddenActions>
+      <dataSource>
+        <groups groupable="true">
+        </groups>
+      </dataSource>
+    </listview>
+    <detailview title="Отчет" isMaximaze="true" hideToolbar="true">
+    </detailview>
+    <icon>glyphicon glyphicon-charts</icon>
+  </item>
+
+  <item>
+    <mnemonic>Task_File</mnemonic>
+    <title>Задачи - Файлы</title>
+    <entity>Base.Task.Entities.TaskFile, Base.Task</entity>
+    <detailview title="Файл"></detailview>
+    <icon>glyphicon glyphicon-paperclip</icon>
+  </item>
+  <item>
+    <mnemonic>TaskChangeHistory</mnemonic>
+    <title>Задачи - История</title>
+    <entity>Base.Task.Entities.TaskChangeHistory, Base.Task</entity>
+    <detailview title="Запись"></detailview>
+    <icon>halfling halfling-comments</icon>
+  </item>
+</ViewModelConfig>

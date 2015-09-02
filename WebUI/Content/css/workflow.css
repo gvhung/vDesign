@@ -1,0 +1,707 @@
+﻿.stage-template-container {
+    display: none;
+}
+
+.bp-action {
+    /*border: 1px solid #346789;*/
+    box-shadow: 2px 2px 19px #aaa;
+    -o-box-shadow: 2px 2px 19px #aaa;
+    -webkit-box-shadow: 2px 2px 19px #aaa;
+    -moz-box-shadow: 2px 2px 19px #aaa;
+}
+
+    .bp-action:hover {
+        box-shadow: 2px 2px 19px #444;
+        -o-box-shadow: 2px 2px 19px #444;
+        -webkit-box-shadow: 2px 2px 19px #444;
+        -moz-box-shadow: 2px 2px 19px #fff;
+    }
+
+.bp-stage p {
+    font-weight: normal;
+    cursor: move;
+}
+
+.widget-toolbar .zoom-handler{
+    height: 34px;
+    padding: 6px 0;
+    margin-left: 16px;
+    width: 300px;
+}
+.zoom-handler {
+    padding: 0px !important;
+}
+
+    .widget-toolbar .zoom-handler input:focus {
+        outline: none;
+    }
+
+.zoom-wrapper {
+    position: absolute;
+    top: 65px;
+    overflow: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-image: url('/Content/gridme.png');
+}
+
+    .zoom-wrapper .diagram-wrapper {
+        position: absolute;
+        bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        /*background-image: url('/Content/gridme.png');*/
+    }
+
+.diagram {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-repeat: no-repeat;
+    /*overflow: auto;*/
+    width: 10000px;
+    height: 10000px;
+}
+
+.selected {
+    color: orange !important;
+}
+
+.diagram .label {
+    text-align: center;
+    z-index: 24;
+    cursor: pointer;
+    box-shadow: 2px 2px 19px #aaa;
+    -o-box-shadow: 2px 2px 19px #aaa;
+    -webkit-box-shadow: 2px 2px 19px #aaa;
+    -moz-box-shadow: 2px 2px 19px #aaa;
+}
+
+.window .stage-title {
+    text-align: center;
+    font-size: 12px;
+}
+
+path, ._jsPlumb_endpoint {
+    cursor: pointer;
+}
+
+.window {
+    color: #444;
+    z-index: 24;
+    cursor: pointer;
+    width: auto;
+    background-color: white;
+    border: 1px solid #C2C2C2;
+    -moz-border-radius: 1em;
+    height: 5em;
+    position: absolute;
+    padding: 0.5em;
+    min-width: 284px;
+    min-height: 140px;
+    height: 80px;
+    -webkit-transition: -webkit-box-shadow 0.15s ease-in;
+    -moz-transition: -moz-box-shadow 0.15s ease-in;
+    -o-transition: -o-box-shadow 0.15s ease-in;
+    transition: box-shadow 0.15s ease-in;
+}
+
+
+    .window:hover {
+        box-shadow: 1px 1px 13px #C5C5C5;
+        -o-box-shadow: 1px 1px 13px #C5C5C5;
+        -webkit-box-shadow: 1px 1px 13px #C5C5C5;
+        -moz-box-shadow: 1px 1px 13px #C5C5C5;
+    }
+
+    .window a {
+        font-family: helvetica;
+    }
+
+#workflow-toolbar {
+    height: 100px;
+}
+
+
+svg._jsPlumb_connector path:hover {
+    /*stroke: red;*/
+    z-index: 9999999;
+    stroke-width: 4;
+}
+
+svg._jsPlumb_connector:hover {
+    z-index: 99999;
+}
+
+._jsPlumb_connector {
+    z-index: 18;
+}
+
+._jsPlumb_endpoint {
+    z-index: 19;
+}
+
+._jsPlumb_overlay {
+    z-index: 20;
+}
+
+.diagram .active {
+    z-index: 9999999;
+    box-shadow: 2px 2px 19px #00a900;
+    -o-box-shadow: 2px 2px 19px #00a900;
+    -webkit-box-shadow: 2px 2px 19px #00a900;
+    -moz-box-shadow: 2px 2px 19px #fff;
+    border: 1px dotted green;
+}
+
+.diagram .hover {
+    border: 1px dotted red;
+}
+
+.diagram ._jsPlumb_connector {
+    z-index: 4;
+}
+
+.diagram ._jsPlumb_endpoint, .endpointTargetLabel, .endpointSourceLabel {
+    z-index: 21;
+    cursor: pointer;
+}
+
+.diagram .aLabel {
+    background-color: white;
+    padding: 0.4em;
+    font: 12px sans-serif;
+    color: #444;
+    z-index: 21;
+    border: 1px dotted gray;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+    cursor: pointer;
+}
+
+    .diagram .aLabel._jsPlumb_hover {
+        background-color: #5C96BC;
+        color: white;
+        border: 1px solid white;
+    }
+
+.dropdown-context {
+    z-index: 9999999;
+}
+
+.label-hover {
+    box-shadow: 2px 2px 19px #61B7CF;
+    -o-box-shadow: 2px 2px 19px #61B7CF;
+    -webkit-box-shadow: 2px 2px 19px #61B7CF;
+    -moz-box-shadow: 2px 2px 19px #61B7CF;
+    z-index: 99999999999;
+}
+
+._jsPlumb_overlay:hover {
+    box-shadow: 2px 2px 19px #61B7CF;
+    -o-box-shadow: 2px 2px 19px #61B7CF;
+    -webkit-box-shadow: 2px 2px 19px #61B7CF;
+    -moz-box-shadow: 2px 2px 19px #61B7CF;
+    z-index: 99999999999;
+}
+
+    ._jsPlumb_overlay:hover + svg {
+        /*stroke: red;*/
+        z-index: 9999999;
+        stroke-width: 4;
+    }
+
+        ._jsPlumb_overlay:hover + svg path {
+            /*stroke: red;*/
+            stroke-width: 4;
+        }
+
+.ui-resizable-e {
+    cursor: e-resize;
+    width: 7px;
+    right: -5px;
+    top: 0;
+    height: 100%;
+}
+
+.ui-resizable-handle {
+    position: absolute;
+    font-size: 0.1px;
+    display: block;
+}
+
+.ui-resizable-s {
+    cursor: s-resize;
+    height: 7px;
+    width: 100%;
+    bottom: -5px;
+    left: 0;
+}
+
+.ui-icon, .ui-widget-content .ui-icon {
+    background-image: url(/content/icons/ui-icons_222222_256x240.png);
+}
+
+.ui-icon-gripsmall-diagonal-se {
+    background-position: -64px -224px;
+}
+
+.ui-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.ui-resizable-se {
+    cursor: se-resize;
+    width: 12px;
+    height: 12px;
+    right: 5px;
+    bottom: 5px;
+}
+
+#color-picker-panel {
+    display: none;
+    width: 388px;
+}
+
+.perf-count {
+    margin-right: 5px;
+}
+
+.perf-cat, .perf-count {
+    box-shadow: none;
+    -o-box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
+.component {
+    border: 1px solid #346789;
+    border-radius: 0.5em;
+    background-color: white;
+    color: black;
+    padding: 0.5em;
+    font-size: 0.8em;
+}
+
+.action-more {
+    /*margin-top: 10px;*/
+    /*padding-top: 10px;*/
+    /*border-top: 1px solid #e4e4e4;*/
+    font-size: 12px;
+    font-style: italic;
+    color: #aaa;
+}
+
+.stage-toolbar {
+    text-align: center;
+}
+
+    .stage-toolbar a {
+        cursor: pointer;
+    }
+
+    .stage-toolbar p {
+        font-weight: normal;
+        cursor: move;
+    }
+
+.handler {
+    z-index: -9999;
+}
+
+.stage-image {
+    float: left;
+    padding: 1px;
+    height: 68px;
+    width: 68px;
+    border: 1px solid #ddd;
+}
+
+.stage-info {
+    margin-top: 15px;
+    overflow: hidden;
+}
+
+.typical-stage .stage-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.popover {
+    z-index: 99999999;
+}
+
+.stage-content {
+    /*padding-left: 80px;*/
+}
+
+.stage-footer {
+    background-color: #f7f7f9;
+    height: 108px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 7px;
+    left: 0px;
+    border-top: 1px solid #ddd;
+    /*border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;*/
+}
+
+    .stage-footer img {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-right: 5px;
+    }
+
+
+.stage-footer-users, .stage-footer-cats {
+    width: 100%;
+    overflow: hidden;
+    height: 40px;
+}
+
+.entrypoint {
+    min-height: 32px !important;
+    min-width: 100px !important;
+    height: 32px !important;
+    background-color: #5cb85c;
+    border-radius: 1.5em;
+    width: 140px !important;
+}
+
+    .entrypoint p {
+        vertical-align: central;
+        text-align: center;
+        min-height: 20px !important;
+        height: 20px !important;
+        color: black;
+    }
+
+
+.step-container {
+    padding: 0px;
+    min-height: 72px !important;
+    min-width: 290px !important;
+    width: 72px !important;
+    height: 120px !important;
+    border-radius: 1.5em;
+}
+
+.step-toolbar {
+    width: 100%;
+    height: 25% !important;
+    text-align: center;
+    padding-top: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-bottom: 1px #ddd solid;
+}
+
+    .step-toolbar a {
+        cursor: pointer;
+    }
+
+    .step-toolbar p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: normal;
+        cursor: move;
+    }
+
+.endstep {
+    background-color: lightcoral;
+}
+
+ .step-toolbar .step-container-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.step-info {
+    padding-top: 10px;
+    height: 75%;
+    background-color: #f7f7f9;
+    border-radius: 1.5em;
+    border-top-left-radius: 0em;
+    border-top-right-radius: 0em;
+}
+
+
+.step-info-image {
+    top: 20%;
+    padding-left: 10px;
+    color: #428bca;
+    font-size: 27px;
+}
+
+.step-description {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    height: 60px;
+}
+
+.toolbar-btns-wrapper, .toolbar-tools-wrapper {
+    float: left;
+    height: 100%;
+}
+
+.toolbar-tools-wrapper {
+    margin-left: 50px;
+}
+
+#droppable-stage {
+    cursor: pointer;
+    overflow: hidden;
+    width: 200px;
+    background-color: white;
+    border: 1px solid #C2C2C2;
+    -moz-border-radius: 1em;
+    border-radius: 1em;
+    position: relative;
+    color: black;
+    padding: 0.5em;
+    height: 100%;
+    -webkit-transition: -webkit-box-shadow 0.15s ease-in;
+    -moz-transition: -moz-box-shadow 0.15s ease-in;
+    -o-transition: -o-box-shadow 0.15s ease-in;
+    transition: box-shadow 0.15s ease-in;
+}
+
+    #droppable-stage:hover {
+        box-shadow: 2px 2px 19px #444;
+        -o-box-shadow: 2px 2px 19px #444;
+        -webkit-box-shadow: 2px 2px 19px #444;
+        -moz-box-shadow: 2px 2px 19px #fff;
+    }
+
+.branching-step {
+    width: 100px !important;
+    height: 0;
+    cursor: pointer;
+    position: absolute;
+    background-color: transparent;
+    border-top: 50px solid transparent;
+    border-right: 100px solid lightcoral;
+    border-bottom: 50px solid transparent;
+}
+
+    .branching-step .branch-tools {
+        position: absolute;
+        z-index: 999;
+        left: 30px;
+        top: -8px;
+        width: 56px;
+    }
+
+.parallel-step {
+    width: 100px !important;
+    height: 0;
+    cursor: pointer;
+    position: absolute;
+    background-color: transparent;
+    border-top: 50px solid transparent;
+    border-right: 100px solid #61b7cf;
+    border-bottom: 50px solid transparent;
+}
+
+    .parallel-step .parallel-tools {
+        top: -8px;
+        position: absolute;
+        z-index: 999;
+        left: 30px;
+        width: 56px;
+    }
+
+.parallel-endstep {
+    width: 100px !important;
+    height: 0;
+    cursor: pointer;
+    position: absolute;
+    background-color: transparent;
+    border-left: 100px solid #61b7cf;
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+}
+
+    .parallel-endstep .parallelend-tools {
+        position: absolute;
+        z-index: 999;
+        left: -80px;
+        top: -8px;
+        width: 56px;
+    }
+
+
+.tt-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    list-style: none;
+    font-size: 14px;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+}
+
+.bootstrap-tagsinput {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+.task-step:before {
+    position: absolute;
+    bottom: -34px;
+    right: 14px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 33px 33px 0 33px;
+    border-color: #C2C2C2 transparent transparent transparent;
+    content: " ";
+}
+
+.task-step:after {
+    position: absolute;
+    bottom: -33px;
+    right: 15px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 32px 32px 0 32px;
+    border-color: #f7f7f9 transparent transparent transparent;
+    content: " ";
+}
+
+.extendedstage-list a i {
+    margin-right: 10px;
+}
+
+.ownerbutton {
+    height: 25px;
+    width: 270px;   
+    text-align: center;
+    background-color: #428bca;
+    color: white;    
+    padding-top: 1px;
+}
+
+
+
+input[type=range] {
+    /*removes default webkit styles*/
+    -webkit-appearance: none;
+    
+    /*fix for FF unable to apply focus style bug */
+    border: 1px solid white;
+    
+    /*required for proper track sizing in FF*/
+    width: 300px;
+    height: 35px;
+
+    padding: 0px; 
+
+    background: none !important;
+}
+input[type=range]::-webkit-slider-runnable-track {    
+    width: 300px;
+    height: 3px;
+    background: #cccccc;
+    border: none;
+    border-radius: 3px;
+
+}
+input[type=range]::-webkit-slider-thumb {    
+    border: none;    
+    background: #777777;
+    margin-top: -10px;
+}
+input[type=range]:focus {
+    outline: none;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+
+input[type=range]::-moz-range-track {
+    width: 300px;
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+input[type=range]::-moz-range-thumb {
+    border: none;
+    height: 35px;
+    width: 10px;
+    background: #777777;
+}
+
+/*hide the outline behind the border*/
+input[type=range]:-moz-focusring{
+    outline: 1px solid white;
+    outline-offset: -1px;
+}
+
+input[type=range]::-ms-track {
+    width: 300px;
+    height: 5px;
+    
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+    
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+    background: #777;
+    border-radius: 10px;
+}
+input[type=range]::-ms-fill-upper {
+    background: #ddd;
+    border-radius: 10px;
+}
+input[type=range]::-ms-thumb {
+    border: none;
+    height: 35px;
+    width: 3px;
+    background: #777777;
+}
+input[type=range]:focus::-ms-fill-lower {
+    background: #888;
+}
+input[type=range]:focus::-ms-fill-upper {
+    background: #ccc;
+}}

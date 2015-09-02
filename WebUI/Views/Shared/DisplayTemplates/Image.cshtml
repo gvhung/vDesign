@@ -1,0 +1,33 @@
+﻿@model EditorViewModel
+
+@{
+    string htmlFieldName = Model.PropertyName;
+    string wrapID = "wrap_" + Guid.NewGuid().ToString("N");
+    string imgID = "img_" + Guid.NewGuid().ToString("N");
+}
+
+<script>
+    $(function () {
+        $("#@wrapID").closest("form").on("onAfterBind", function (e, form) {
+
+            var img = form.getPr('@(htmlFieldName)');
+            var $img = $('#@imgID');
+
+            if (img) {
+                pbaAPI.imageHelpers.src($("#@imgID"), img.FileID);
+            } else {
+                pbaAPI.imageHelpers.src($("#@imgID"), null);
+            }
+
+            $img.css('cursor', 'pointer')
+                .attr('title', 'Открыть изображение')
+                .off().on('click', function () {
+                    pbaAPI.showImage(img.FileID, img.FileName);
+                });
+        });
+    });
+</script>
+
+<div id="@wrapID">
+    <img id="@imgID" src='' width='@(Model.Width ?? 150)' height='@(Model.Height ?? 150)' />
+</div>

@@ -1,0 +1,242 @@
+﻿@using Base.Ambient
+
+@{
+    ViewBag.Title = "Связь";
+}
+
+<link href="~/Scripts/conference/perfectscrollbar/perfect-scrollbar.min.css" rel="stylesheet" />
+<script src="~/Scripts/conference/perfectscrollbar/perfect-scrollbar.jquery.js"></script>
+<link href="~/Content/css/conference.css" rel="stylesheet" />
+
+
+<div class="conf-wrap" ng-app="ConferenceApp" ng-controller="MainController as main" ng-init="main.user = @Json.Encode(Base.Ambient.AppContext.SecurityUser)">
+    <div class="conf-toolbar">
+        <button class="btn btn-primary">Example</button>
+    </div>
+
+    <perfect-scrollbar class="conf-leftbar">
+        <ul class="nav nav-pills nav-stacked">
+            <li role="presentation" ng-class="{'active': main.isActiveRoute('') || main.isActiveRoute('/home') }"><a ui-sref="home">Главная</a></li>
+            <li role="presentation" ng-class="{'active': main.isActiveRoute('/contacts') }"><a ui-sref="contacts">Контакты<span class="badge">{{main.unreadCount()}}</span></a></li>
+            <li role="presentation" ng-class="{'active': main.isActiveRoute('/dialogs') }"><a ui-sref="dialogs">Диалоги<span class="badge">{{main.dialogsCount()}}</span></a></li>
+        </ul>
+    </perfect-scrollbar>
+    
+    <div class="conf-notification-wrapper" ng-hide="!notification.showNotification()" ng-controller="NotificationController as notification">
+        <div class="conf-video-request-notification" ng-hide="!notification.videoRequestExists()">
+            <div class="" ng-if="notification.getVideoRequest().dialogType ===  'PrivateMessage'">
+                <div class="conf-call-request" ng-if="notification.getVideoRequest().selfRequest">
+                    <div class="conf-call-request-user">
+                        <img ng-src="/Files/GetImage?id={{::notification.getVideoRequest().to.Image != null ? notification.getVideoRequest().to.Image.FileID : null }}&width=40&height=40&defImage" alt="" class="img-circle">
+                        <p>Исходящий звонок пользователю:</p>
+                        <p>{{notification.getVideoRequest().to.FullName}}</p>
+                    </div>
+                    <div class="conf-call-request-buttons">
+                        <button ng-click="notification.callCancel()" class="btn-call btn-cancel-call"><i class="glyphicon glyphicon-power"></i></button>
+                    </div>
+                </div>
+                <div class="conf-call-request" ng-if="!notification.getVideoRequest().selfRequest">
+                    <div class="conf-call-request-user">
+                        <img ng-src="/Files/GetImage?id={{::notification.getVideoRequest().from.Image != null ? notification.getVideoRequest().from.Image.FileID : null }}&width=40&height=40&defImage" alt="" class="img-circle">
+                        <p>Входящий звонок от пользоватля:</p>
+                        <p>{{notification.getVideoRequest().from.FullName}}</p>
+                    </div>
+                    <div class="conf-call-request-buttons">
+                        <button ng-click="notification.callSuccess()" class="btn-call btn-success-call"><i class="glyphicon glyphicon-ok"></i></button>
+                        <button ng-click="notification.callCancel()" class="btn-call btn-cancel-call"><i class="glyphicon glyphicon-power"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="" ng-if="notification.getVideoRequest().dialogType ===  'PublicMessage'">
+                <div class="" ng-if="notification.getVideoRequest().selfRequest">
+
+                </div>
+                <div class="" ng-if="!notification.getVideoRequest().selfRequest">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="conf-rightbar" ui-view></div>
+
+    <script type="text/ng-template" id="CreateConferenceContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Новая конференция</h3>
+        </div>
+        <div class="modal-body">
+            <div>
+                <input type="text" class="form-control" ng-model="title" placeholder="Название...">
+            </div>
+            <div class="conf-user-check-list">
+                <perfect-scrollbar class="conf-user-half-list-left">
+                    <div class="list-group">
+                        <a class="list-group-item" ng-repeat="user in getUsers()" ng-click="checkUser(user)">
+                            <p>{{::user.FullName}}</p>
+                        </a>
+                    </div>
+                </perfect-scrollbar>
+                <perfect-scrollbar class="conf-user-half-list-right">
+                    <div class="list-group">
+                        <a class="list-group-item" ng-repeat="user in getChoosen()" ng-click="uncheckUser(user)">
+                            <p>{{::user.FullName}}</p>
+                        </a>
+                    </div>
+                </perfect-scrollbar>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="dialogs.html">
+        <div class="conf-dialog-wrapper" ng-hide="!dial.hasDialog()">
+            <!-- video controller -->
+            <div class="conf-video-wrapper" ng-controller="VideoController as video" ng-hide="!video.videoStarted()">
+                <div class="conf-video-player-wrapper" ng-bind-html="video.getPlayer()">
+
+                </div>
+                <div class="conf-video-player-controls">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" class="btn btn-default">Приостановить</button>
+                        <button type="button" class="btn btn-default">Добавить/Убрать видео</button>
+                        <button type="button" class="btn btn-default">Уменьшить/Увеличить</button>
+                        <button type="button" ng-click="video.stopRecording()" class="btn btn-default">Завершить</button>
+                    </div>
+                </div>
+            </div>
+            <tabset class="conf-dialog-tabs">
+                <tab ng-repeat="dialog in dial.getDialogs() | filter:{visible: true}" active="dialog.active" tab-highlight>
+
+                    <tab-heading>
+                        <span>{{::dialog.title}}</span> <i ng-click="dial.hideDialog(dialog.dialogId, dialog.dialogType)" class="glyphicon glyphicon-remove"></i>
+                    </tab-heading>
+
+                    <perfect-scrollbar id="dialog-{{::dialog.dialogType}}-{{::dialog.dialogId}}" scroll-down="true" class="conf-tab-body">
+                        <ul class="list-group conf-dialog-messages">
+                            <li class="list-group-item" ng-repeat="message in dialog.messages  | orderBy:'ID'" ng-class="{'new-conf-message' : (message.IsNew && message.FromId != dial.currentUser().ID), 'conf-message' : (!message.IsNew || message.FromId == dial.currentUser().ID)}">
+                                <div class="message-user-img">
+                                    <img ng-src="/Files/GetImage?id={{::dial.getUserImage(message.FromId)}}&width=40&height=40&defImage" alt="" class="img-circle">
+                                </div>
+                                <div class="message-user-msg">
+                                    <div class="conf-message-subline">
+                                        <span class="message-user-name">{{::dial.getUserName(message.FromId)}}</span>
+                                        <span class="messsage-date">{{dial.stringToDate(message.Date)}}</span>
+                                    </div>
+                                    <div ng-if="message.MessageType == 0" class="message-text">{{::message.TextMessage}}</div>
+                                    <ng-file-link ng-presentation-if="dial.canPlayPresentation(message.FromId)" ng-play-callback="dial.startPresentation" ng-if="message.MessageType == 1 && message.File != null" class="message-file" ng-model="message.File"></ng-file-link>
+                                </div>
+                            </li>
+                        </ul>
+                    </perfect-scrollbar>
+                </tab>
+            </tabset>
+        </div>
+
+        <div class="conf-dialog-wrapper" ng-hide="dial.hasDialog()">
+            <h2>Нет активных диалогов</h2>
+        </div>
+        <div class="conf-input-group" ng-hide="!msg.hasActiveDialog()" ng-controller="MessageController as msg">
+            <form ng-submit="msg.sendMessage()" nv-file-drop uploader="msg.uploader">
+                <div class="input-group" nv-file-over uploader="msg.uploader" over-class="on-file-over">
+                    <input type="text" class="form-control" ng-model="msg.message" placeholder="Сообщение...">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">Отправить</button>
+                    </span>
+                    <div class="input-group-btn dropup">
+                        <button ng-click="msg.videoRequest()" type="button" class="btn btn-default">Видео</button>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="javascript:void(0)" ng-click="msg.sendVideo()">Видео оффлайн</a></li>
+                            <li><a href="#">Айдио оффлайн</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Файл...</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+        </div>
+    
+    </script>
+
+    <script type="text/ng-template" id="contacts.html">
+        <perfect-scrollbar class="conf-contacts-lists">
+            <div class="list-group conf-user-list" ng-controller="ConferenceController as conf">
+                <div class="conf-userslist-title">
+                    <h3>Конференции</h3><button ng-click="conf.createConference()" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-plus"></span></button>
+                </div>
+                <a class="list-group-item" ng-repeat="conference in conf.getConferences()" ng-click="conf.openDialog(conference.ID, conference.Title, 'PublicMessage')">
+                    <span ng-class="{'user-newmessage': conf.getUreadCount(conference.ID, 'PublicMessage') > 0}" class="badge">{{conf.getUreadCount(conference.ID, 'PublicMessage')}}</span>
+                    {{::conference.Title}}
+                </a>
+            </div>
+
+            <div class="list-group conf-user-list" ng-controller="ContactsController as contacts">
+                <div class="conf-userslist-title">
+                    <h3>Пользователи</h3>
+                </div>
+
+                <a class="list-group-item" ng-repeat="user in contacts.getUsers() | orderBy:['-online', 'FullName'] | notUser:contacts.getCurrentUserId()" ng-click="contacts.openDialog(user.ID, user.FullName, 'PrivateMessage')">
+                    <span ng-class="{'user-newmessage': contacts.getUreadCount(user.ID, 'PrivateMessage') > 0}" class="badge">{{contacts.getUreadCount(user.ID, 'PrivateMessage')}}</span>
+                    <img ng-class="{'conf-user-online-img': user.online}" ng-src="/Files/GetImage?id={{::contacts.getImage(user)}}&width=25&height=25&defImage" alt="" class="img-rounded conf-user-img">
+                    {{::user.FullName}}
+                </a>
+            </div>
+        </perfect-scrollbar>
+    </script>
+    
+    <script type="text/ng-template" id="home.html">
+        <h2>Home</h2>
+    </script>
+</div>
+
+<script src="~/Scripts/conference/RecordRTC.js">
+</script>
+<script src="~/Scripts/conference/RTCMultiConnection-v2.2.5.js"></script>
+
+<script src="~/scripts/conference/angular.min.js"></script>
+<script src="~/Scripts/conference/angular-ui-router.js"></script>
+<script src="~/scripts/conference/angular-route.js"></script>
+<script src="~/scripts/conference/angular-cookies.js"></script>
+<script src="~/Scripts/conference/ui-bootstrap-tpls-0.13.2.js"></script>
+
+<script src="~/scripts/conference/angular-messages.min.js"></script>
+<script src="~/Scripts/conference/dateparser.js"></script>
+<script src="~/Scripts/conference/angular-relative-date.js"></script>
+<script src="~/scripts/conference/angular-animate.min.js"></script>
+<script src="~/scripts/conference/angular-aria.min.js"></script>
+<script src="~/Scripts/conference/angular-uuid2.min.js"></script>
+<script src="~/Scripts/conference/angular-file-upload.min.js"></script>
+<script src="~/scripts/conference/angular-perfect-scrollbar.js"></script>
+
+<script src="~/Scripts/conference/app/services/app-service.js"></script>
+<script src="~/Scripts/conference/app/services/route-table-service.js"></script>
+<script src="~/Scripts/conference/app/services/loadingpool-service.js"></script>
+<script src="~/Scripts/conference/app/services/data-service.js"></script>
+<script src="~/Scripts/conference/app/services/signal-service.js"></script>
+<script src="~/Scripts/conference/app/services/rtc-service.js"></script>
+<script src="~/Scripts/conference/app/services/user-service.js"></script>
+<script src="~/Scripts/conference/app/services/dialog-service.js"></script>
+<script src="~/Scripts/conference/app/services/conference-service.js"></script>
+<script src="~/Scripts/conference/app/services/notification-service.js"></script>
+
+<script src="~/Scripts/conference/app/app.js"></script>
+<script src="~/Scripts/conference/app/controllers/main-controller.js"></script>
+<script src="~/Scripts/conference/app/controllers/contacts-controller.js"></script>
+<script src="~/Scripts/conference/app/controllers/conference-controller.js"></script>
+<script src="~/Scripts/conference/app/controllers/createconference-controller.js"></script>
+<script src="~/Scripts/conference/app/controllers/dialogs-controller.js"></script>
+<script src="~/Scripts/conference/app/controllers/message-controller.js"></script>
+<script src="~/Scripts/conference/app/controllers/video-controller.js"></script>
+<script src="~/Scripts/conference/app/controllers/notification-controller.js"></script>
+
+
+<script src="~/Scripts/conference/app/filters/custom-filter.js"></script>
+
+<script src="~/Scripts/conference/app/directives/file-link-directive.js"></script>
+

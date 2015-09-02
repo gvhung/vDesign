@@ -1,0 +1,29 @@
+﻿@using Base.Task.Entities
+@model Task
+
+@{
+    string cssClass;
+
+    switch (Model.TaskDelay)
+    {
+        case TaskDelayStatus.FullTime:
+            cssClass = "primary";
+            break;
+        case TaskDelayStatus.HalfTime:
+            cssClass = "info";
+            break;
+        case TaskDelayStatus.NoTime:
+            cssClass = "warning";
+            break;
+        case TaskDelayStatus.OneDayDelay:
+        case TaskDelayStatus.TwoDayDelay:
+        case TaskDelayStatus.ManyDaysDelay:
+            cssClass = "danger";
+            break;
+        default:
+            cssClass = "primary";
+            break;
+    }
+
+    <span class="label label-@cssClass">@Model.StatusMessage</span>
+}

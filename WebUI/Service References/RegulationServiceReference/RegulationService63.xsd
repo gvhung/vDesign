@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/Base" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Base" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://regulation.pba.su/Regulation/API/RegulationService?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="BaseObject">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Hidden" type="xs:boolean" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="SortOrder" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BaseObject" nillable="true" type="tns:BaseObject" />
+  <xs:complexType name="FileData">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseObject">
+        <xs:sequence>
+          <xs:element name="_x003C_ChangeDate_x003E_k__BackingField" type="xs:dateTime" />
+          <xs:element name="_x003C_CreationDate_x003E_k__BackingField" type="xs:dateTime" />
+          <xs:element name="_x003C_FileID_x003E_k__BackingField" type="ser:guid" />
+          <xs:element name="_x003C_FileName_x003E_k__BackingField" nillable="true" type="xs:string" />
+          <xs:element name="_x003C_Key_x003E_k__BackingField" type="ser:guid" />
+          <xs:element name="_x003C_Size_x003E_k__BackingField" type="xs:long" />
+          <xs:element name="_x003C_State_x003E_k__BackingField" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="FileData" nillable="true" type="tns:FileData" />
+</xs:schema>

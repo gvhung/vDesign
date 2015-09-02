@@ -1,0 +1,352 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewModelConfig defaulticon="icon-mnemonic">
+  <item>
+    <mnemonic>BPWorkflow</mnemonic>
+    <title>Бизнес процессы</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IWorkflowService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.Workflow, Base.BusinessProcesses</entity>
+    <listview>
+      <dataSource>
+        <systemfilter value="it.IsTemplate=true" />
+      </dataSource>
+    </listview>
+    <detailview title="Бизнес процесс" isMaximaze="true"></detailview>
+    <icon>halfling halfling-retweet</icon>
+  </item>
+  <item>
+    <mnemonic>BPWorkflowCategory</mnemonic>
+    <title>Бизнес процессы - Категория</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IWorkflowCategoryService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.WorkflowCategory, Base.BusinessProcesses</entity>
+    <listview>
+    </listview>
+    <detailview title="Категория"></detailview>
+    <icon>halfling halfling-retweet</icon>
+  </item>
+  <item>
+    <mnemonic>BPStage</mnemonic>
+    <title>Бизнес процессы - Этапы</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IStageService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.Stage, Base.BusinessProcesses</entity>
+    <listview title="Этапы"></listview>
+    <detailview title="Этап"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPStageInitItems</mnemonic>
+    <title>Бизнес процессы - Этапы</title>
+    <entity>Base.BusinessProcesses.Entities.StageInitItems, Base.BusinessProcesses</entity>
+    <listview title="Этапы"></listview>
+    <detailview title="Этап"></detailview>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPExtendedStage</mnemonic>
+    <title>Бизнес процессы - Этапы</title>
+    <entity>Base.BusinessProcesses.Entities.ExtendedStage, Base.BusinessProcesses</entity>
+    <listview title="Этапы"></listview>
+    <detailview title="Этап"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPRoadMap</mnemonic>
+    <title>Бизнес процессы - Шаги</title>
+    <!--<service>Base.BusinessProcesses.Services.Abstract.IStepService, Base.BusinessProcesses</service>-->
+    <entity>Base.BusinessProcesses.Entities.RoadMap, Base.BusinessProcesses</entity>
+    <listview title="Дорожная карта">
+
+    </listview>
+    <detailview title="Дорожная карта"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPWorkflow_Init</mnemonic>
+    <title>Бизнес процессы - шаблон</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IWorkflowService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.Workflow, Base.BusinessProcesses</entity>
+    <listview>
+      <dataSource>
+        <systemfilter value="it.IsTemplate=true" />
+      </dataSource>
+    </listview>
+    <detailview title="Бизнес процесс" isMaximaze="true">
+      <editors>
+        <editor propertyName="ObjectType" isReadOnly="true" />
+      </editors>
+    </detailview>
+    <icon>halfling halfling-retweet</icon>
+  </item>
+
+  <!--<item>
+    <mnemonic>BPRoadMapBinder</mnemonic>
+    <title>Бизнес процессы - Binder</title>
+    <entity>Base.BusinessProcesses.Entities.RoadMapBinder, Base.BusinessProcesses</entity>
+    <listview title="Дорожная карта"></listview>
+    <detailview title="Дорожная карта"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>-->
+  <item>
+    <mnemonic>BPStageExtender</mnemonic>
+    <title>Расширение для объекта тесотовго</title>
+    <entity>Base.BusinessProcesses.Entities.StageExtender, Base.BusinessProcesses</entity>
+    <icon>halfling halfling-send</icon>
+  </item>
+  <item>
+    <mnemonic>BPStep</mnemonic>
+    <title>Бизнес процессы - Шаги</title>
+    <!--<service>Base.BusinessProcesses.Services.Abstract.IStepService, Base.BusinessProcesses</service>-->
+    <entity>Base.BusinessProcesses.Entities.Step, Base.BusinessProcesses</entity>
+    <listview title="Шаг"></listview>
+    <detailview title="Шаг"></detailview>
+    <lookupproperty></lookupproperty>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPBranchingStep</mnemonic>
+    <title>Бизнес процессы - Разветвление</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IBranchingStepService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.BranchingStep, Base.BusinessProcesses</entity>
+    <listview title="Шаблоны"></listview>
+    <detailview title="Шаблон"></detailview>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPTaskStep</mnemonic>
+    <title>Бизнес процессы - блок задач</title>
+    <entity>Base.BusinessProcesses.Entities.TaskStep, Base.BusinessProcesses</entity>
+    <service>Base.BusinessProcesses.Services.Abstract.ITaskStepService, Base.BusinessProcesses</service>
+    <listview title="Блоки задач"></listview>
+    <detailview title="блок задач"></detailview>
+    <icon>halfling halfling-comments</icon>
+  </item>
+  <item>
+    <mnemonic>BPEndStep</mnemonic>
+    <title>Бизнес процессы - блок задач</title>
+    <entity>Base.BusinessProcesses.Entities.EndStep, Base.BusinessProcesses</entity>
+    <service>Base.BusinessProcesses.Services.Abstract.IEndStepService, Base.BusinessProcesses</service>
+    <listview title="Конец бизнес-процесса"></listview>
+    <detailview title="Конец бизнес-процесса"></detailview>
+    <icon>halfling halfling-chevron-up</icon>
+  </item>
+  <item>
+    <mnemonic>BPParallelStep</mnemonic>
+    <title>Бизнес процессы - параллельное выполнение</title>
+    <entity>Base.BusinessProcesses.Entities.ParallelizationStep, Base.BusinessProcesses</entity>
+    <service>Base.BusinessProcesses.Services.Abstract.IParallelizationStepService, Base.BusinessProcesses</service>
+    <listview title="Параллельное выполнение бизнес процесса"></listview>
+    <detailview title="Параллельное выполнение бизнес процесса"></detailview>
+    <icon>halfling halfling-chevron-up</icon>
+  </item>
+  <item>
+    <mnemonic>BPParallelEndStep</mnemonic>
+    <title>Бизнес процессы - параллельное выполнение</title>
+    <entity>Base.BusinessProcesses.Entities.ParallelEndStep, Base.BusinessProcesses</entity>
+    <service>Base.BusinessProcesses.Services.Abstract.IParallelEndStepService, Base.BusinessProcesses</service>
+    <listview title="Параллельное выполнение бизнес процесса"></listview>
+    <detailview title="Параллельное выполнение бизнес процесса"></detailview>
+    <icon>halfling halfling-chevron-up</icon>
+  </item>
+  <item>
+    <mnemonic>BPTaskStepUser</mnemonic>
+    <title>Бизнес процессы - блок задач - пользователи</title>
+    <entity>Base.BusinessProcesses.Entities.TaskStepUser, Base.BusinessProcesses</entity>
+    <listview title="Блоки задач пользователи"></listview>
+    <detailview title="блок задач пользователи"></detailview>
+    <icon>halfling halfling-user</icon>
+  </item>
+  <item>
+    <mnemonic>BPTemplate</mnemonic>
+    <title>Бизнес процессы - Шаблоны этапов</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IStageTemplateService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.StageTemplate, Base.BusinessProcesses</entity>
+    <listview title="Шаблоны"></listview>
+    <detailview title="Шаблон"></detailview>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPTemplateAction</mnemonic>
+    <title>Бизнес процессы - Шаблоны действий</title>
+    <!--<service>Base.BusinessProcesses.Services.Abstract.ITemplateActionService, Base.BusinessProcesses</service>-->
+    <entity>Base.BusinessProcesses.Entities.TemplateAction, Base.BusinessProcesses</entity>
+    <listview title="Шаблоны"></listview>
+    <detailview title="Шаблон" isMaximaze="true"></detailview>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPStageUser</mnemonic>
+    <title>Бизнес процессы - Исполнители</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IStageUserService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.StageUser, Base.BusinessProcesses</entity>
+    <listview title="Шаблоны"></listview>
+    <detailview title="Шаблон"></detailview>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPChangeHistory</mnemonic>
+    <title>Бизнес процессы - История</title>
+    <!--<service>Base.BusinessProcesses.Services.Abstract.IChangeHistoryService, Base.BusinessProcesses</service>-->
+    <entity>Base.BusinessProcesses.Entities.ChangeHistory, Base.BusinessProcesses</entity>
+    <listview title="История"></listview>
+    <detailview title="Запись"></detailview>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPAgreementItem</mnemonic>
+    <title>Бизнес процессы - Элемент карты этапа</title>
+    <service></service>
+    <entity>Base.BusinessProcesses.Entities.AgreementItem, Base.BusinessProcesses</entity>
+    <listview title="Элемент карты этапа"></listview>
+    <detailview title="Запись"></detailview>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+  <item>
+    <mnemonic>BPWorkflow_ClosedType</mnemonic>
+    <title>Бизнес процессы</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IWorkflowService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.Workflow, Base.BusinessProcesses</entity>
+    <listview></listview>
+    <detailview title="Бизнес процесс" isMaximaze="true">
+      <editors>
+        <editor propertyName="ObjectType" isReadOnly="true" />
+      </editors>
+    </detailview>
+    <icon>halfling halfling-retweet</icon>
+  </item>
+  <item>
+    <mnemonic>BPStageAction</mnemonic>
+    <title>Бизнес процессы - Этапы - Действия</title>
+    <!--<service>Base.BusinessProcesses.Services.Abstract.IStageActionService, Base.BusinessProcesses</service>-->
+    <entity>Base.BusinessProcesses.Entities.StageAction, Base.BusinessProcesses</entity>
+    <listview title="Действия"></listview>
+    <detailview title="Действие"></detailview>
+    <icon>halfling halfling-flash</icon>Вщс
+  </item>
+  <item>
+    <mnemonic>BPBranch</mnemonic>
+    <title>Бизнес процессы - Этапы - Ветка</title>
+    <!--<service>Base.BusinessProcesses.Services.Abstract.IBranchService, Base.BusinessProcesses</service>-->
+    <entity>Base.BusinessProcesses.Entities.Branch, Base.BusinessProcesses</entity>
+    <listview title="Ветка"></listview>
+    <detailview title="Ветка"></detailview>
+    <icon>halfling halfling-flash</icon>
+  </item>
+  <item>
+    <mnemonic>BranchConditionItem</mnemonic>
+    <title>Бизнес процессы - Этапы - Ветка - Условие</title>
+    <!--<service>Base.BusinessProcesses.Services.Abstract.IBranchService, Base.BusinessProcesses</service>-->
+    <entity>Base.BusinessProcesses.Entities.BranchConditionItem, Base.BusinessProcesses</entity>
+    <listview title="Ветка"></listview>
+    <detailview title="Ветка"></detailview>
+    <icon>halfling halfling-flash</icon>
+  </item>
+  <item>
+    <mnemonic>BPCreateObjectStep</mnemonic>
+    <title>Бизнес процессы - Создание объекта</title>
+    <entity>Base.BusinessProcesses.Entities.CreateObjectStep, Base.BusinessProcesses</entity>
+    <service>Base.BusinessProcesses.Services.Abstract.ICreateObjectStepService, Base.BusinessProcesses</service>
+    <listview title="Следующие БП"></listview>
+    <detailview title="Следующий БП"></detailview>
+    <icon>halfling halfling-play-circle</icon>
+  </item>
+  <item>
+    <mnemonic>BPRestoreStep</mnemonic>
+    <title>Бизнес процессы - Возврат</title>
+    <entity>Base.BusinessProcesses.Entities.RestoreStep, Base.BusinessProcesses</entity>
+    <service>Base.BusinessProcesses.Services.Abstract.IRestoreStepService, Base.BusinessProcesses</service>
+    <listview title="Возврат"></listview>
+    <detailview title="Возврат"></detailview>
+    <icon>halfling halfling-play-circle</icon>
+  </item>
+  <item>
+    <mnemonic>BPGotoStep</mnemonic>
+    <title>Перейти к шагу</title>
+    <entity>Base.BusinessProcesses.Entities.GotoStep, Base.BusinessProcesses</entity>
+    <service>Base.BusinessProcesses.Services.Abstract.IGotoStepService, Base.BusinessProcesses</service>
+    <listview title="Перейти к шагу"></listview>
+    <detailview title="Перейти к шагу"></detailview>
+    <icon>halfling halfling-chevron-up</icon>
+  </item>
+  <item>
+    <mnemonic>BPWorkflowOwnerStep</mnemonic>
+    <title>Бизнес процессы - Контейнер бизнес-процесса</title>
+    <entity>Base.BusinessProcesses.Entities.WorkflowOwnerStep, Base.BusinessProcesses</entity>
+    <service>Base.BusinessProcesses.Services.Abstract.IWorkflowOwnerStepService, Base.BusinessProcesses</service>
+    <listview title="Контейнер бизнес-процесса"></listview>
+    <detailview title="Контейнер бизнес-процесса"></detailview>
+    <icon>halfling halfling-play-circle</icon>
+  </item>
+  <item>
+    <mnemonic>BPWorkflowDefault_Init</mnemonic>
+    <title>Бизнес процессы - шаблон</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IWorkflowService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.Workflow, Base.BusinessProcesses</entity>
+    <listview></listview>
+    <detailview title="Бизнес процесс" isMaximaze="true">
+      <editors>
+        <editor propertyName="ObjectType" isReadOnly="true" />
+      </editors>
+    </detailview>
+    <icon>halfling halfling-retweet</icon>
+  </item>
+  <item>
+    <mnemonic>CreateObjectStepMemberInitItem</mnemonic>
+    <title>Бизнес процессы - Создание объекта - Инициализатор свойств</title>
+    <entity>Base.BusinessProcesses.Entities.CreateObjectStepMemberInitItem, Base.BusinessProcesses</entity>
+    <listview title="Инициализатор свойств"></listview>
+    <detailview title="Инициализатор свойств"></detailview>
+    <icon>halfling halfling-flash</icon>
+  </item>
+
+  <item>
+    <mnemonic>StageActionInitItem</mnemonic>
+    <title>Бизнес процессы - Действие этапа - Инициализатор свойств</title>
+    <entity>Base.BusinessProcesses.Entities.StageActionInitItem, Base.BusinessProcesses</entity>
+    <listview title="Инициализатор свойств"></listview>
+    <detailview title="Инициализатор свойств"></detailview>
+    <icon>halfling halfling-flash</icon>
+  </item>
+
+  <item>
+    <mnemonic>BPOutput</mnemonic>
+    <title>Бизнес процессы - Шаги - Выходы</title>
+    <!--<service>Base.BusinessProcesses.Services.Abstract.IStageActionService, Base.BusinessProcesses</service>-->
+    <entity>Base.BusinessProcesses.Entities.Output, Base.BusinessProcesses</entity>
+    <listview title="Действия"></listview>
+    <detailview title="Действие"></detailview>
+    <icon>halfling halfling-flash</icon>
+  </item>
+
+  <item>
+    <mnemonic>BPTemplateMacroItem</mnemonic>
+    <title>Бизнес процессы - Шаблоны макросов</title>
+    <service>Base.BusinessProcesses.Services.Abstract.ITemplateMacroItemService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.TemplateMacroItem, Base.BusinessProcesses</entity>
+    <listview title="Шаблоны макросов"></listview>
+    <detailview title="Шаблон макроса"></detailview>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>
+
+  <!--<item>
+    <mnemonic>BPActionMacroItem</mnemonic>
+    <title>Бизнес процессы - Шаблоны макросов</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IActionMacroItemService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.ActionMacroItem, Base.BusinessProcesses</entity>
+    <listview title="Шаблоны макросов"></listview>
+    <detailview title="Шаблон макроса"></detailview>
+    <icon>glyphicon glyphicon-bookmark</icon>
+  </item>-->
+
+  <item>
+    <mnemonic>Weekend</mnemonic>
+    <title>Производственный календарь</title>
+    <service>Base.BusinessProcesses.Services.Abstract.IWeekendService, Base.BusinessProcesses</service>
+    <entity>Base.BusinessProcesses.Entities.Weekend, Base.BusinessProcesses</entity>
+    <listview title="Календарь"></listview>
+    <detailview title="Производственный календарь"></detailview>
+    <icon>glyphicon glyphicon-calendar</icon>
+  </item>
+</ViewModelConfig>

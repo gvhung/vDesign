@@ -1,0 +1,31 @@
+﻿@using Framework.Extensions
+@model WebUI.Models.BusinessProcess.TaskToolbarViewModel
+
+@{
+    string wrapID = Guid.NewGuid().ToString();
+}
+
+<div id="@wrapID" style="display: inline-block;">
+    <button title="Нажмите для получения подробной информации об объекте: @Model.InfoString" type="button" class="btn btn-default">
+        <span class="@Model.Config.Icon"></span>@(Model.IconOnly ? "" : "  " + Model.InfoString.TruncateAtWord(50))
+    </button>
+</div>
+
+<script>
+    $(function () {
+        var tbr = $('#@wrapID').closest('[data-role=toolbar]');
+
+        $('#@wrapID').find('button').click(function() {
+            pbaAPI.openViewModelEx("@Model.Mnemonic", {
+                wid: "@wrapID",
+                title: "@Model.Title",
+                isMaximaze: true,
+                id: parseInt("@Model.ObjectID"),
+            }).on('onActionInvoke', function () {
+                tbr.eq(0).trigger('onActionInvoke', { 
+                    addToChangedAndRefresh: function() {} 
+                });
+            });
+        });
+    });
+</script>
