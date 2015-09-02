@@ -107,6 +107,6 @@ namespace WebUI.Areas.Public.Models
         {
         }
 
-        public List<CategoryItemVm> Categories { get; set; }
+        public List<ContentListItemVm> ContentItems { get; set; }
     }
 }

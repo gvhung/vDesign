@@ -46,6 +46,15 @@ namespace Base.Content.Entities
         [DetailView(Name = "Топ", Order = 1)]
         public bool Top { get; set; }
 
+        [DetailView(Name = "Показывать на главной", Order = 1)]
+        public bool OnHome { get; set; }
+
+        [ListView(Hidden = true)]
+        [DetailView(Name = "Краткое описание", Order = 2)]
+        [MaxLength(255)]
+        [FullTextSearchProperty]
+        public string ShortDescription { get; set; }
+
         [ListView(Hidden = true)]
         [DetailView(Name = "Описание", Order = 2)]
         [FullTextSearchProperty]

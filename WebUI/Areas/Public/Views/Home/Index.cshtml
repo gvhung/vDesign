@@ -10,32 +10,45 @@
     }
 </style>
 
-<div class="container-fluid">
-    <div class="row">
-        @{
-            var i = 0;
-            foreach (var item in Model.Categories)
-            {
-                if (i % 3 == 0 && i != 0)
-                {
-                    @Html.Raw("</div><div class=\"row\">")
-                }
-
-                <div class="col-lg-4">
-                    <figure class="effect-goliath">
-                        <img src="/Files/GetImage?id=@(item.ImageId)&width=320&height=420" alt="@item.Desciption" />
-                        <figcaption>
-                            <h2>@item.Title</h2>
-
-                            <p>@item.Desciption</p>
-
-                            <a href="#">Подробнее</a>
-                        </figcaption>
-                    </figure>
-                </div>
-
-                i++;
-            }
-        }
-    </div>
+<div class="container-fluid" id="home-page-content">
+    @{Html.RenderAction("ContentItems", "Home", new { model = Model.ContentItems });}
 </div>
+
+@section scripts {
+    @*<script src="~/Areas/Public/vendor/waypoints/jquery.waypoints.js"></script>
+    <script>
+        $(document).ready(function() {
+            var waypoint = new Waypoint({
+                element: document.getElementById('home-page-content'),
+                handler: function(direction) {
+                    //notify(this.id + ' hit');
+                    console.log('Handler');
+                }
+            });
+        });
+    </script>*@
+
+<script type="text/javascript">
+    var page = 2;
+    var NoMoreData = false;
+    var inProgress = false;
+
+    $(window).scroll(function () {
+        if ($(window).scrollTop() === $(document).height() - $(window).height() && !NoMoreData && !inProgress) {
+
+            inProgress = true;
+            //$("#loadingDiv").show();
+
+            $.post("@Url.Action("InfinateScrollGetItems", "Home")", { "page": page },
+                    function (data) {
+
+                        page = page + 1;
+                        NoMoreData = data.NoMoreData;
+                        $("#home-page-content").append(data.HTMLString);
+                        //$("#loadingDiv").hide();
+                        inProgress = false;
+                    });
+        }
+    });
+</script>
+}

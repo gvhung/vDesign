@@ -222,8 +222,10 @@
     <Compile Include="Areas\Public\Helpers\CacheExtensions.cs" />
     <Compile Include="Areas\Public\Models\BaseViewModel.cs" />
     <Compile Include="Areas\Public\Models\CategoryItemVm.cs" />
+    <Compile Include="Areas\Public\Models\ContentListItemVm.cs" />
     <Compile Include="Areas\Public\Models\MenuItem.cs" />
     <Compile Include="Areas\Public\PublicAreaRegistration.cs" />
+    <Compile Include="Areas\Public\Service\HomePageService.cs" />
     <Compile Include="Areas\Public\Service\PublicMenuService.cs" />
     <Compile Include="Bindings.cs" />
     <Compile Include="Concrete\AccessPolicyFactory.cs" />
@@ -424,6 +426,7 @@
     <Content Include="Areas\Public\vendor\bootstrap\js\bootstrap.min.js" />
     <Content Include="Areas\Public\vendor\bootstrap\js\npm.js" />
     <Content Include="Areas\Public\vendor\jquery\jquery-2.1.4.min.js" />
+    <Content Include="Areas\Public\vendor\waypoints\jquery.waypoints.js" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\css\account.css" />
@@ -1016,6 +1019,7 @@
     <Content Include="Areas\Public\content\fonts\figure\feathericons.woff" />
     <Content Include="Areas\Public\Views\Common\Menu.cshtml" />
     <Content Include="Areas\Public\Views\Shared\_Menu.cshtml" />
+    <Content Include="Areas\Public\Views\Home\ContentItems.cshtml" />
     <None Include="opendata\7710349494-npalist\data.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -1878,7 +1882,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\SQLScripts\" />
-    <Folder Include="Areas\Public\Views\PublicBase\" />
     <Folder Include="errpage_assets\" />
   </ItemGroup>
   <PropertyGroup>

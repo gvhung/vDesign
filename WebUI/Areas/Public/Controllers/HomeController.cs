@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using Base.Content.Service.Abstract;
 using Base.QueryableExtensions;
+using Framework;
 using WebUI.Areas.Public.Models;
 using WebUI.Areas.Public.Service;
 using WebUI.Controllers;
@@ -14,30 +15,46 @@ namespace WebUI.Areas.Public.Controllers
 {
     public class HomeController : PublicBaseController
     {
-        private readonly IContentCategoryService _contentCategoryService;
-        public HomeController(IBaseControllerServiceFacade serviceFacade, PublicMenuService publicMenuService, IContentCategoryService contentCategoryService) : base(serviceFacade, publicMenuService)
+        private readonly HomePageService _homePageService;
+        
+        public HomeController(IBaseControllerServiceFacade serviceFacade, PublicMenuService publicMenuService, HomePageService homePageService) : base(serviceFacade, publicMenuService)
         {
-            _contentCategoryService = contentCategoryService;
+            _homePageService = homePageService;
         }
 
         //[OutputCache(Duration = 6000)]
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
             var viewModel = new HomePageViewModel(this);
 
             using (var uofw = CreateSystemUnitOfWork())
             {
-                viewModel.Categories =
-                    _contentCategoryService.GetAll(uofw).Where(x => x.ShowOnHomePage).Select(x => new CategoryItemVm()
-                    {
-                        Id = x.ID,
-                        Title = x.Name,
-                        Desciption = x.PublicTitle,
-                        ImageId = x.ImageID.HasValue ? x.Image.FileID.ToString() : ""
-                    }).ToList();
+                viewModel.ContentItems = await _homePageService.GetContentListItems(uofw);
             }
 
             return View(viewModel);
+        }
+
+        [ChildActionOnly]
+        public ActionResult ContentItems(List<ContentListItemVm> model)
+        {
+            return PartialView(model);
+        }
+
+        public async Task<JsonNetResult> InfinateScrollGetItems(int page)
+        {
+            List<ContentListItemVm> items;
+
+            using (var uofw = CreateSystemUnitOfWork())
+            {
+                items = await _homePageService.GetContentListItems(uofw, page);
+            }
+
+            return new JsonNetResult(new
+            {
+                NoMoreData = items.Count < _homePageService.pageSize,
+                HTMLString = RenderPartialViewToString("ContentItems", items)
+            });
         }
     }
 }
