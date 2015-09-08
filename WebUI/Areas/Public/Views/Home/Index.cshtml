@@ -7,6 +7,20 @@
 <style>
     figure {
         max-height: 420px;
+        min-width: 255px;
+        width: 255px;
+        margin: 10px auto;
+        float: none;
+        /*font-family: avantgardegothicc-b;*/
+    }
+
+    @@media screen and (max-width: 50em) {
+        figure {
+            display: block;
+            float: none;
+            margin: 10px auto;
+            width: 255px;
+        }
     }
 </style>
 
@@ -34,7 +48,7 @@
     var inProgress = false;
 
     $(window).scroll(function () {
-        if ($(window).scrollTop() === $(document).height() - $(window).height() && !NoMoreData && !inProgress) {
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - $('#main-wrapper').height() && !NoMoreData && !inProgress) {
 
             inProgress = true;
             //$("#loadingDiv").show();

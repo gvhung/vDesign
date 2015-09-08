@@ -1,0 +1,41 @@
+﻿@font-face {
+  font-family: 'avantgardegothicc-b';
+  src: url('avantgardegothicc-book-webfont.eot'); /* IE9 Compat Modes */
+  src: url('avantgardegothicc-book-webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('avantgardegothicc-book-webfont.woff') format('woff'), /* Pretty Modern Browsers */
+       url('avantgardegothicc-book-webfont.ttf')  format('truetype'), /* Safari, Android, iOS */
+       url('avantgardegothicc-book-webfont.svg#svgFontName') format('svg'); /* Legacy iOS */
+}
+
+
+@font-face {
+  font-family: 'avantgardegothicc-d';
+  src: url('avantgardegothicc-demi-webfont.eot'); /* IE9 Compat Modes */
+  src: url('avantgardegothicc-demi-webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('avantgardegothicc-demi-webfont.woff') format('woff'), /* Pretty Modern Browsers */
+       url('avantgardegothicc-demi-webfont.ttf')  format('truetype'), /* Safari, Android, iOS */
+       url('avantgardegothicc-demi-webfont.svg#svgFontName') format('svg'); /* Legacy iOS */
+}
+
+@font-face {
+  font-family: 'avantgardegothicc-do';
+  src: url('avantgardegothicc-demioblique-webfont.eot'); /* IE9 Compat Modes */
+  src: url('avantgardegothicc-demioblique-webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('avantgardegothicc-demioblique-webfont.woff') format('woff'), /* Pretty Modern Browsers */
+       url('avantgardegothicc-demioblique-webfont.ttf')  format('truetype'), /* Safari, Android, iOS */
+       url('avantgardegothicc-demioblique-webfont.svg#svgFontName') format('svg'); /* Legacy iOS */
+}
+
+@font-face {
+  font-family: 'avantgardegothicc-o';
+  src: url('avantgardegothicc-oblique-webfont.eot'); /* IE9 Compat Modes */
+  src: url('avantgardegothicc-oblique-webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('avantgardegothicc-oblique-webfont.woff') format('woff'), /* Pretty Modern Browsers */
+       url('avantgardegothicc-oblique-webfont.ttf')  format('truetype'), /* Safari, Android, iOS */
+       url('avantgardegothicc-oblique-webfont.svg#svgFontName') format('svg'); /* Legacy iOS */
+}
+
+
+
+
+

@@ -410,12 +410,19 @@
     <Content Include="Areas\Public\content\css\site.css" />
     <Content Include="Areas\Public\content\css\site.figure.css" />
     <Content Include="Areas\Public\content\css\site.figure2.css" />
+    <Content Include="Areas\Public\content\css\site.footer.css" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgarde.css" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-book-webfont.svg" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-demi-webfont.svg" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-demioblique-webfont.svg" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-oblique-webfont.svg" />
     <Content Include="Areas\Public\content\fonts\figure\feathericons.svg" />
     <Content Include="Areas\Public\content\images\11111116901889-redhead-wallpaper.png" />
     <Content Include="Areas\Public\content\images\22222226901889-redhead-wallpaper.png" />
     <Content Include="Areas\Public\content\images\33333336901889-redhead-wallpaper.png" />
     <Content Include="Areas\Public\content\images\44444446901889-redhead-wallpaper.png" />
     <Content Include="Areas\Public\content\images\55555556901889-redhead-wallpaper.png" />
+    <Content Include="Areas\Public\content\images\footer-button.png" />
     <Content Include="Areas\Public\content\images\logo.png" />
     <Content Include="Areas\Public\vendor\bootstrap\css\bootstrap-theme.css" />
     <Content Include="Areas\Public\vendor\bootstrap\css\bootstrap-theme.min.css" />
@@ -1020,6 +1027,19 @@
     <Content Include="Areas\Public\Views\Common\Menu.cshtml" />
     <Content Include="Areas\Public\Views\Shared\_Menu.cshtml" />
     <Content Include="Areas\Public\Views\Home\ContentItems.cshtml" />
+    <Content Include="Areas\Public\Views\Shared\_Footer.cshtml" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-book-webfont.eot" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-book-webfont.ttf" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-book-webfont.woff" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-demi-webfont.eot" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-demi-webfont.ttf" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-demi-webfont.woff" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-demioblique-webfont.eot" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-demioblique-webfont.ttf" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-demioblique-webfont.woff" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-oblique-webfont.eot" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-oblique-webfont.ttf" />
+    <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-oblique-webfont.woff" />
     <None Include="opendata\7710349494-npalist\data.xsd">
       <SubType>Designer</SubType>
     </None>

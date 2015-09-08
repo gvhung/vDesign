@@ -12,7 +12,7 @@ namespace WebUI.Areas.Public.Service
     public class HomePageService
     {
         private readonly IContentItemService _contentItemService;
-        public readonly int pageSize = 6;
+        public readonly int pageSize = 8;
 
         public HomePageService(IContentItemService contentItemService)
         {
@@ -22,7 +22,7 @@ namespace WebUI.Areas.Public.Service
         public async Task<List<ContentListItemVm>> GetContentListItems(IUnitOfWork uofw, int page = 1)
         {
             var startIndex = (page - 1) * pageSize;
-            return await _contentItemService.GetAll(uofw).Where(x => x.OnHome).OrderByDescending(x => x.Top).Select(x => new ContentListItemVm()
+            return await _contentItemService.GetAll(uofw).Where(x => x.OnHome).OrderByDescending(x => x.Top).ThenBy(x => x.ID).Select(x => new ContentListItemVm()
             {
                 Id = x.ID,
                 Title = x.Title,

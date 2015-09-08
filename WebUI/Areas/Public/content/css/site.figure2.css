@@ -71,6 +71,7 @@ figure p {
 figure p {
 	letter-spacing: 1px;
 	font-size: 68.5%;
+    color: #ffc200;
 }
 
 /* Individual effects */
@@ -163,7 +164,7 @@ figure.effect-julia:hover p {
 /*-----------------*/
 
 figure.effect-goliath {
-	background: #df4e4e;
+	background: #333436;
 }
 
 figure.effect-goliath img,

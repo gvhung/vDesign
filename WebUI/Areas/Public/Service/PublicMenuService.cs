@@ -35,11 +35,11 @@ namespace WebUI.Areas.Public.Service
         {
             using (var uofw = _unitOfWorkFactory.CreateSystem())
             {
-                Items = HttpRuntime.Cache.GetOrStore(MENU_KEY, () => _contentCategoryService.GetRoots(uofw).Include(x => x.Children).ToList().Select(x => new MenuItemVm()
+                Items = HttpRuntime.Cache.GetOrStore(MENU_KEY, () => _contentCategoryService.GetRoots(uofw).Where(x => x.ShowInMenu).ToList().Select(x => new MenuItemVm()
                 {
                     Id = x.ID,
                     Title = x.Name,
-                    SubmenuItems = x.Children.Select(y => new MenuItemVm()
+                    SubmenuItems = x.Children_.Where(y => y.ShowInMenu).Select(y => new MenuItemVm()
                     {
                         Id = y.ID,
                         Title = y.Name,
