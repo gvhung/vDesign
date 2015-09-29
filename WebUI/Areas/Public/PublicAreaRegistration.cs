@@ -17,13 +17,15 @@ namespace WebUI.Areas.Public
             context.MapRoute(
             "Public_home",
                 "",
-             new { action = "Index", controller = "Home", area = "Public", id = UrlParameter.Optional }
+             new { action = "Index", controller = "Home", area = "Public", id = UrlParameter.Optional },
+             namespaces: new string[] { "WebUI.Areas.Public.Controllers" }
             );
 
             context.MapRoute(
                  name: "Public_default",
                  url: "Public/{controller}/{action}/{id}",
-                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
+                 namespaces: new string[] { "WebUI.Areas.Public.Controllers" }
             );
 
         }

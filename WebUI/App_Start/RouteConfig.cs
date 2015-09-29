@@ -20,7 +20,8 @@ namespace WebUI
             routes.MapRoute(
                 name: "Standart",
                 url: "Entities/{mnemonic}",
-                defaults: new { controller = "Standart", action = "Index", mnemonic = UrlParameter.Optional }
+                defaults: new { controller = "Standart", action = "Index", mnemonic = UrlParameter.Optional },
+                namespaces: new string[] { "WebUI.Controllers" }
             );
 
 
@@ -41,7 +42,7 @@ namespace WebUI
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
+                defaults: new { area = "", controller = "Home", action = "Index", id = UrlParameter.Optional },
                 namespaces: new string[] { "WebUI.Controllers" }
             );
 

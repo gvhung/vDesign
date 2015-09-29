@@ -109,4 +109,43 @@ namespace WebUI.Areas.Public.Models
 
         public List<ContentListItemVm> ContentItems { get; set; }
     }
+
+    public class ContentCategoryPageViewModel : BasePageViewModel
+    {
+        public ContentCategoryPageViewModel(ISecurityUser securityUser, IReadOnlyList<ViewModelConfig> viewModelConfigs) : base(securityUser, viewModelConfigs)
+        {
+        }
+
+        public ContentCategoryPageViewModel(IBaseController controller) : base(controller)
+        {
+        }
+
+        public ContentCategoryPageViewModel(BaseViewModel baseViewModel) : base(baseViewModel)
+        {
+        }
+
+        public List<CategoryItemVm> CategoryItems { get; set; }
+
+        public CategoryItemVm Category { get; set; }
+
+        public List<ContentItemVm> ContentItems { get; set; }
+
+    }
+
+    public class ContentPageViewModel : BasePageViewModel
+    {
+        public ContentPageViewModel(ISecurityUser securityUser, IReadOnlyList<ViewModelConfig> viewModelConfigs) : base(securityUser, viewModelConfigs)
+        {
+        }
+
+        public ContentPageViewModel(IBaseController controller) : base(controller)
+        {
+        }
+
+        public ContentPageViewModel(BaseViewModel baseViewModel) : base(baseViewModel)
+        {
+        }
+
+        public ContentItemVm ContentItem { get; set; }
+    }
 }

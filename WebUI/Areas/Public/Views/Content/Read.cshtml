@@ -1,0 +1,14 @@
+﻿@model WebUI.Areas.Public.Models.ContentPageViewModel
+@{
+    ViewBag.Title = Model.ContentItem.Title;
+}
+
+<div class="container-fluid" id="home-page-content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>@Model.ContentItem.Title</h1>
+        </div>
+    </div>
+
+    @Html.Partial("_ContentItem", Model.ContentItem)
+</div>

@@ -36,6 +36,7 @@
         .Encode(false)
         .Events(e => e.Paste(wrapID + ".onPaste"))
         .Tools(t => t.Clear()
+            .FontSize()
             .Bold().Italic().Underline().Strikethrough()
             .JustifyLeft().JustifyCenter().JustifyRight().JustifyFull()
             .InsertUnorderedList().InsertOrderedList()

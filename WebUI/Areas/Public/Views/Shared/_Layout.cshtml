@@ -18,7 +18,7 @@
 </head>
 <body>
 
-    <div class="container" id="main-wrapper">
+    <div class="container-fluid" id="main-wrapper">
         @Html.Partial("_Menu")
         @RenderBody()
     </div>
@@ -32,45 +32,115 @@
     <script src="~/Areas/Public/vendor/jquery/jquery-2.1.4.min.js"></script>
     <script src="~/Areas/Public/vendor/bootstrap/js/bootstrap.min.js"></script>
     @RenderSection("scripts", required: false)
-    
-    <script type="text/javascript">
-        $(document).ready(function () {
 
-            $('[data-menu]').each(function() {
+<script type="text/javascript">
+    var footerChange = function () {
+        var height = 0;
+        $('body > .container-fluid').each(function () {
+            height += $(this).outerHeight(true);
+            console.log($(this).outerHeight(true));
+        });
+
+        console.log('window:', $(window).innerHeight(), 'body:', height);
+
+        if (height >= $(window).innerHeight()) {
+            $('body').removeClass('fixed-footer');
+        } else {
+            $('body').addClass('fixed-footer');
+        }
+    };
+
+    var menuChange = function() {
+        if ($(window).innerWidth() <= 1085) {
+            $('[data-menu]').each(function () {
                 var $el = $(this);
-                var $wrap = $el.closest('.nav');
-
-                var $ul = $el.find('ul').detach();
-                $ul.removeClass('dropdown-menu');
-
-                var $submenu = $('<div />');
-                $submenu.addClass('dropdown-menu-horizontal');
-                $submenu.attr('data-item', $el.attr('data-menu'));
-                $submenu.append($ul);
-
-                $wrap.append($submenu);
-
-
-                //console.log($wrap);
+                $el.find('ul').removeClass('dropdown-menu-hidden');
             });
 
+            $('.dropdown-menu-horizontal').addClass('dropdown-menu-horizontal-hidden');
+        } else {
+            $('[data-menu]').each(function () {
+                var $el = $(this);
+                $el.find('ul').addClass('dropdown-menu-hidden');
+            });
+
+            $('.dropdown-menu-horizontal').removeClass('dropdown-menu-horizontal-hidden');
+        }
+    };
+
+    var horizontalWidth = function () {
+        $('.dropdown-menu-horizontal').each(function () {
+            var width = 0;
+            var $el = $(this);
+
+            console.log($el);
+
+            $el.find('li').each(function () {
+                console.log($(this).outerWidth());
+                width += $(this).outerWidth(true);
+            });
+
+            $el.width(width);
+        });
+    }
+
+    $(document).load(function() {
+        footerChange();
+        menuChange();
+        horizontalWidth();
+    });
+
+    $(document).ready(function () {
+        $(window).resize(footerChange);
+        $(window).resize(menuChange);
+        $(window).resize(horizontalWidth);
+
+        footerChange();
+
+        $('[data-menu]').each(function () {
+            var $el = $(this);
+            var $wrap = $el.closest('.nav');
+
+            var $ul = $el.find('ul').clone();
+
+            $el.find('ul').addClass('dropdown-menu-hidden');
+
+            $ul.removeClass('dropdown-menu');
+
+            var $submenu = $('<div />');
+            $submenu.addClass('dropdown-menu-horizontal');
+            $submenu.attr('data-item', $el.attr('data-menu'));
+            $submenu.append($ul);
+
+            $wrap.append($submenu);
 
 
-                    $('[data-menu]').on('shown.bs.dropdown', function () {
-                        var attr = $(this).attr('data-menu');
-                        $('[data-item="' + attr +'"]').show();
-                    });
+            //console.log($wrap);
+        });
 
-                    $('[data-menu]').on('hide.bs.dropdown', function () {
-                        var attr = $(this).attr('data-menu');
-                        $('[data-item="' + attr + '"]').hide();
-                    });
 
-                    //$('[data-menu="horizontal"]').on('hide.bs.dropdown', function () {
-                    //    $('[data-item="horizontal"]').hide();
-                    //});
-                });
-        </script>
+
+        $('[data-menu]').on('shown.bs.dropdown', function () {
+            var attr = $(this).attr('data-menu');
+            $('[data-item="' + attr +'"]').css('visibility', 'visible');
+        });
+
+        $('[data-menu]').on('hide.bs.dropdown', function () {
+            var attr = $(this).attr('data-menu');
+            //$('[data-item="' + attr + '"]').hide();
+            $('[data-item="' + attr + '"]').css('visibility', 'hidden');
+        });
+
+        menuChange();
+        horizontalWidth();
+
+        $("img").one("load", function () {
+            footerChange();
+        }).each(function () {
+            if (this.complete) $(this).load();
+        });
+    });
+</script>
 
 
 </body>

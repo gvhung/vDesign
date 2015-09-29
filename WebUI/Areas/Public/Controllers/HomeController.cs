@@ -13,6 +13,7 @@ using WebUI.Controllers;
 
 namespace WebUI.Areas.Public.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : PublicBaseController
     {
         private readonly HomePageService _homePageService;

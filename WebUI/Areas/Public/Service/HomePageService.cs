@@ -12,7 +12,7 @@ namespace WebUI.Areas.Public.Service
     public class HomePageService
     {
         private readonly IContentItemService _contentItemService;
-        public readonly int pageSize = 8;
+        public readonly int pageSize = 12;
 
         public HomePageService(IContentItemService contentItemService)
         {

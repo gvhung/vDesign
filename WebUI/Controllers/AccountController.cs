@@ -120,7 +120,7 @@ namespace WebUI.Controllers
 
             FormsAuthentication.SignOut();
 
-            return RedirectToAction("Index", "Home", new { area = "Regulation" });
+            return RedirectToAction("Index", "Home", new { area = "Public" });
         }
 
         [Authorize]

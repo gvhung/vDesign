@@ -1,0 +1,15 @@
+﻿@model List<WebUI.Areas.Public.Models.ContentItemVm>
+
+@if (Model.Any())
+{
+    <div class="row">
+        @{
+            foreach (var item in Model)
+            {
+                <div class="col-lg-12">
+                    @Html.Partial("_ContentItem", item)
+                </div>
+            }
+        }
+    </div>
+}

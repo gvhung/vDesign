@@ -217,6 +217,7 @@
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="Areas\Public\Controllers\CommonController.cs" />
+    <Compile Include="Areas\Public\Controllers\ContentController.cs" />
     <Compile Include="Areas\Public\Controllers\HomeController.cs" />
     <Compile Include="Areas\Public\Controllers\PublicBaseController.cs" />
     <Compile Include="Areas\Public\Helpers\CacheExtensions.cs" />
@@ -225,6 +226,7 @@
     <Compile Include="Areas\Public\Models\ContentListItemVm.cs" />
     <Compile Include="Areas\Public\Models\MenuItem.cs" />
     <Compile Include="Areas\Public\PublicAreaRegistration.cs" />
+    <Compile Include="Areas\Public\Service\ContentPageService.cs" />
     <Compile Include="Areas\Public\Service\HomePageService.cs" />
     <Compile Include="Areas\Public\Service\PublicMenuService.cs" />
     <Compile Include="Bindings.cs" />
@@ -422,7 +424,9 @@
     <Content Include="Areas\Public\content\images\33333336901889-redhead-wallpaper.png" />
     <Content Include="Areas\Public\content\images\44444446901889-redhead-wallpaper.png" />
     <Content Include="Areas\Public\content\images\55555556901889-redhead-wallpaper.png" />
+    <Content Include="Areas\Public\content\images\favicon.png" />
     <Content Include="Areas\Public\content\images\footer-button.png" />
+    <Content Include="Areas\Public\content\images\logo-mobile.png" />
     <Content Include="Areas\Public\content\images\logo.png" />
     <Content Include="Areas\Public\vendor\bootstrap\css\bootstrap-theme.css" />
     <Content Include="Areas\Public\vendor\bootstrap\css\bootstrap-theme.min.css" />
@@ -1040,6 +1044,12 @@
     <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-oblique-webfont.eot" />
     <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-oblique-webfont.ttf" />
     <Content Include="Areas\Public\content\fonts\avantgarde\avantgardegothicc-oblique-webfont.woff" />
+    <Content Include="Areas\Public\Views\Content\Category.cshtml" />
+    <Content Include="Areas\Public\Views\Content\_ExpandContent.cshtml" />
+    <Content Include="Areas\Public\Views\Content\_ListContent.cshtml" />
+    <Content Include="Areas\Public\Views\Content\_ContentItem.cshtml" />
+    <Content Include="Areas\Public\Views\Content\_Categories.cshtml" />
+    <Content Include="Areas\Public\Views\Content\Read.cshtml" />
     <None Include="opendata\7710349494-npalist\data.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -1056,6 +1066,7 @@
     <Content Include="Content\css\fonts\DejaVuSans.ttf" />
     <None Include="Properties\PublishProfiles\Composite.pubxml" />
     <None Include="Properties\PublishProfiles\vagsh.pubxml" />
+    <None Include="Properties\PublishProfiles\vdesign.pubxml" />
     <None Include="Resources\NoImage.png" />
     <Content Include="opendata\7710349494-npalist\index.html" />
     <Content Include="opendata\7710349494-npalist\meta.xml">

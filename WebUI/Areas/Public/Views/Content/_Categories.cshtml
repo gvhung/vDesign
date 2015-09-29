@@ -1,4 +1,4 @@
-﻿@model List<WebUI.Areas.Public.Models.ContentListItemVm>
+﻿@model List<WebUI.Areas.Public.Models.CategoryItemVm>
 
 @if (Model.Any())
 {
@@ -14,7 +14,7 @@
 
                             <p>@item.Desciption</p>
 
-                            <a href="@Url.Action("Read", "Content", new { id = item.Id })">Подробнее</a>
+                            <a href="@Url.Action("Category", "Content", new { id = item.Id })">Подробнее</a>
                         </figcaption>
                     </figure>
                 </div>

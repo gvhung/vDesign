@@ -1,40 +1,45 @@
 ﻿@model WebUI.Areas.Public.Models.BasePageViewModel
 
 <nav class="navbar navbar-default hr-navigationbar" role="navigation">
-    <div class="container-fluid">
+    <div class="container header-menu">
 
-        <div class="navbar-header">
+        <div class="navbar-header show-mobile">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">
-                <img alt="Хурма" src="~/Areas/Public/content/images/logo.png" />
+            <a class="navbar-brand" href="/">
+                <img alt="Хурма" src="~/Areas/Public/content/images/logo-mobile.png" />
             </a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <div class="navbar-header hide-mobile">
+                <a class="navbar-brand" href="/">
+                    <img alt="Хурма" src="~/Areas/Public/content/images/logo.png" />
+                </a>
+            </div>
             <ul class="nav navbar-nav">
                 @foreach (var menuItem in Model.MenuItems)
                 {
                     if (menuItem.SubmenuItems.Any())
                     {
                         <li class="dropdown" data-menu="horizontal-@menuItem.Id">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">@menuItem.Title <b class="caret"></b></a>
+                            @ActiveLinkHelperResult("Category", "Content", menuItem.Title, menuItem.Id, true)
                             <ul class="dropdown-menu">
                                 <li><a href="#">Все</a></li>
                                 @foreach (var subItem in menuItem.SubmenuItems)
                                 {
-                                    <li><a href="#">@subItem.Title</a></li>
+                                    <li>@ActiveLinkHelperResult("Category", "Content", subItem.Title, subItem.Id)</li>
                                 }
                             </ul>
                         </li>
                     }
                     else
                     {
-                        <li><a href="#">@menuItem.Title</a></li>
+                        <li>@ActiveLinkHelperResult("Category", "Content", menuItem.Title, menuItem.Id)</li>
                     }
                 }
             </ul>
@@ -43,5 +48,15 @@
     </div>
 </nav>
 
+@helper ActiveLinkHelperResult(string action, string controller, string title, int id, bool caret = false)
+{
+var customClass = ViewContext.RouteData.Values["action"].ToString() == action &&
+               ViewContext.RouteData.Values["controller"].ToString() == controller && ViewContext.RouteData.Values["id"].ToString() == id.ToString() ? " active " : "";
 
+if (caret)
+{
+    customClass += " dropdown-toggle ";
+}
 
+    <a class="@customClass" @(caret ? "data-toggle=dropdown" : "") href="@Url.Action(action, controller, new { id })">@title.Trim()  @(caret ? Html.Raw("<b class=\"caret\"></b>") : Html.Raw(""))</a>
+}

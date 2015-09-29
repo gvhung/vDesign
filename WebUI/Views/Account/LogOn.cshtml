@@ -11,9 +11,9 @@
 
                             if (Convert.ToInt32(Session["LogOnAttempt"]) <= ViewBag.LOG_ON_ATTEMPT_LOCK)
                             {
-                                <div class="header text-center">
+                                @*<div class="header text-center">
                                     <img src="~/Content/images/minpromtorg_logo_big.png" />
-                                </div>
+                                </div>*@
 
                                 <div class="main">
                                     @Html.ValidationSummary(true)
@@ -42,21 +42,21 @@
                                     </div>
                                     <span class="clearfix"></span>
                                 </div>
-                                <div class="main-footer">
+                               <div class="main-footer">
                                     <div class="row">
                                         <div class="col-xs-6 col-md-6">
                                             <div class="left-section">
                                                 <div class="left-section-content">
-                                                    <a href="@Url.Action("PasswordRecovery", new { returnUrl = Request.RawUrl })">Забыли пароль?</a>
-                                                    <a href="@Url.Action("Register")">Регистрация</a>
-                                                    @if (String.IsNullOrEmpty(returnUrl))
+                                                    @*<a href="@Url.Action("PasswordRecovery", new { returnUrl = Request.RawUrl })">Забыли пароль?</a>
+                                                    <a href="@Url.Action("Register")">Регистрация</a>*@
+                                                    @*@if (String.IsNullOrEmpty(returnUrl))
                                                     {
                                                         <a href="/" style="margin-top: 6px">На главную</a>
                                                     }
                                                     else
                                                     {
                                                         <a href="@returnUrl" style="margin-top: 6px">Вернуться</a>
-                                                    }
+                                                    }*@
                                                 </div>
                                             </div>
                                         </div>
@@ -65,11 +65,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="social-box text-center">
-                                    <h4>Войти через</h4>
-                                    @Html.Action("OpenIdMenu", "OpenID", new { mode = Base.OpenID.Entities.OpenIdAuthMode.LogOn, isVertical = true })
-                                </div>
-                            }
+                                @*<div class="social-box text-center">
+                                        <h4>Войти через</h4>
+                                        @Html.Action("OpenIdMenu", "OpenID", new { mode = Base.OpenID.Entities.OpenIdAuthMode.LogOn, isVertical = true })
+                                    </div>*@
+    }
 }
 <script>
     $(function () {
