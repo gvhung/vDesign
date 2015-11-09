@@ -80,17 +80,21 @@ namespace WebUI.Areas.Public.Models
     {
         public BasePageViewModel(ISecurityUser securityUser, IReadOnlyList<ViewModelConfig> viewModelConfigs) : base(securityUser, viewModelConfigs)
         {
+            ThemeColor = "#FCC10C";
         }
 
         public BasePageViewModel(IBaseController controller) : base(controller)
         {
+            ThemeColor = "#FCC10C";
         }
 
         public BasePageViewModel(BaseViewModel baseViewModel) : base(baseViewModel)
         {
+            ThemeColor = "#FCC10C";
         }
 
         public List<MenuItemVm> MenuItems { get; set; }
+        public string ThemeColor { get; set; }
     }
 
     public class HomePageViewModel : BasePageViewModel

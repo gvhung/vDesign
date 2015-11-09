@@ -11,14 +11,16 @@
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="/">
-                <img alt="Хурма" src="~/Areas/Public/content/images/logo-mobile.png" />
+                @*<img alt="Хурма" src="~/Areas/Public/content/images/logo-mobile.png"/>*@
+                @Html.Partial("_LogoMobile")
             </a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <div class="navbar-header hide-mobile">
                 <a class="navbar-brand" href="/">
-                    <img alt="Хурма" src="~/Areas/Public/content/images/logo.png" />
+                    @*<img alt="Хурма" src="~/Areas/Public/content/images/logo.png" />*@
+                    @Html.Partial("_Logo")
                 </a>
             </div>
             <ul class="nav navbar-nav">
@@ -60,3 +62,15 @@ if (caret)
 
     <a class="@customClass" @(caret ? "data-toggle=dropdown" : "") href="@Url.Action(action, controller, new { id })">@title.Trim()  @(caret ? Html.Raw("<b class=\"caret\"></b>") : Html.Raw(""))</a>
 }
+
+<style>
+    .navbar-default.hr-navigationbar .navbar-nav > li > a.active, .navbar-default.hr-navigationbar .navbar-nav > li > a:focus, .navbar-default.hr-navigationbar .navbar-nav > li > a:hover {
+        color: @Model.ThemeColor !important;
+    }
+    .dropdown-menu-horizontal ul li a.active, .dropdown-menu-horizontal ul li a:hover {
+        color: @Model.ThemeColor !important;
+    }
+    .dropdown-menu-horizontal {
+        border-top-color: @Model.ThemeColor !important;
+    }
+</style>

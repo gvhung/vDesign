@@ -96,7 +96,7 @@ h1 {
     .navbar-collapse.collapse {
         margin-right: auto;
         margin-left: auto;
-        width: 510px;
+        width: 550px;
     }
 }
 
@@ -109,10 +109,11 @@ h1 {
 .hr-navigationbar .navbar-nav {
     margin-top: 25px;
     margin-bottom: 35px;
+    margin-left: 20px;
 }
 
 .navbar-default.hr-navigationbar .navbar-nav > li > a {
-    font-style: italic;
+    text-transform: uppercase;
 }
 
 .navbar-default.hr-navigationbar .navbar-nav > li > a.active,
@@ -138,7 +139,7 @@ h1 {
 .dropdown-menu-horizontal {
     position: absolute;
     top: 70px;
-    left: 250px;
+    left: 270px;
     display: block;
     visibility: hidden;
     border-top: 1px solid #ffc200;
@@ -163,9 +164,9 @@ h1 {
 
 .dropdown-menu-horizontal ul li a {
     color: #505050;
-    font-style: italic;
 }
 
+.dropdown-menu-horizontal ul li a.active,
 .dropdown-menu-horizontal ul li a:hover {
     text-decoration: none;
     color: #ffc200;
@@ -221,4 +222,21 @@ h1 {
     }
 }
 
+div figure figcaption h2 {
+    text-align: left;
+}
 
+div figure figcaption p {
+    height: 80px;
+    width: 100%;
+    vertical-align: middle;
+    padding: 0 30px !important;
+    display: table; 
+}
+
+div figure figcaption p span {
+    font-size: 14px;
+    display: table-cell; 
+    vertical-align: middle; 
+    text-align: left;
+}

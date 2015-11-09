@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="361.494px" height="137.778px" viewBox="0 0 361.494 137.778" enable-background="new 0 0 361.494 137.778"
+	 xml:space="preserve">
+<text transform="matrix(1 0 0 1.0323 59.8779 111.6152)"><tspan x="0" y="0" fill="#343434" font-family="'AvantGardeGothicC'" font-size="13.6569" letter-spacing="1">ДИ</tspan><tspan x="19.638" y="0" fill="#343434" font-family="'AvantGardeGothicC'" font-size="13.6569" letter-spacing="1">З</tspan><tspan x="27.368" y="0" fill="#343434" font-family="'AvantGardeGothicC'" font-size="13.6569" letter-spacing="1">АЙ</tspan><tspan x="46.761" y="0" fill="#343434" font-family="'AvantGardeGothicC'" font-size="13.6569">Н</tspan></text>
+<text transform="matrix(1 0 0 1.0323 59.3179 137.7783)" fill="#343434" font-family="'AvantGardeGothicC-Bold'" font-size="20.4854">БЮРО</text>
+<polygon fill="#FCC10C" points="0,24.08 10.3,24.08 27.466,50.005 44.629,24.08 54.928,24.08 32.674,56.989 54.928,88.834 
+	44.629,88.834 27.466,63.856 10.3,88.834 0,88.834 22.139,56.989 "/>
+<polygon fill="#343434" points="60.042,88.834 98.031,0 107.527,0 96.586,26.084 122.431,88.834 111.855,88.834 91.176,37.624 
+	69.542,88.834 "/>
+<g>
+	<defs>
+		<rect id="SVGID_1_" x="-127.051" y="-132.036" width="595.28" height="404"/>
+	</defs>
+	<clipPath id="SVGID_2_">
+		<use xlink:href="#SVGID_1_"  overflow="visible"/>
+	</clipPath>
+	<path clip-path="url(#SVGID_2_)" fill="#FCC10C" d="M132.632,24.732h8.23v11.051h0.238c7.996-11.17,19.283-12.58,25.16-12.58
+		c22.574,0,34.214,17.636,34.214,33.978c0,19.167-14.697,33.392-34.447,33.392c-15.64,0-22.222-9.758-24.456-13.521h-0.238v34.567
+		h-8.701V24.732z M140.862,57.3c0,14.226,10.468,25.396,25.165,25.396c14.225,0,25.746-11.055,25.746-25.632
+		c0-14.578-11.168-25.984-25.513-25.984C151.33,31.08,140.862,42.839,140.862,57.3"/>
+	<polygon clip-path="url(#SVGID_2_)" fill="#FCC10C" points="213.449,24.521 226.855,24.521 248.368,77.075 269.884,24.521 
+		283.291,24.521 283.291,88.834 274.59,88.834 274.59,34.163 252.13,88.834 244.605,88.834 222.15,34.163 222.15,88.834 
+		213.449,88.834 	"/>
+	<path clip-path="url(#SVGID_2_)" fill="#FCC10C" d="M361.494,88.908h-8.048V77.987h-0.228
+		c-7.591,11.61-19.318,12.416-24.722,12.416c-22.535,0-33.458-17.591-33.458-32.539c0-19.546,14.833-33.344,33.687-33.344
+		c13.683,0,20.926,7.82,24.493,13.222h0.228V26.016h8.048V88.908z M328.497,82.7c14.257,0,24.949-11.383,24.949-25.641
+		c0-13.797-10.921-24.834-24.721-24.834c-13.45,0-25.177,10.578-25.177,24.951C303.549,71.775,314.814,82.7,328.497,82.7"/>
+</g>
+</svg>

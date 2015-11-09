@@ -29,6 +29,7 @@ namespace WebUI.Areas.Public.Controllers
                 viewModel.CategoryItems = await _contentPageService.GetSubcategories(uofw, id);
             }
 
+            viewModel.ThemeColor = viewModel.Category.Color;
 
             return View(viewModel);
         }

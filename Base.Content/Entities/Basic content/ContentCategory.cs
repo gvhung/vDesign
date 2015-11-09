@@ -72,6 +72,10 @@ namespace Base.Content.Entities
         [DetailView("Показывать ссылки на социальные сети", Order = 4)]
         public bool IsShowSocialLinks { get; set; }
 
+        [DetailView("Цвет темы", Order = 4)]
+        [PropertyDataType("Palette")]
+        public string Color { get; set; }
+
         [DetailView(Name = "Идентификатор", Order = 5)]
         public int UID
         {

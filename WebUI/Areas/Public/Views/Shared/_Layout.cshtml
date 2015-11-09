@@ -69,19 +69,18 @@
     };
 
     var horizontalWidth = function () {
-        $('.dropdown-menu-horizontal').each(function () {
-            var width = 0;
-            var $el = $(this);
+        setTimeout(function() {
+            $('.dropdown-menu-horizontal').each(function () {
+                var width = 0;
+                var $el = $(this);
 
-            console.log($el);
+                $el.find('li').each(function () {
+                    width += $(this).outerWidth(true);
+                });
 
-            $el.find('li').each(function () {
-                console.log($(this).outerWidth());
-                width += $(this).outerWidth(true);
+                $el.width(width);
             });
-
-            $el.width(width);
-        });
+        }, 1);
     }
 
     $(document).load(function() {

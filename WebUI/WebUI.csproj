@@ -428,6 +428,8 @@
     <Content Include="Areas\Public\content\images\footer-button.png" />
     <Content Include="Areas\Public\content\images\logo-mobile.png" />
     <Content Include="Areas\Public\content\images\logo.png" />
+    <Content Include="Areas\Public\content\svg\footer.svg" />
+    <Content Include="Areas\Public\content\svg\logo.svg" />
     <Content Include="Areas\Public\vendor\bootstrap\css\bootstrap-theme.css" />
     <Content Include="Areas\Public\vendor\bootstrap\css\bootstrap-theme.min.css" />
     <Content Include="Areas\Public\vendor\bootstrap\css\bootstrap.css" />
@@ -1050,6 +1052,8 @@
     <Content Include="Areas\Public\Views\Content\_ContentItem.cshtml" />
     <Content Include="Areas\Public\Views\Content\_Categories.cshtml" />
     <Content Include="Areas\Public\Views\Content\Read.cshtml" />
+    <Content Include="Areas\Public\Views\Shared\_LogoMobile.cshtml" />
+    <Content Include="Areas\Public\Views\Shared\_Logo.cshtml" />
     <None Include="opendata\7710349494-npalist\data.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -1749,6 +1753,7 @@
     <Content Include="Views\Validation\PropertyValidation.cshtml" />
     <Content Include="Views\Validation\ValidationEditorLayout.cshtml" />
     <Content Include="Views\Conference\Index.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\ColumnSetting.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Standart\_Dialog.cshtml" />

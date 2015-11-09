@@ -2,6 +2,34 @@
 
 <div class="row">
     <div class="col-lg-12">
-        <a href="/" class="footer-btn"></a>
+        @*<a href="/" class="footer-btn"></a>*@
+        @*<svg version="1.1" class="footer-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="83px" height="83px" viewBox="0 0 87.618 87.618" enable-background="new 0 0 87.618 87.618" xml:space="preserve">
+            <circle fill="none" stroke="@Model.ThemeColor" stroke-width="0.913" stroke-miterlimit="10" cx="43.809" cy="43.809" r="43.809"/>
+            <polygon fill="@Model.ThemeColor" points="28.65,67.61 49.008,20.007 52.539,20.007 46.237,35.108 59.637,67.638 55.521,67.61 44.126,39.481 32.184,67.61 "/>
+        </svg>*@
+        <a href="/">
+            <svg version="1.1" class="footer-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="83px" height="83px" viewBox="0 0 97 99" enable-background="new 0 0 97 99" xml:space="preserve">
+            <circle fill="none" stroke="@Model.ThemeColor" stroke-width="0.913" stroke-miterlimit="10" cx="48.513" cy="49.537" r="43.809" />
+            <polygon fill="@Model.ThemeColor" points="33.354,73.338 53.712,25.735 57.243,25.735 50.941,40.836 64.341,73.366 60.226,73.338 48.83,45.209 36.888,73.338 " />
+        </svg>
+        </a>
     </div>
 </div>
+
+<style>
+    .footer-svg {
+        display: block;
+        margin: 0 auto;
+    }
+
+    .footer-svg:hover {
+        cursor: pointer;
+    }
+
+    .footer-svg:hover circle {
+        stroke: #f9f6fa !important;
+    }
+    .footer-svg:hover polygon {
+        fill: #f9f6fa !important;
+    }
+</style>

@@ -10,9 +10,9 @@
                     <figure class="effect-goliath">
                         <img src="/Files/GetImage?id=@(item.ImageId)&width=285&height=420" alt="@item.Desciption" />
                         <figcaption>
-                            <h2>@item.Title</h2>
+                            <h2>@item.Title.Split(' ')[0]<span>@item.Title.Substring(item.Title.Split(' ')[0].Length)</span></h2>
 
-                            <p>@item.Desciption</p>
+                            <p><span>@item.Desciption</span></p>
 
                             <a href="@Url.Action("Read", "Content", new { id = item.Id })">Подробнее</a>
                         </figcaption>
