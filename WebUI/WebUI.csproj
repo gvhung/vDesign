@@ -257,6 +257,7 @@
     <Compile Include="Helpers\ContractResolverFactory.cs" />
     <Compile Include="Helpers\DeleteTempFileFilter.cs" />
     <Compile Include="Helpers\ImportEventRegistrator.cs" />
+    <Compile Include="Helpers\MyDateTimeConvertor.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Helpers\ViewModelConfigExtensions.cs" />
     <Compile Include="Controllers\BusinessProcessController.cs" />
