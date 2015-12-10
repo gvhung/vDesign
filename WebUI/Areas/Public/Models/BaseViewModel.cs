@@ -152,4 +152,6 @@ namespace WebUI.Areas.Public.Models
 
         public ContentItemVm ContentItem { get; set; }
     }
+
+
 }

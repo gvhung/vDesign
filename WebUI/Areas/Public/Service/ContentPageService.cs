@@ -30,6 +30,7 @@ namespace WebUI.Areas.Public.Service
             {
                 categoryItem.Id = cat.ID;
                 categoryItem.Title = cat.Name;
+                categoryItem.Mnemonic = cat.CategoryItemMnemonic;
                 categoryItem.ImageId = cat.ImageID.HasValue ? cat.Image.FileID.ToString() : string.Empty;
                 categoryItem.Expand = cat.Expanded;
                 categoryItem.Desciption = cat.PublicTitle;

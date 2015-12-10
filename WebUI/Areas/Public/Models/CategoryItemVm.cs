@@ -13,6 +13,7 @@ namespace WebUI.Areas.Public.Models
         public string ImageId { get; set; }
         public bool Expand { get; set; }
         public string Color { get; set; }
+        public string Mnemonic { get; set; }
     }
 
 

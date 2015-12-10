@@ -5,16 +5,16 @@
 
 
 
-body.fixed-footer {
-    padding-bottom: 120px;
-}
+    body.fixed-footer {
+        padding-bottom: 120px;
+    }
 
-body.fixed-footer .footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-}
+        body.fixed-footer .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
 
 h1 {
     text-align: center;
@@ -24,27 +24,26 @@ h1 {
     text-align: center;
 }
 
-.row > * {
-    text-align: left;
-}
+    .row > * {
+        text-align: left;
+    }
 
 .col-centered {
-    display:inline-block;
-    float:none;
-
+    display: inline-block;
+    float: none;
     /* reset the text-align */
-    text-align:left;
+    text-align: left;
     /* inline-block space fix */
-    margin-right:-4px;
+    margin-right: -4px;
 }
 
 .hide-mobile {
-        display: block;
-    }
+    display: block;
+}
 
-    .show-mobile {
-        display: none;
-    }
+.show-mobile {
+    display: none;
+}
 
 
 @media (max-width: 768px) {
@@ -56,7 +55,7 @@ h1 {
         display: block;
     }
 
-    .container>.navbar-header {
+    .container > .navbar-header {
         margin-bottom: 5px;
     }
 }
@@ -116,11 +115,11 @@ h1 {
     text-transform: uppercase;
 }
 
-.navbar-default.hr-navigationbar .navbar-nav > li > a.active,
-.navbar-default.hr-navigationbar .navbar-nav > li > a:focus,
-.navbar-default.hr-navigationbar .navbar-nav > li > a:hover {
-    color: #ffc200;
-}
+    .navbar-default.hr-navigationbar .navbar-nav > li > a.active,
+    .navbar-default.hr-navigationbar .navbar-nav > li > a:focus,
+    .navbar-default.hr-navigationbar .navbar-nav > li > a:hover {
+        color: #ffc200;
+    }
 
 .navbar-default.hr-navigationbar .navbar-nav > .active > a,
 .navbar-default.hr-navigationbar .navbar-nav > .open > a {
@@ -150,27 +149,27 @@ h1 {
     display: none !important;
 }
 
-    .dropdown-menu-horizontal ul {
-        list-style: none;
+.dropdown-menu-horizontal ul {
+    list-style: none;
+    display: inline-block;
+    margin: 0 -10px;
+    padding: 10px 0;
+}
+
+    .dropdown-menu-horizontal ul li {
         display: inline-block;
-        margin: 0 -10px;
-        padding: 10px 0;
+        padding: 0 15px;
     }
 
-        .dropdown-menu-horizontal ul li {
-            display: inline-block;
-            padding: 0 15px;
+        .dropdown-menu-horizontal ul li a {
+            color: #505050;
         }
 
-.dropdown-menu-horizontal ul li a {
-    color: #505050;
-}
-
-.dropdown-menu-horizontal ul li a.active,
-.dropdown-menu-horizontal ul li a:hover {
-    text-decoration: none;
-    color: #ffc200;
-}
+            .dropdown-menu-horizontal ul li a.active,
+            .dropdown-menu-horizontal ul li a:hover {
+                text-decoration: none;
+                color: #ffc200;
+            }
 
 @media (min-width: 630px) {
     .col-lg-2 {
@@ -231,12 +230,163 @@ div figure figcaption p {
     width: 100%;
     vertical-align: middle;
     padding: 0 30px !important;
-    display: table; 
+    display: table;
 }
 
-div figure figcaption p span {
+    div figure figcaption p span {
+        font-size: 14px;
+        display: table-cell;
+        vertical-align: middle;
+        text-align: left;
+    }
+
+
+    form.base-form {
+        display: block;
+        float: none;
+        overflow: hidden;
+        padding: 50px;
+    }
+
+@media (min-width: 768px) {
+    form.base-form {
+        padding: 50px;
+    }
+}
+
+@media (min-width: 992px) {
+    form.base-form {
+        padding: 50px 50px;
+    }
+}
+
+@media (min-width: 1200px) {
+    form.base-form {
+        padding: 50px 200px;
+    }
+}
+
+form.base-form .group {
+    position: relative;
+    margin-bottom: 45px;
+}
+
+form.base-form input, form.base-form textarea {
+    font-size: 18px;
+    padding: 10px 10px 10px 5px;
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #757575;
+    background-color: #F9F6FA;
+}
+
+form.base-form textarea {
+    height: 228px;
+}
+
+    form.base-form input:focus,
+    form.base-form textarea:focus {
+        outline: none;
+    }
+
+form.base-form label {
+    color: #999;
+    font-size: 18px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 10px;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+form.base-form input:focus ~ label, form.base-form input:valid ~ label,
+form.base-form textarea:focus ~ label, form.base-form textarea:valid ~ label {
+    top: -20px;
     font-size: 14px;
-    display: table-cell; 
-    vertical-align: middle; 
-    text-align: left;
+    color: #5264AE;
+}
+
+form.base-form .bar {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+    form.base-form .bar:before, form.base-form .bar:after {
+        content: '';
+        height: 2px;
+        width: 0;
+        bottom: 1px;
+        position: absolute;
+        background: #5264AE;
+        transition: 0.2s ease all;
+        -moz-transition: 0.2s ease all;
+        -webkit-transition: 0.2s ease all;
+    }
+
+    form.base-form .bar:before {
+        left: 50%;
+    }
+
+    form.base-form .bar:after {
+        right: 50%;
+    }
+
+form.base-form input:focus ~ .bar:before, form.base-form input:focus ~ .bar:after,
+form.base-form textarea:focus ~ .bar:before, form.base-form textarea:focus ~ .bar:after {
+    width: 50%;
+}
+
+form.base-form .highlight {
+    position: absolute;
+    height: 60%;
+    width: 100px;
+    top: 25%;
+    left: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+form.base-form input:focus ~ .highlight,
+form.base-form textarea:focus ~ .highlight {
+    -webkit-animation: inputHighlighter 0.3s ease;
+    -moz-animation: inputHighlighter 0.3s ease;
+    animation: inputHighlighter 0.3s ease;
+}
+
+@-webkit-keyframes inputHighlighter {
+    from {
+        background: #5264AE;
+    }
+
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+@-moz-keyframes inputHighlighter {
+    from {
+        background: #5264AE;
+    }
+
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+@keyframes inputHighlighter {
+    from {
+        background: #5264AE;
+    }
+
+    to {
+        width: 0;
+        background: transparent;
+    }
 }

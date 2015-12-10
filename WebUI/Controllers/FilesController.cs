@@ -73,11 +73,12 @@ namespace WebUI.Controllers
 
         private static readonly object GetImageLocker = new object { };
 
-        [HttpGet]
-        //[OutputCache(Duration = int.MaxValue, VaryByParam = "*")]
+        [HttpGet, OutputCache(Duration = int.MaxValue, VaryByParam = "*", Location = OutputCacheLocation.Client)]
         public FileResult GetImage(Guid? id, int? width, int? height, string defImage = "", string type = "crop")
         {
-            string key = String.Format("394A2D54D6684366918C9D37DE27FD1E-[{0}][{1}][{2}][{3}][{4}]", id, width ?? -1, height ?? -1, defImage, type);
+            var imageId = id.GetValueOrDefault();
+
+            var key = $"394A2D54D6684366918C9D37DE27FD1E-[{imageId}][{width ?? -1}][{height ?? -1}][{defImage}][{type}]";
 
             if (_cacheWrapper[key] != null)
                 return _cacheWrapper[key] as FileResult;
@@ -86,28 +87,26 @@ namespace WebUI.Controllers
             {
                 if (_cacheWrapper[key] == null)
                 {
-                    //_logService.Log(String.Format("GetImage: {0}", id));
+                    byte[] bytes = null;
 
-                    var path = "";
+                    var converType = string.Equals(type, "crop", StringComparison.OrdinalIgnoreCase) ?
+                        CrazyImage.ConvertType.Crop : CrazyImage.ConvertType.Frame;
 
-                    if (id != null && id != Guid.Empty)
-                        path = _fileSystemService.GetFilePath((Guid)id);
+                    if (imageId != Guid.Empty)
+                    {
+                        var path = _fileSystemService.GetFilePath(imageId);
+                        bytes = CrazyImage.GetThumbImage(path, width, height, converType);
+                    }
 
-                    if (type != null)
-                        type = type.ToLower();
-
-                    var converType = type == "crop" ? CrazyImage.ConvertType.Crop : CrazyImage.ConvertType.Frame;
-
-                    var bytes = CrazyImage.GetThumbImage(path, width, height, converType);
-
-                    bytes = bytes != null && bytes.Length > 0
-                        ? bytes
-                        : CrazyImage.GetThumbImage(
-                            defImage == "NoPhoto" ? Properties.Resources.NoPhoto : Properties.Resources.NoImage, width,
-                            height, converType);
+                    if (bytes == null || bytes.Length <= 0)
+                        bytes = CrazyImage.GetThumbImage(string.Equals(defImage, "NoPhoto", StringComparison.OrdinalIgnoreCase) ?
+                            Properties.Resources.NoPhoto : Properties.Resources.NoImage,
+                            width,
+                            height,
+                            converType);
 
                     _cacheWrapper[key] = File(bytes, "image/png");
-                }
+                };
             }
 
             return (FileResult)_cacheWrapper[key];

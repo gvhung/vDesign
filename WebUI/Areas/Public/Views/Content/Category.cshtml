@@ -28,11 +28,13 @@
     @if (Model.Category.Expand)
     {
         <div class="row">
-                <div class="col-lg-12">
-                    <h1>@Model.Category.Title</h1>
-                </div>
+            <div class="col-lg-12">
+                <h1>@Model.Category.Title</h1>
             </div>
+        </div>
     }
+
+    @RenderCategoryMnemonicWidgets(Model.Category.Mnemonic)
 
     @Html.Partial(Model.Category.Expand ? "_ExpandContent" : "_ListContent", Model.ContentItems)
 
@@ -50,3 +52,33 @@
     }
 
 </div>
+
+@helper RenderCategoryMnemonicWidgets(string mnemonic)
+{
+switch (mnemonic)
+{
+    case "Contact":
+        Html.RenderAction("GetPanel", "Contact");
+        break;
+    default:
+        break;
+}
+}
+
+<style>
+    form.base-form .bar:before, form.base-form .bar:after {
+        background: @Model.ThemeColor !important;
+    }
+    form.base-form input:focus ~ label, form.base-form input:valid ~ label, form.base-form textarea:focus ~ label, form.base-form textarea:valid ~ label {
+        color: @Model.ThemeColor !important;
+    }
+    .btn.btn-default.btn-form-submit {
+        background-image: none;
+        box-shadow: none;
+        border: 2px solid @Model.ThemeColor !important;
+    }
+    .btn.btn-default.btn-form-submit:focus, .btn.btn-default.btn-form-submit:hover {
+        background-color: @Model.ThemeColor !important;
+        color: #fff0f5;
+    }
+</style>

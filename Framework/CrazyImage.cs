@@ -21,10 +21,10 @@ namespace Framework
 
         private static byte[] GetThumb(Image image, int canvasWidth, int canvasHeight, ConvertType CType)
         {
-            int originalWidth = image.Width;
-            int originalHeight = image.Height;
+            var originalWidth = image.Width;
+            var originalHeight = image.Height;
 
-            var aspectRatio = (double) originalWidth / originalHeight;
+            //var aspectRatio = (double) originalWidth / originalHeight;
 
             canvasWidth = canvasWidth == 0 ? originalWidth : canvasWidth;
             canvasHeight = canvasHeight == 0 ? originalHeight : canvasHeight;
@@ -32,23 +32,20 @@ namespace Framework
             /* ------------------ new code --------------- */
 
             // Figure out the ratio
-            double ratioX = (double)canvasWidth / (double)originalWidth;
-            double ratioY = (double)canvasHeight / (double)originalHeight;
+            var ratioX = canvasWidth / (double)originalWidth;
+            var ratioY = canvasHeight / (double)originalHeight;
 
             double ratio = 0;
+
             //Crop or Frame
             if (CType == ConvertType.Crop)
-            {
                 ratio = ratioX > ratioY ? ratioX : ratioY;
-            }
             else
-            {
                 ratio = ratioX <= ratioY ? ratioX : ratioY;
-            }
 
             // now we can get the new height and width
-            int newHeight = Convert.ToInt32(originalHeight * ratio);
-            int newWidth = Convert.ToInt32(originalWidth * ratio);
+            var newHeight = Convert.ToInt32(originalHeight * ratio);
+            var newWidth = Convert.ToInt32(originalWidth * ratio);
 
             if (newHeight < canvasHeight)
                 canvasHeight = newHeight;
@@ -56,10 +53,10 @@ namespace Framework
             if (newWidth < canvasWidth)
                 canvasWidth = newWidth;
 
-            using (System.Drawing.Image thumbnail = new Bitmap(canvasWidth, canvasHeight))
+            using (Image thumbnail = new Bitmap(canvasWidth, canvasHeight))
             {
 
-                using (System.Drawing.Graphics graphic = System.Drawing.Graphics.FromImage(thumbnail))
+                using (var graphic = Graphics.FromImage(thumbnail))
                 {
 
                     graphic.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -70,8 +67,8 @@ namespace Framework
 
                     // Now calculate the X,Y position of the upper-left corner 
                     // (one of these will always be zero)
-                    int posX = Convert.ToInt32((canvasWidth - (originalWidth * ratio)) / 2);
-                    int posY = Convert.ToInt32((canvasHeight - (originalHeight * ratio)) / 2);
+                    var posX = Convert.ToInt32((canvasWidth - (originalWidth * ratio)) / 2);
+                    var posY = Convert.ToInt32((canvasHeight - (originalHeight * ratio)) / 2);
 
                     graphic.Clear(Color.Transparent); // white padding
                     graphic.DrawImage(image, posX, posY, newWidth, newHeight);
@@ -79,17 +76,16 @@ namespace Framework
                     image.Dispose();
                     /* ------------- end new code ---------------- */
 
-                    System.Drawing.Imaging.ImageCodecInfo[] info = ImageCodecInfo.GetImageEncoders();
-                    EncoderParameters encoderParameters;
-                    encoderParameters = new EncoderParameters(1);
-                    encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 100L);
+                    //var info = ImageCodecInfo.GetImageEncoders();
 
-                    using (MemoryStream stream = new MemoryStream())
+                    //var encoderParameters = new EncoderParameters(1)
+                    //{
+                    //    Param = {[0] = new EncoderParameter(Encoder.Quality, 100L)}
+                    //};
+
+                    using (var stream = new MemoryStream())
                     {
-                        //thumbnail.Save(stream info[1], encoderParameters);
-
                         thumbnail.Save(stream, ImageFormat.Png);
-
                         return stream.ToArray();
                     }
                 }

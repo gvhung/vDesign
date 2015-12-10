@@ -217,12 +217,14 @@
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="Areas\Public\Controllers\CommonController.cs" />
+    <Compile Include="Areas\Public\Controllers\ContactController.cs" />
     <Compile Include="Areas\Public\Controllers\ContentController.cs" />
     <Compile Include="Areas\Public\Controllers\HomeController.cs" />
     <Compile Include="Areas\Public\Controllers\PublicBaseController.cs" />
     <Compile Include="Areas\Public\Helpers\CacheExtensions.cs" />
     <Compile Include="Areas\Public\Models\BaseViewModel.cs" />
     <Compile Include="Areas\Public\Models\CategoryItemVm.cs" />
+    <Compile Include="Areas\Public\Models\ContactVm.cs" />
     <Compile Include="Areas\Public\Models\ContentListItemVm.cs" />
     <Compile Include="Areas\Public\Models\MenuItem.cs" />
     <Compile Include="Areas\Public\PublicAreaRegistration.cs" />
@@ -1055,6 +1057,7 @@
     <Content Include="Areas\Public\Views\Content\Read.cshtml" />
     <Content Include="Areas\Public\Views\Shared\_LogoMobile.cshtml" />
     <Content Include="Areas\Public\Views\Shared\_Logo.cshtml" />
+    <Content Include="Areas\Public\Views\Contact\GetPanel.cshtml" />
     <None Include="opendata\7710349494-npalist\data.xsd">
       <SubType>Designer</SubType>
     </None>

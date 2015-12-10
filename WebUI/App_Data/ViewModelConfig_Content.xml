@@ -77,6 +77,39 @@
     </detailview>
     <icon></icon>
   </item>
+
+  <item>
+    <mnemonic>Contact</mnemonic>
+    <title>Контент - Контакты</title>
+    <service>Base.Content.Service.Abstract.IContentItemService, Base.Content</service>
+    <entity>Base.Content.Entities.ContentItem, Base.Content</entity>
+    <listview>
+      <dataSource>
+        <sorts>
+          <sort descriptor="SortOrder" order="desc" />
+        </sorts>
+      </dataSource>
+      <columns>
+        <column propertyName="Date" hidden="true" />
+        <column propertyName="Src" hidden="true" />
+        <column propertyName="Value" hidden="true" />
+      </columns>
+    </listview>
+    <detailview title="Контакты" isMaximaze="true">
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="Article" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+      <editors>
+        <editor propertyName="Date" visible="false" isRequired="false" />
+        <editor propertyName="Src" visible="false" isRequired="false" />
+        <column propertyName="Value" visible="false" />
+      </editors>
+    </detailview>
+    <icon></icon>
+  </item>
   
   <!--<item>
     <mnemonic>Person</mnemonic>
