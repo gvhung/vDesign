@@ -390,3 +390,46 @@ form.base-form textarea:focus ~ .highlight {
         background: transparent;
     }
 }
+
+.g-recaptcha > div > div {
+    margin: 0 auto;
+}
+
+
+.uptolike-buttons {
+    text-align: center;
+    margin: 50px auto;
+}
+
+
+.hurma-social {
+    display: block;
+    text-align: center;
+    float: none;
+    overflow: hidden;
+    margin: 50px auto;
+}
+
+.hurma-social a.hurma-social-link {
+    display: inline-block;
+    width: 63px;
+    height: 36px;
+    background-position: top center;
+    background-repeat: no-repeat;
+}
+
+    .hurma-social a.hurma-social-link.vk {
+        background-image: url('../images/vk-soc.png');
+    }
+
+    .hurma-social a.hurma-social-link.fb {
+        background-image: url('../images/fb-soc.png');
+    }
+
+    .hurma-social a.hurma-social-link.tw {
+        background-image: url('../images/tw-soc.png');
+    }
+
+.hurma-social a.hurma-social-link:hover {
+    background-position: bottom center;
+}

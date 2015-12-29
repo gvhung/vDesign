@@ -199,4 +199,27 @@
     <lookupproperty></lookupproperty>
     <icon>halfling halfling-send</icon>
   </item>
+
+  <item>
+    <mnemonic>ContactRequest</mnemonic>
+    <title>Обратная связь</title>
+    <service>Data.Service.Abstract.IContactRequestService, Data</service>
+    <entity>Data.Entities.ContactRequest, Data</entity>
+    <listview>
+      <hiddenActions>
+        <action id="Create"/>
+        <action id="Delete"/>
+      </hiddenActions>
+    </listview>
+    <detailview>
+      <toolbars>
+        <toolbar title="Действия" controller="BusinessProcess" action="GetToolbar" ajax="true">
+          <param key="mnemonic" value="UserPromotion" />
+          <param key="objectid" value="[ID]" />
+        </toolbar>
+      </toolbars>
+    </detailview>
+    <lookupproperty></lookupproperty>
+    <icon>halfling halfling-send</icon>
+  </item>
 </ViewModelConfig>

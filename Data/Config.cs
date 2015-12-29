@@ -142,7 +142,9 @@ namespace Data
                 .Entity<ConferenceMember>()
                 .Entity<ConferenceMessage>()
                 .Entity<PublicMessage>()
-                .Entity<PrivateMessage>();
+                .Entity<PrivateMessage>()
+                
+                .Entity<ContactRequest>();
 
         }
     }

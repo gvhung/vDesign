@@ -7,14 +7,15 @@ using Framework.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 
 namespace Base.Task.Services
 {
     public class TaskService : BaseCategorizedItemService<Entities.Task>, ITaskService
     {
         private readonly ICacheWrapper _cacheWrapper;
-        private const string cacheKey = "DAF73082-D9AA-45B4-9BF0-27AFEA32B499";
-        private static object cacheLock = new object();
+        private const string CacheKey = "DAF73082-D9AA-45B4-9BF0-27AFEA32B499";
+        private static readonly object CacheLock = new object();
 
         public TaskService(IBaseObjectServiceFacade facade, ICacheWrapper cacheWrapper)
             : base(facade)
@@ -24,7 +25,22 @@ namespace Base.Task.Services
 
         private string GetKeyCache(int userID)
         {
-            return String.Format("{0}-{1}", cacheKey, userID);
+            return string.Format("{0}-{1}", CacheKey, userID);
+        }
+
+        public bool HasUserCache(int userID, string key)
+        {
+            var hasCache = false;
+
+            var userKey = GetKeyCache(userID);
+
+            lock (CacheLock)
+            {
+                if (_cacheWrapper[userKey] != null && ((Dictionary<string, object>) _cacheWrapper[userKey]).ContainsKey(key))
+                    hasCache = true;
+            }
+
+            return hasCache;
         }
 
         public object GetUserCache(int userID, string key, Func<object> value)
@@ -33,7 +49,7 @@ namespace Base.Task.Services
 
             if (_cacheWrapper[userKey] == null)
             {
-                lock (cacheLock)
+                lock (CacheLock)
                 {
                     if (_cacheWrapper[userKey] == null)
                         _cacheWrapper[userKey] = new Dictionary<string, object>();
@@ -45,7 +61,7 @@ namespace Base.Task.Services
             if (cacheUser.ContainsKey(key))
                 return cacheUser[key];
 
-            lock (cacheLock)
+            lock (CacheLock)
             {
                 if (!cacheUser.ContainsKey(key))
                     if (cacheUser.ContainsKey(key)) return cacheUser[key];
@@ -56,9 +72,56 @@ namespace Base.Task.Services
             return cacheUser[key];
         }
 
+        public object GetUserCache(int userID, string key, object value)
+        {
+            string userKey = GetKeyCache(userID);
+
+            if (_cacheWrapper[userKey] == null)
+            {
+                lock (CacheLock)
+                {
+                    if (_cacheWrapper[userKey] == null)
+                        _cacheWrapper[userKey] = new Dictionary<string, object>();
+                }
+            }
+
+            var cacheUser = _cacheWrapper[userKey] as Dictionary<string, object>;
+
+            if (cacheUser.ContainsKey(key))
+                return cacheUser[key];
+
+            lock (CacheLock)
+            {
+                if (!cacheUser.ContainsKey(key))
+                    if (cacheUser.ContainsKey(key)) return cacheUser[key];
+
+                cacheUser.Add(key, value);
+            }
+
+            return cacheUser[key];
+        }
+
+        public object GetUserCache(int userID, string key)
+        {
+            var userKey = GetKeyCache(userID);
+
+            lock (CacheLock)
+            {
+                if (_cacheWrapper[userKey] != null &&
+                    ((Dictionary<string, object>) _cacheWrapper[userKey]).ContainsKey(key))
+                {
+                    var cache = ((Dictionary<string, object>) _cacheWrapper[userKey]);
+                    if (cache.ContainsKey(key))
+                        return cache[key];
+                }
+            }
+
+            return null;
+        }
+
         public void RemoveUserCache(int userID)
         {
-            lock (cacheLock)
+            lock (CacheLock)
             {
                 _cacheWrapper.Remove(GetKeyCache(userID));
             }

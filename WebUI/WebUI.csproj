@@ -227,6 +227,7 @@
     <Compile Include="Areas\Public\Models\ContactVm.cs" />
     <Compile Include="Areas\Public\Models\ContentListItemVm.cs" />
     <Compile Include="Areas\Public\Models\MenuItem.cs" />
+    <Compile Include="Areas\Public\Models\ReCaptchaClass.cs" />
     <Compile Include="Areas\Public\PublicAreaRegistration.cs" />
     <Compile Include="Areas\Public\Service\ContentPageService.cs" />
     <Compile Include="Areas\Public\Service\HomePageService.cs" />
@@ -428,9 +429,12 @@
     <Content Include="Areas\Public\content\images\44444446901889-redhead-wallpaper.png" />
     <Content Include="Areas\Public\content\images\55555556901889-redhead-wallpaper.png" />
     <Content Include="Areas\Public\content\images\favicon.png" />
+    <Content Include="Areas\Public\content\images\fb-soc.png" />
     <Content Include="Areas\Public\content\images\footer-button.png" />
     <Content Include="Areas\Public\content\images\logo-mobile.png" />
     <Content Include="Areas\Public\content\images\logo.png" />
+    <Content Include="Areas\Public\content\images\tw-soc.png" />
+    <Content Include="Areas\Public\content\images\vk-soc.png" />
     <Content Include="Areas\Public\content\svg\footer.svg" />
     <Content Include="Areas\Public\content\svg\logo.svg" />
     <Content Include="Areas\Public\vendor\bootstrap\css\bootstrap-theme.css" />
@@ -441,6 +445,7 @@
     <Content Include="Areas\Public\vendor\bootstrap\js\bootstrap.js" />
     <Content Include="Areas\Public\vendor\bootstrap\js\bootstrap.min.js" />
     <Content Include="Areas\Public\vendor\bootstrap\js\npm.js" />
+    <Content Include="Areas\Public\vendor\glow\jquery.bootstrap-growl.min.js" />
     <Content Include="Areas\Public\vendor\jquery\jquery-2.1.4.min.js" />
     <Content Include="Areas\Public\vendor\waypoints\jquery.waypoints.js" />
     <Content Include="Content\bootstrap.css" />

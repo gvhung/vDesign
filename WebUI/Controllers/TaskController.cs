@@ -5,6 +5,7 @@ using Framework;
 using System;
 using System.Linq;
 using System.Web.Mvc;
+using Framework.Wrappers;
 using WebUI.Models.Task;
 using SystemTask = System.Threading.Tasks;
 
@@ -13,11 +14,13 @@ namespace WebUI.Controllers
     public class TaskController : BaseController
     {
         private readonly ITaskService _taskService;
+        private readonly ICacheWrapper _cacheWrapper;
 
-        public TaskController(IBaseControllerServiceFacade baseServiceFacade, ITaskService taskService)
+        public TaskController(IBaseControllerServiceFacade baseServiceFacade, ITaskService taskService, ICacheWrapper cacheWrapper)
             : base(baseServiceFacade)
         {
             _taskService = taskService;
+            _cacheWrapper = cacheWrapper;
         }
 
         public ActionResult Toolbar(int? taskID)
@@ -93,29 +96,37 @@ namespace WebUI.Controllers
             return new JsonNetResult(new { error = intError, message = strMsg });
         }
 
-        public async SystemTask.Task<ActionResult> GetMyTasks(int maxcount = -1)
+        public ActionResult GetMyTasks(int maxcount = -1)
         {
             const string key = "{4099E458-FEA8-49DD-BD2B-233F3E38D891}";
+            object result;
 
-            return Content(
-                _taskService.GetUserCache(
-                    AppContext.SecurityUser.ID, key, () =>
-                    {
-                        using (var uofw = CreateUnitOfWork())
-                        {
-                            var res = _taskService.GetAll(uofw)
-                                .Where(x => x.AssignedToID == AppContext.SecurityUser.ID)
-                                .Where(x => x.Status == TaskStatus.New || x.Status == TaskStatus.Viewed || x.Status == TaskStatus.InProcess || x.Status == TaskStatus.Rework)
-                                .OrderByDescending(x => x.Period.Start)
-                                .AsQueryable();
 
-                            if (maxcount > 0)
-                                res = res.Take(maxcount);
+            if (_taskService.HasUserCache(AppContext.SecurityUser.ID, key))
+            {
+                result = _taskService.GetUserCache(AppContext.SecurityUser.ID, key);
+            }
+            else
+            {
+                using (var uofw = CreateUnitOfWork())
+                {
+                    var res = _taskService.GetAll(uofw)
+                        .Where(x => x.AssignedToID == AppContext.SecurityUser.ID)
+                        .Where(x => x.Status == TaskStatus.New || x.Status == TaskStatus.Viewed || x.Status == TaskStatus.InProcess || x.Status == TaskStatus.Rework)
+                        .OrderByDescending(x => x.Period.Start)
+                        .AsQueryable();
 
-                            return new JsonNetResult(res, GetListBoContractResolver("Task")).ToString();
-                        }
-                    }).ToString(), "text/json");
+                    if (maxcount > 0)
+                        res = res.Take(maxcount);
 
+                    result = new JsonNetResult(res.ToList(), GetListBoContractResolver("Task"));
+                }
+
+                _taskService.GetUserCache(AppContext.SecurityUser.ID, key, result);
+            }
+
+
+            return (JsonNetResult)result;
         }
     }
 }

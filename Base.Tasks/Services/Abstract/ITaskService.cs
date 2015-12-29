@@ -6,7 +6,10 @@ namespace Base.Task.Services
 {
     public interface ITaskService : IBaseCategorizedItemService<Entities.Task>
     {
+        bool HasUserCache(int userID, string key);
         object GetUserCache(int userID, string key, Func<object> value);
+        object GetUserCache(int userID, string key, object value);
+        object GetUserCache(int userID, string key);
         void RemoveUserCache(int userID);
 
         void AddItemToChangeHistory(Entities.Task task, string comment = null);

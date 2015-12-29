@@ -10,8 +10,10 @@
     <item mnemonic="Subscribe" title="Управление подписками" />
   </item>-->
   
-  <item title="Связь" icon="glyphicon glyphicon-headset" url="/Conference/Index"/>
-
+  <!--<item title="Связь" icon="glyphicon glyphicon-headset" url="/Conference/Index"/>-->
+  
+  <item title="Обратная связь" icon="glyphicon glyphicon-headset" mnemonic="ContactRequest"/>
+  
   <item title="Задачи" icon="halfling halfling-tasks">
     <item mnemonic="OutTask" title="Исходящие" />
     <item mnemonic="InTask" title="Входящие" />

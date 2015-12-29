@@ -87,6 +87,7 @@
     <Compile Include="Consts\NpaCategory.cs" />
     <Compile Include="Consts\Settings.cs" />
     <Compile Include="EF\Configuration.cs" />
+    <Compile Include="Entities\ContactRequest.cs" />
     <Compile Include="Entities\DescriptionLookupVm.cs" />
     <Compile Include="Entities\ItemContactList.cs" />
     <Compile Include="Entities\Okved.cs" />
@@ -107,6 +108,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Service\Abstract\IContactListService.cs" />
+    <Compile Include="Service\Abstract\IContactRequestService.cs" />
     <Compile Include="Service\Abstract\IRequestLogService.cs" />
     <Compile Include="Service\Abstract\IOkvedService.cs" />
     <Compile Include="Service\Abstract\IUserPromotionService.cs" />
@@ -118,6 +120,7 @@
     <Compile Include="Service\Abstract\Workgroup\IWorkgroupExpertService.cs" />
     <Compile Include="Service\Abstract\Workgroup\IWorkgroupService.cs" />
     <Compile Include="Service\Concrete\ContactListService.cs" />
+    <Compile Include="Service\Concrete\ContactRequestService.cs" />
     <Compile Include="Service\Concrete\GuestRoleProvider.cs" />
     <Compile Include="Service\Concrete\RequestLogService .cs" />
     <Compile Include="Service\Concrete\OkvedService.cs" />

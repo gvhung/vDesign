@@ -179,7 +179,8 @@
         var dialog = $(this).closest(".dialog-vm").data("dialogVM");
         debugger;
         var model = dialog.getCurrentModel();
-        var wfID = model.WorkflowContext.WorkflowID;
+        var wfID = model.WorkflowContextID; //WorkflowContext.WorkflowID;
+        console.log("Workflow ID:", wfID);
         pbaAPI.openWorkflowTimelineModal("@Model.ObjectType", @Model.ObjectID, wfID);
     });
 </script>

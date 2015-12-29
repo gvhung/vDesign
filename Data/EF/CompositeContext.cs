@@ -1,4 +1,5 @@
-﻿using Base.Conference.Entities;
+﻿using System;
+using Base.Conference.Entities;
 using Base.DAL;
 using Base.DAL.EF;
 using System.Data.Entity;
@@ -16,6 +17,8 @@ namespace Data.EF
 
         public CompositeContext()
         {
+            //_entityConfiguration = new EntityConfiguration();
+            //Config.Init(_entityConfiguration);
         }
 
         public CompositeContext(IEntityConfiguration entityConfiguration)
@@ -35,6 +38,15 @@ namespace Data.EF
                 .HasForeignKey(x => x.ToConferenceId);
 
             base.OnModelCreating(modelBuilder);
+
+            //foreach (var config in _entityConfiguration.GetContextConfig(this))
+            //{
+            //    var method = modelBuilder.GetType().GetMethod("Entity");
+            //    method = method.MakeGenericMethod(new Type[] { config.EntityType });
+            //    method.Invoke(modelBuilder, null);
+            //}
+
+            //modelBuilder.Conventions.Add(new NonPublicColumnAttributeConvention());
         }
 
 

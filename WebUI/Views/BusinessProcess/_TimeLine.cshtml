@@ -53,7 +53,7 @@
 
 <script>
     $(function () {
-        var performers = @Html.Raw(Model.GetAllUsersString());
+        var performers = "@Model.GetAllUsersString()";
 
         $("#@wrapID").find("[data-report]").click(function () {
             $("<div />").kendoWindow({

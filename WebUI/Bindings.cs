@@ -334,6 +334,8 @@ namespace WebUI
             Bind<IPrivateMessageService>().To<PrivateMessageService>();
             Bind<IPublicMessageService>().To<PublicMessageService>();
 
+            Bind<IContactRequestService>().To<ContactRequestService>();
+
         }
 
         #region Activation methods
