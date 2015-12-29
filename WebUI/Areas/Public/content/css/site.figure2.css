@@ -18,7 +18,7 @@ figure img {
 	display: block;
 	min-height: 100%;
 	max-width: 100%;
-	opacity: 0.8;
+	/*opacity: 0.8;*/
 }
 
 figure figcaption {
@@ -71,7 +71,7 @@ figure p {
 figure p {
 	letter-spacing: 1px;
 	font-size: 68.5%;
-    color: #ffc200;
+    color: #333436;
 }
 
 /* Individual effects */
@@ -164,7 +164,7 @@ figure.effect-julia:hover p {
 /*-----------------*/
 
 figure.effect-goliath {
-	background: #333436;
+	background: #FFC200;
 }
 
 figure.effect-goliath img,
@@ -189,6 +189,7 @@ figure.effect-goliath p {
 figure.effect-goliath p {
 	text-transform: none;
 	font-size: 90%;
+    font-weight: bold;
 	opacity: 0;
 	-webkit-transition: opacity 0.35s, -webkit-transform 0.35s;
 	transition: opacity 0.35s, transform 0.35s;
