@@ -18,7 +18,7 @@ figure img {
 	display: block;
 	min-height: 100%;
 	max-width: 100%;
-	/*opacity: 0.8;*/
+	opacity: 0.8;
 }
 
 figure figcaption {
@@ -164,7 +164,7 @@ figure.effect-julia:hover p {
 /*-----------------*/
 
 figure.effect-goliath {
-	background: #FFC200;
+	background: #565552;
 }
 
 figure.effect-goliath img,
@@ -195,6 +195,7 @@ figure.effect-goliath p {
 	transition: opacity 0.35s, transform 0.35s;
 	-webkit-transform: translate3d(0,50px,0);
 	transform: translate3d(0,50px,0);
+    background: #FCC10C;
 }
 
 figure.effect-goliath:hover img {
