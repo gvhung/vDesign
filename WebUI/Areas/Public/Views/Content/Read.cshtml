@@ -12,3 +12,18 @@
 
     @Html.Partial("_ContentItem", Model.ContentItem)
 </div>
+
+<style>
+    .btn.btn-default.btn-form-submit {
+        background-image: none;
+        box-shadow: none;
+        border: 2px solid @Model.ThemeColor !important;
+        color: @Model.ThemeColor;
+        background-color: transparent;
+        padding: 10px 12px;
+    }
+    .btn.btn-default.btn-form-submit:focus, .btn.btn-default.btn-form-submit:hover {
+        background-color: @Model.ThemeColor !important;
+        color: #fff0f5;
+    }
+</style>

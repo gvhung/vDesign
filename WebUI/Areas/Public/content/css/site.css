@@ -95,7 +95,7 @@ h1 {
     .navbar-collapse.collapse {
         margin-right: auto;
         margin-left: auto;
-        width: 550px;
+        width: 650px;
     }
 }
 
@@ -278,7 +278,7 @@ form.base-form input, form.base-form textarea {
     width: 100%;
     border: none;
     border-bottom: 1px solid #757575;
-    background-color: #F9F6FA;
+    background-color: transparent;
 }
 
 form.base-form textarea {

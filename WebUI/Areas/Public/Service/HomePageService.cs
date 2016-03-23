@@ -22,7 +22,7 @@ namespace WebUI.Areas.Public.Service
         public async Task<List<ContentListItemVm>> GetContentListItems(IUnitOfWork uofw, int page = 1)
         {
             var startIndex = (page - 1) * pageSize;
-            return await _contentItemService.GetAll(uofw).Where(x => x.OnHome).OrderByDescending(x => x.Top).ThenBy(x => x.ID).Select(x => new ContentListItemVm()
+            return await _contentItemService.GetAll(uofw).Where(x => x.OnHome).OrderByDescending(x => x.ID).ThenBy(x => x.Top).Select(x => new ContentListItemVm()
             {
                 Id = x.ID,
                 Title = x.Title,

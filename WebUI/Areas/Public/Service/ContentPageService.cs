@@ -46,8 +46,8 @@ namespace WebUI.Areas.Public.Service
                 await
                     _contentItemService.GetAll(uofw)
                         .Where(x => x.CategoryID == id)
-                        .OrderByDescending(x => x.Top)
-                        .ThenBy(x => x.ID)
+                        .OrderByDescending(x => x.ID)
+                        .ThenBy(x => x.Top)
                         .Select(x => new ContentItemVm()
                         {
                             Id = x.ID,
