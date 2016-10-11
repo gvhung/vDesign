@@ -4,7 +4,7 @@
     ViewBag.Title = "Главная";
 }
 
-<style>
+@*<style>
     figure {
         max-height: 420px;
         min-height: 375px;
@@ -23,10 +23,12 @@
             width: 255px;
         }
     }
-</style>
+</style>*@
 
 <div class="container-fluid" id="home-page-content">
-    @{Html.RenderAction("ContentItems", "Home", new { model = Model.ContentItems });}
+    <div class="row row-list">
+        @{Html.RenderAction("ContentItems", "Home", new { model = Model.ContentItems });}
+    </div>
 </div>
 
 @section scripts {
@@ -59,7 +61,7 @@
 
                         page = page + 1;
                         NoMoreData = data.NoMoreData;
-                        $("#home-page-content").append(data.HTMLString);
+                        $("#home-page-content > .row").append(data.HTMLString);
                         //$("#loadingDiv").hide();
                         inProgress = false;
                     });

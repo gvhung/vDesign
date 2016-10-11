@@ -222,6 +222,7 @@
     <Compile Include="Areas\Public\Controllers\HomeController.cs" />
     <Compile Include="Areas\Public\Controllers\PublicBaseController.cs" />
     <Compile Include="Areas\Public\Helpers\CacheExtensions.cs" />
+    <Compile Include="Areas\Public\Helpers\ColorExtensions.cs" />
     <Compile Include="Areas\Public\Models\BaseViewModel.cs" />
     <Compile Include="Areas\Public\Models\CategoryItemVm.cs" />
     <Compile Include="Areas\Public\Models\ContactVm.cs" />

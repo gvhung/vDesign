@@ -2,22 +2,26 @@
 
 @if (Model.Any())
 {
-    <div class="row">
+    <div class="row row-list">
         @{
             foreach (var item in Model)
             {
-                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12 col-centered">
-                    <figure class="effect-goliath">
-                        <img src="/Files/GetImage?id=@(item.ImageId)&width=285&height=420" alt="@item.Desciption" />
-                        <figcaption>
-                            <h2>@item.Title.Split(' ')[0]<span>@item.Title.Substring(item.Title.Split(' ')[0].Length)</span></h2>
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12 col-centered col-list">
+                    <div class="content-smart-wrapper ratio-3-2">
+                        <div class="content-smart-wrapper-inside">
+                            <figure class="effect-goliath">
+                                <div class="figure-preview" style="background-image: url(/Files/GetImage?id=@(item.ImageId)&width=640&height=480)"></div>
+                                <figcaption>
+                                    <h2>@item.Title.Split(' ')[0]<span>@item.Title.Substring(item.Title.Split(' ')[0].Length)</span></h2>
 
 
-                            <p><span>@item.Desciption</span></p>
+                                    <p><span>@item.Desciption</span></p>
 
-                            <a href="@Url.Action("Read", "Content", new { id = item.Id })">Подробнее</a>
-                        </figcaption>
-                    </figure>
+                                    <a href="@Url.Action("Read", "Content", new {id = item.Id})">Подробнее</a>
+                                </figcaption>
+                            </figure>
+                        </div>
+                    </div>
                 </div>
             }
         }
