@@ -25,7 +25,7 @@
                         <li class="dropdown" data-menu="horizontal-@menuItem.ID">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">@menuItem.Name <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Все</a></li>
+                                @*<li><a href="#">Все</a></li>*@
                                 @foreach (var subItem in menuItem.Children)
                                 {
                                     <li><a href="#">@subItem.Name</a></li>

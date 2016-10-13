@@ -34,7 +34,7 @@ namespace WebUI.Areas.Public.Service
                 categoryItem.ImageId = cat.ImageID.HasValue ? cat.Image.FileID.ToString() : string.Empty;
                 categoryItem.Expand = cat.Expanded;
                 categoryItem.Desciption = cat.PublicTitle;
-                categoryItem.Color = string.IsNullOrEmpty(cat.Color) ? "#FCC10C" : cat.Color;
+                categoryItem.Color = string.IsNullOrEmpty(cat.Color) ? "#4a4560" : cat.Color;
             }
 
             return categoryItem;

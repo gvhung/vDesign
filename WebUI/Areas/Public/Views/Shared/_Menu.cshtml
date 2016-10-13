@@ -31,7 +31,7 @@
                         <li class="dropdown" data-menu="horizontal-@menuItem.Id">
                             @ActiveLinkHelperResult("Category", "Content", menuItem.Title, menuItem.Id, true)
                             <ul class="dropdown-menu">
-                                <li><a href="#">Все</a></li>
+                                @*<li><a href="#">Все</a></li>*@
                                 @foreach (var subItem in menuItem.SubmenuItems)
                                 {
                                     <li>@ActiveLinkHelperResult("Category", "Content", subItem.Title, subItem.Id)</li>
@@ -72,5 +72,9 @@ if (caret)
     }
     .dropdown-menu-horizontal {
         border-top-color: @Model.ThemeColor !important;
+    }
+
+    .navbar-default.hr-navigationbar .navbar-nav > .active > a, .navbar-default.hr-navigationbar .navbar-nav > .open > a {
+        color: @Model.ThemeColor !important;
     }
 </style>

@@ -13,14 +13,12 @@ figure {
 	position: relative;
 	float: left;
 	overflow: hidden;
-	/*margin: 10px 1%;
-	min-width: 320px;
-	max-width: 480px;
-	max-height: 360px;
-	width: 48%;*/
 	background: #3085a3;
 	text-align: center;
 	cursor: pointer;
+    width: 100%;
+    height: 100%;
+    margin: 0;
 }
 
 figure img {
@@ -45,19 +43,20 @@ figure figcaption::after {
 	pointer-events: none;
 }
 
-figure figcaption,
-figure figcaption > a {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
+    figure figcaption,
+    figure figcaption > a {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 400%;
+        right: 0;
+        bottom: 0;
+    }
 
 /* Anchor will cover the whole item by default */
 /* For some effects it will show as a button */
 figure figcaption > a {
-	z-index: 1000;
+	z-index: 9999999999;
 	text-indent: 200%;
 	white-space: nowrap;
 	font-size: 0;
@@ -970,18 +969,22 @@ figure.effect-sarah:hover p {
 /***** Zoe *****/
 /*---------------*/
 
-figure.effect-zoe figcaption {
-	top: auto;
-	bottom: 0;
-	padding: 1em;
-	height: 3.75em;
-	background: #fff;
-	color: #3c4a50;
-	-webkit-transition: -webkit-transform 0.35s;
-	transition: transform 0.35s;
-	-webkit-transform: translate3d(0,100%,0);
-	transform: translate3d(0,100%,0);
-}
+    figure.effect-zoe figcaption {
+        top: auto;
+        bottom: 0;
+        padding: 5px;
+        height: 25%;
+        background: #fff;
+        color: #3c4a50;
+        -webkit-transition: -webkit-transform 0.35s;
+        transition: transform 0.35s;
+        -webkit-transform: translate3d(0,100%,0);
+        transform: translate3d(0,100%,0);
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
 
 figure.effect-zoe h2 {
 	float: left;
@@ -998,18 +1001,23 @@ figure.effect-zoe:hover p.icon-links a:focus {
 	color: #252d31;
 }
 
-figure.effect-zoe p.description {
-	position: absolute;
-	bottom: 8em;
-	padding: 2em;
-	color: #fff;
-	text-transform: none;
-	font-size: 90%;
-	opacity: 0;
-	-webkit-transition: opacity 0.35s;
-	transition: opacity 0.35s;
-	-webkit-backface-visibility: hidden; /* Fix for Chrome 37.0.2062.120 (Mac) */
-}
+    figure.effect-zoe p.description {
+        position: absolute;
+        bottom: 200%;
+        padding: 10px;
+        color: #fff;
+        text-transform: none;
+        font-size: 25px;
+        opacity: 0;
+        -webkit-transition: opacity 0.35s;
+        transition: opacity 0.35s;
+        -webkit-backface-visibility: hidden;
+        height: 150%;
+        margin: -75% 0 auto 0;
+        z-index: 99999;
+        left: 0;
+        right: 0;
+    }
 
 figure.effect-zoe h2,
 figure.effect-zoe p.icon-links a {

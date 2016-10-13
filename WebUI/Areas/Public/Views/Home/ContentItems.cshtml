@@ -5,16 +5,14 @@
         
             foreach (var item in Model)
             {
-                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12 col-centered col-list">
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 col-centered col-list">
                     <div class="content-smart-wrapper ratio-3-2">
                         <div class="content-smart-wrapper-inside">
-                            <figure class="effect-goliath">
+                            <figure class="effect-zoe">
                                 <div class="figure-preview" style="background-image: url(/Files/GetImage?id=@(item.ImageId)&width=640&height=480)"></div>
                                 <figcaption>
                                     <h2>@item.Title.Split(' ')[0]<span>@item.Title.Substring(item.Title.Split(' ')[0].Length)</span></h2>
-
-                                    <p><span>@item.Desciption</span></p>
-
+                                    <p class="description">@item.Desciption</p>
                                     <a href="@Url.Action("Read", "Content", new {id = item.Id})">Подробнее</a>
                                 </figcaption>
                             </figure>
