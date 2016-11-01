@@ -4,27 +4,7 @@
     ViewBag.Title = Model.Category.Title;
 }
 
-@*<style>
-    figure {
-        max-height: 420px;
-        min-width: 255px;
-        width: 255px;
-        margin: 10px auto;
-        float: none;
-        /*font-family: avantgardegothicc-b;*/
-    }
-
-    @@media screen and (max-width: 50em) {
-        figure {
-            display: block;
-            float: none;
-            margin: 10px auto;
-            width: 255px;
-        }
-    }
-</style>*@
-
-<div class="container-fluid" id="home-page-content">
+<div class="container-fluid content-container">
     @if (Model.Category.Expand)
     {
         @*<div class="row">
@@ -50,7 +30,6 @@
             </div>
         </div>
     }
-
 </div>
 
 @helper RenderCategoryMnemonicWidgets(string mnemonic)
