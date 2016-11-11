@@ -1062,8 +1062,9 @@
     <Content Include="Areas\Public\Views\Content\_Categories.cshtml" />
     <Content Include="Areas\Public\Views\Content\Read.cshtml" />
     <Content Include="Areas\Public\Views\Shared\_LogoMobile.cshtml" />
-    <Content Include="Areas\Public\Views\Shared\_Logo.cshtml" />
+    <Content Include="Areas\Public\Views\Shared\_Logo_Old.cshtml" />
     <Content Include="Areas\Public\Views\Contact\GetPanel.cshtml" />
+    <Content Include="Areas\Public\Views\Shared\_Logo.cshtml" />
     <None Include="opendata\7710349494-npalist\data.xsd">
       <SubType>Designer</SubType>
     </None>
